@@ -61,7 +61,7 @@ export default function DiscoveryPage() {
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!query) return;
+    const searchQuery = query.trim() || 'todas as ofertas';
     setSearching(true);
     setResult(null);
 
@@ -71,7 +71,7 @@ export default function DiscoveryPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           platform,
-          query,
+          query: searchQuery,
           category: category || undefined,
           brand: brand || undefined,
           minPrice: minPrice ? parseFloat(minPrice) : undefined,
@@ -91,6 +91,7 @@ export default function DiscoveryPage() {
       setSearching(false);
     }
   };
+
 
   const handleManualImport = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -200,15 +201,16 @@ export default function DiscoveryPage() {
               </div>
 
               <div className="md:col-span-2">
-                <label className="block text-xs font-medium text-gray-400 mb-1">Termo de Busca / Palavra-chave</label>
+                <label className="block text-xs font-medium text-gray-400 mb-1">
+                  Termo de Busca / Palavra-chave <span className="text-[10px] text-gray-500 font-normal">(Opcional - deixe em branco para buscar tudo)</span>
+                </label>
                 <div className="flex items-center gap-2">
                   <input
                     type="text"
-                    placeholder="ex: Kindle Paperwhite, Monitor Gamer 144Hz, SSD NVMe..."
+                    placeholder="ex: Kindle, Monitor, ou deixe em branco para buscar todas as ofertas..."
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
                     className="w-full bg-gray-950 border border-gray-800 rounded-lg px-3 py-2 text-sm text-gray-200 focus:outline-none focus:border-emerald-500"
-                    required
                   />
                   <button
                     type="submit"
@@ -216,7 +218,7 @@ export default function DiscoveryPage() {
                     className="bg-emerald-600 hover:bg-emerald-500 text-white font-medium text-xs px-5 py-2.5 rounded-lg transition-all flex items-center gap-2 shrink-0 disabled:opacity-50"
                   >
                     <Search className="w-3.5 h-3.5" />
-                    <span>{searching ? 'Buscando...' : 'Buscar'}</span>
+                    <span>{searching ? 'Buscando...' : 'Buscar Tudo'}</span>
                   </button>
                 </div>
               </div>
