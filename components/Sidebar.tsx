@@ -31,7 +31,7 @@ const navItems = [
   { name: 'Intelligence Layer', href: '/intelligence', icon: Brain },
   { name: 'Business OS', href: '/business/executive', icon: Briefcase },
   { name: 'Growth Engine', href: '/growth', icon: Sparkles },
-  { name: 'Produtos', href: '/produtos', icon: Package },
+  { name: 'Produtos', href: '/discovery', icon: Package },
   { name: 'Ofertas', href: '/ofertas', icon: Tag },
   { name: 'Conteúdos', href: '/conteudos', icon: FileText },
   { name: 'Campanhas', href: '/campanhas', icon: Megaphone },
