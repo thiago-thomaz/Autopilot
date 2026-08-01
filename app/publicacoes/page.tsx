@@ -1,10 +1,5 @@
-import { ModulePlaceholder } from '@/components/ModulePlaceholder';
+import PublicationsPage from '../publications/page';
 
 export default function PublicacoesPage() {
-  return (
-    <ModulePlaceholder
-      moduleTitle="Fila de Publicações"
-      description="Este módulo exibirá o status de agendamento e envio de mensagens para os canais autorizados."
-    />
-  );
+  return <PublicationsPage />;
 }

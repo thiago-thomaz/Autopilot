@@ -1,10 +1,5 @@
-import { ModulePlaceholder } from '@/components/ModulePlaceholder';
+import CampaignsPage from '../growth/campaigns/page';
 
 export default function CampanhasPage() {
-  return (
-    <ModulePlaceholder
-      moduleTitle="Gestão de Campanhas"
-      description="Este módulo permitirá agrupar conteúdos e promoções em campanhas sazonais ou temáticas com agendamento de início e fim."
-    />
-  );
+  return <CampaignsPage />;
 }
