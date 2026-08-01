@@ -95,12 +95,15 @@ export default function AfiliadosPage() {
     }
   };
 
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
   const handleOpenConfigModal = (platform: Platform) => {
     setSelectedPlatform(platform);
     setAccountName(`Conta ${platform.name}`);
     setPartnerTag('');
     setCredentialId('');
     setCredentialSecret('');
+    setErrorMsg(null);
     setModalOpen(true);
   };
 
@@ -108,6 +111,7 @@ export default function AfiliadosPage() {
     e.preventDefault();
     if (!selectedPlatform) return;
     setSaving(true);
+    setErrorMsg(null);
 
     const credentials: Record<string, string> = {};
     if (partnerTag) credentials.partnerTag = partnerTag;
@@ -130,9 +134,12 @@ export default function AfiliadosPage() {
       if (data.success) {
         setModalOpen(false);
         await loadData();
+      } else {
+        setErrorMsg(data.error || 'Falha ao salvar conta.');
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Erro ao salvar conta:', err);
+      setErrorMsg(err.message || 'Erro de conexão ao salvar.');
     } finally {
       setSaving(false);
     }
@@ -383,6 +390,13 @@ export default function AfiliadosPage() {
             </div>
 
             <form onSubmit={handleSaveAccount} className="space-y-4 text-xs">
+              {errorMsg && (
+                <div className="bg-rose-500/10 border border-rose-500/20 text-rose-300 p-3 rounded-xl flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 shrink-0 text-rose-400" />
+                  <span>{errorMsg}</span>
+                </div>
+              )}
+
               <div>
                 <label className="block text-gray-400 font-medium mb-1">Nome da Conta / Identificador Interno</label>
                 <input

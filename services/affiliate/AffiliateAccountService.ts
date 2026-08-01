@@ -76,8 +76,11 @@ export class AffiliateAccountService {
       }
 
       // Buscar id real da plataforma
+      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(input.affiliatePlatformId);
       let dbPlatform = await prisma.affiliatePlatform.findFirst({
-        where: { OR: [{ id: input.affiliatePlatformId }, { slug: platform.slug }] },
+        where: isUuid
+          ? { OR: [{ id: input.affiliatePlatformId }, { slug: platform.slug }] }
+          : { slug: platform.slug },
       });
 
       if (!dbPlatform) {

@@ -35,10 +35,11 @@ export class AffiliatePlatformService {
 
   public static async getPlatformByIdOrSlug(idOrSlug: string) {
     try {
+      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(idOrSlug);
       const platform = await prisma.affiliatePlatform.findFirst({
-        where: {
-          OR: [{ id: idOrSlug }, { slug: idOrSlug }],
-        },
+        where: isUuid
+          ? { OR: [{ id: idOrSlug }, { slug: idOrSlug }] }
+          : { slug: idOrSlug },
       });
       if (platform) return platform;
     } catch {
