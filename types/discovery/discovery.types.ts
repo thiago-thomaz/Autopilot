@@ -10,7 +10,7 @@ export const DiscoveryRequestSchema = z.object({
   maxPrice: z.number().min(0).optional(),
   minRating: z.number().min(0).max(5).optional(),
   sortBy: z.enum(['RELEVANCE', 'PRICE_LOW_HIGH', 'PRICE_HIGH_LOW', 'RATING', 'NEWEST']).optional().default('RELEVANCE'),
-  limit: z.number().int().min(1).max(10, 'Limite máximo de 10 produtos por requisição').optional().default(10),
+  limit: z.number().int().min(1).max(50, 'Limite máximo de 50 produtos por requisição').optional().default(20),
   page: z.number().int().min(1).max(10, 'Página máxima é 10').optional().default(1),
   country: z.string().optional().default('BR'),
   language: z.string().optional().default('pt-BR'),

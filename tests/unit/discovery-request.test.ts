@@ -21,11 +21,11 @@ describe('DiscoveryRequestSchema (Validação de Requisição)', () => {
     expect(result.success).toBe(false);
   });
 
-  it('deve limitar o valor máximo de limit em 10 produtos por requisição', () => {
+  it('deve limitar o valor máximo de limit em 50 produtos por requisição', () => {
     const raw = {
       platform: 'amazon-brasil',
       query: 'Kindle',
-      limit: 50, // Excede o limite máximo
+      limit: 100, // Excede o limite máximo de 50
     };
     const result = DiscoveryRequestSchema.safeParse(raw);
     expect(result.success).toBe(false);

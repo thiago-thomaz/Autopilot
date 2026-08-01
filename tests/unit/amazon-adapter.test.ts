@@ -35,4 +35,19 @@ describe('AmazonAdapter & AFFILIATE_MOCK_MODE', () => {
     expect(result.manualActionRequired).toBe(false);
     expect(result.affiliateUrl).toContain('tag=meutag-20');
   });
+
+  it('deve retornar produtos de Alimentos e Bebidas ao buscar por termos alimentícios', async () => {
+    const products = await adapter.searchProducts('café', { partnerTag: 'meutag-20' });
+    expect(products.length).toBeGreaterThan(0);
+    const hasFood = products.some(p => p.category === 'Alimentos e Bebidas' || p.title.toLowerCase().includes('café'));
+    expect(hasFood).toBe(true);
+  });
+
+  it('deve retornar mix de múltiplos departamentos ao buscar com termo em branco/geral', async () => {
+    const products = await adapter.searchProducts('todas as ofertas', { partnerTag: 'meutag-20' });
+    expect(products.length).toBeGreaterThan(5);
+    const categories = new Set(products.map(p => p.category));
+    expect(categories.has('Alimentos e Bebidas')).toBe(true);
+    expect(categories.has('Casa e Cozinha')).toBe(true);
+  });
 });

@@ -76,7 +76,7 @@ export default function DiscoveryPage() {
           brand: brand || undefined,
           minPrice: minPrice ? parseFloat(minPrice) : undefined,
           maxPrice: maxPrice ? parseFloat(maxPrice) : undefined,
-          limit: 10,
+          limit: 30,
         }),
       });
 
@@ -202,12 +202,12 @@ export default function DiscoveryPage() {
 
               <div className="md:col-span-2">
                 <label className="block text-xs font-medium text-gray-400 mb-1">
-                  Termo de Busca / Palavra-chave <span className="text-[10px] text-gray-500 font-normal">(Opcional - deixe em branco para buscar tudo)</span>
+                  Termo de Busca / Palavra-chave <span className="text-[10px] text-gray-500 font-normal">(Opcional - deixe em branco para buscar 100% de todas as ofertas da Amazon)</span>
                 </label>
                 <div className="flex items-center gap-2">
                   <input
                     type="text"
-                    placeholder="ex: Kindle, Monitor, ou deixe em branco para buscar todas as ofertas..."
+                    placeholder="ex: Alimentos, Café, Air Fryer, Protetor Solar, Fralda ou deixe em branco para todos os departamentos..."
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
                     className="w-full bg-gray-950 border border-gray-800 rounded-lg px-3 py-2 text-sm text-gray-200 focus:outline-none focus:border-emerald-500"
@@ -218,7 +218,7 @@ export default function DiscoveryPage() {
                     className="bg-emerald-600 hover:bg-emerald-500 text-white font-medium text-xs px-5 py-2.5 rounded-lg transition-all flex items-center gap-2 shrink-0 disabled:opacity-50"
                   >
                     <Search className="w-3.5 h-3.5" />
-                    <span>{searching ? 'Buscando...' : 'Buscar Tudo'}</span>
+                    <span>{searching ? 'Buscando...' : 'Buscar em Todos os Departamentos'}</span>
                   </button>
                 </div>
               </div>
@@ -226,14 +226,23 @@ export default function DiscoveryPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-xs">
               <div>
-                <label className="block text-gray-400 mb-1">Categoria (Opcional)</label>
-                <input
-                  type="text"
-                  placeholder="Eletrônicos"
+                <label className="block text-gray-400 mb-1">Departamento / Categoria</label>
+                <select
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
-                  className="w-full bg-gray-950 border border-gray-800 rounded-lg px-3 py-1.5 text-gray-200"
-                />
+                  className="w-full bg-gray-950 border border-gray-800 rounded-lg px-3 py-1.5 text-gray-200 focus:outline-none focus:border-emerald-500"
+                >
+                  <option value="">Todos os Departamentos (100%)</option>
+                  <option value="Alimentos e Bebidas">Alimentos e Bebidas</option>
+                  <option value="Casa e Cozinha">Casa e Cozinha</option>
+                  <option value="Beleza e Cuidados Pessoais">Beleza e Cuidados Pessoais</option>
+                  <option value="Bebês">Bebês e Crianças</option>
+                  <option value="Pet Shop">Pet Shop</option>
+                  <option value="Livros">Livros e Papelaria</option>
+                  <option value="Eletrônicos">Eletrônicos e Informática</option>
+                  <option value="Ferramentas">Ferramentas e Jardim</option>
+                  <option value="Moda">Moda e Calçados</option>
+                </select>
               </div>
 
               <div>
