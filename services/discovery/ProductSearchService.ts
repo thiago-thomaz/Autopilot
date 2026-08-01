@@ -47,7 +47,7 @@ export class ProductSearchService {
         id: `account_${platformSlug}`,
         affiliatePlatformId: platformSlug,
         affiliatePlatform: { slug: platformSlug, name: 'Amazon Brasil' },
-        credentialsEncrypted: CredentialVault.encryptCredential({ partnerTag: 'thomazpromos-20' }),
+        credentialsEncrypted: CredentialVault.setCredential('amazon-brasil', { partnerTag: 'thomazpromos-20' }),
       };
     }
 
