@@ -1,0 +1,75 @@
+{
+  "name": "MÓDULO 12 — Business Operating System Workflows",
+  "workflows": [
+    {
+      "name": "BUSINESS DAILY",
+      "nodes": [
+        { "name": "Cron Daily 07:00", "type": "n8n-nodes-base.cron", "parameters": { "triggerTimes": { "item": [{ "hour": 7 }] } } },
+        { "name": "HTTP Get Daily Briefing", "type": "n8n-nodes-base.httpRequest", "parameters": { "url": "http://localhost:3000/api/business/briefing", "method": "GET" } }
+      ]
+    },
+    {
+      "name": "BUSINESS WEEKLY",
+      "nodes": [
+        { "name": "Cron Weekly Mon 08:00", "type": "n8n-nodes-base.cron", "parameters": { "triggerTimes": { "item": [{ "hour": 8, "weekday": 1 }] } } },
+        { "name": "HTTP Get Weekly Dashboard", "type": "n8n-nodes-base.httpRequest", "parameters": { "url": "http://localhost:3000/api/business/dashboard", "method": "GET" } }
+      ]
+    },
+    {
+      "name": "BUSINESS MONTHLY",
+      "nodes": [
+        { "name": "Cron Monthly 1st 09:00", "type": "n8n-nodes-base.cron", "parameters": { "triggerTimes": { "item": [{ "hour": 9, "dayOfMonth": 1 }] } } },
+        { "name": "HTTP Get Financials DRE", "type": "n8n-nodes-base.httpRequest", "parameters": { "url": "http://localhost:3000/api/business/financials", "method": "GET" } }
+      ]
+    },
+    {
+      "name": "FINANCIAL CONTROL",
+      "nodes": [
+        { "name": "Cron Daily 12:00", "type": "n8n-nodes-base.cron", "parameters": { "triggerTimes": { "item": [{ "hour": 12 }] } } },
+        { "name": "HTTP Get Financial DRE", "type": "n8n-nodes-base.httpRequest", "parameters": { "url": "http://localhost:3000/api/business/financials", "method": "GET" } }
+      ]
+    },
+    {
+      "name": "CASH FLOW",
+      "nodes": [
+        { "name": "Cron Daily 15:00", "type": "n8n-nodes-base.cron", "parameters": { "triggerTimes": { "item": [{ "hour": 15 }] } } },
+        { "name": "HTTP Get CashFlow Statement", "type": "n8n-nodes-base.httpRequest", "parameters": { "url": "http://localhost:3000/api/business/cashflow", "method": "GET" } }
+      ]
+    },
+    {
+      "name": "COST CONTROL",
+      "nodes": [
+        { "name": "Cron Daily 18:00", "type": "n8n-nodes-base.cron", "parameters": { "triggerTimes": { "item": [{ "hour": 18 }] } } },
+        { "name": "HTTP Get Goals & Expenses", "type": "n8n-nodes-base.httpRequest", "parameters": { "url": "http://localhost:3000/api/business/goals", "method": "GET" } }
+      ]
+    },
+    {
+      "name": "PORTFOLIO REBALANCE",
+      "nodes": [
+        { "name": "Cron Weekly Sun 20:00", "type": "n8n-nodes-base.cron", "parameters": { "triggerTimes": { "item": [{ "hour": 20, "weekday": 0 }] } } },
+        { "name": "HTTP Get Portfolio Rebalance", "type": "n8n-nodes-base.httpRequest", "parameters": { "url": "http://localhost:3000/api/business/portfolio", "method": "GET" } }
+      ]
+    },
+    {
+      "name": "RISK MONITOR",
+      "nodes": [
+        { "name": "Cron Every 2 Hours", "type": "n8n-nodes-base.cron", "parameters": { "triggerTimes": { "item": [{ "minute": 0 }] } } },
+        { "name": "HTTP Get Risks Radar", "type": "n8n-nodes-base.httpRequest", "parameters": { "url": "http://localhost:3000/api/business/risks", "method": "GET" } }
+      ]
+    },
+    {
+      "name": "COMMISSION MONITOR",
+      "nodes": [
+        { "name": "Cron Daily 10:00", "type": "n8n-nodes-base.cron", "parameters": { "triggerTimes": { "item": [{ "hour": 10 }] } } },
+        { "name": "HTTP Get Financials", "type": "n8n-nodes-base.httpRequest", "parameters": { "url": "http://localhost:3000/api/business/financials", "method": "GET" } }
+      ]
+    },
+    {
+      "name": "EXECUTIVE REPORT",
+      "nodes": [
+        { "name": "Cron Daily 22:00", "type": "n8n-nodes-base.cron", "parameters": { "triggerTimes": { "item": [{ "hour": 22 }] } } },
+        { "name": "HTTP Get Executive Briefing", "type": "n8n-nodes-base.httpRequest", "parameters": { "url": "http://localhost:3000/api/business/briefing", "method": "GET" } }
+      ]
+    }
+  ]
+}

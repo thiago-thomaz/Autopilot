@@ -1,0 +1,89 @@
+{
+  "name": "MÓDULO 13 — Autonomous Intelligence & Decision Layer Workflows",
+  "workflows": [
+    {
+      "name": "M13-01 — Event Intake",
+      "nodes": [
+        { "name": "Webhook Inbound Event", "type": "n8n-nodes-base.webhook", "parameters": { "path": "intelligence/event", "responseMode": "onReceived" } },
+        { "name": "HTTP Post Ingestion", "type": "n8n-nodes-base.httpRequest", "parameters": { "url": "http://localhost:3000/api/v1/intelligence/event", "method": "POST" } }
+      ]
+    },
+    {
+      "name": "M13-02 — Intelligence Processing",
+      "nodes": [
+        { "name": "Cron Every 15 Min", "type": "n8n-nodes-base.cron", "parameters": { "triggerTimes": { "item": [{ "minute": 15 }] } } },
+        { "name": "HTTP Post Decision Cycle", "type": "n8n-nodes-base.httpRequest", "parameters": { "url": "http://localhost:3000/api/v1/intelligence/decision", "method": "POST" } }
+      ]
+    },
+    {
+      "name": "M13-03 — Opportunity Detection",
+      "nodes": [
+        { "name": "Cron Every Hour", "type": "n8n-nodes-base.cron", "parameters": { "triggerTimes": { "item": [{ "minute": 0 }] } } },
+        { "name": "HTTP Get Opportunities", "type": "n8n-nodes-base.httpRequest", "parameters": { "url": "http://localhost:3000/api/v1/intelligence/opportunities", "method": "GET" } }
+      ]
+    },
+    {
+      "name": "M13-04 — Risk Detection",
+      "nodes": [
+        { "name": "Cron Every 30 Min", "type": "n8n-nodes-base.cron", "parameters": { "triggerTimes": { "item": [{ "minute": 30 }] } } },
+        { "name": "HTTP Get Risks Radar", "type": "n8n-nodes-base.httpRequest", "parameters": { "url": "http://localhost:3000/api/v1/intelligence/risks", "method": "GET" } }
+      ]
+    },
+    {
+      "name": "M13-05 — Decision Processing",
+      "nodes": [
+        { "name": "Webhook Inbound Decision", "type": "n8n-nodes-base.webhook", "parameters": { "path": "intelligence/decision-trigger", "responseMode": "onReceived" } },
+        { "name": "HTTP Post Decision", "type": "n8n-nodes-base.httpRequest", "parameters": { "url": "http://localhost:3000/api/v1/intelligence/decision", "method": "POST" } }
+      ]
+    },
+    {
+      "name": "M13-06 — Approval Flow",
+      "nodes": [
+        { "name": "Webhook Inbound Approval Response", "type": "n8n-nodes-base.webhook", "parameters": { "path": "intelligence/approval-response", "responseMode": "onReceived" } },
+        { "name": "HTTP Post Approval", "type": "n8n-nodes-base.httpRequest", "parameters": { "url": "http://localhost:3000/api/v1/intelligence/approve", "method": "POST" } }
+      ]
+    },
+    {
+      "name": "M13-07 — Autonomous Execution",
+      "nodes": [
+        { "name": "Cron Every 10 Min", "type": "n8n-nodes-base.cron", "parameters": { "triggerTimes": { "item": [{ "minute": 10 }] } } },
+        { "name": "HTTP Get State", "type": "n8n-nodes-base.httpRequest", "parameters": { "url": "http://localhost:3000/api/v1/intelligence/state", "method": "GET" } }
+      ]
+    },
+    {
+      "name": "M13-08 — Outcome Collection",
+      "nodes": [
+        { "name": "Cron Daily 01:00", "type": "n8n-nodes-base.cron", "parameters": { "triggerTimes": { "item": [{ "hour": 1 }] } } },
+        { "name": "HTTP Post Outcome", "type": "n8n-nodes-base.httpRequest", "parameters": { "url": "http://localhost:3000/api/v1/intelligence/outcome", "method": "POST" } }
+      ]
+    },
+    {
+      "name": "M13-09 — Learning Loop",
+      "nodes": [
+        { "name": "Cron Daily 02:00", "type": "n8n-nodes-base.cron", "parameters": { "triggerTimes": { "item": [{ "hour": 2 }] } } },
+        { "name": "HTTP Post Feedback", "type": "n8n-nodes-base.httpRequest", "parameters": { "url": "http://localhost:3000/api/v1/intelligence/feedback", "method": "POST" } }
+      ]
+    },
+    {
+      "name": "M13-10 — Daily Intelligence Briefing",
+      "nodes": [
+        { "name": "Cron Daily 08:00", "type": "n8n-nodes-base.cron", "parameters": { "triggerTimes": { "item": [{ "hour": 8 }] } } },
+        { "name": "HTTP Get Decisions Journal", "type": "n8n-nodes-base.httpRequest", "parameters": { "url": "http://localhost:3000/api/v1/intelligence/decisions", "method": "GET" } }
+      ]
+    },
+    {
+      "name": "M13-11 — Critical Risk Alert",
+      "nodes": [
+        { "name": "Cron Every 5 Min", "type": "n8n-nodes-base.cron", "parameters": { "triggerTimes": { "item": [{ "minute": 5 }] } } },
+        { "name": "HTTP Get Risks", "type": "n8n-nodes-base.httpRequest", "parameters": { "url": "http://localhost:3000/api/v1/intelligence/risks", "method": "GET" } }
+      ]
+    },
+    {
+      "name": "M13-12 — Weekly Strategic Review",
+      "nodes": [
+        { "name": "Cron Weekly Sun 21:00", "type": "n8n-nodes-base.cron", "parameters": { "triggerTimes": { "item": [{ "hour": 21, "weekday": 0 }] } } },
+        { "name": "HTTP Post Recalculate", "type": "n8n-nodes-base.httpRequest", "parameters": { "url": "http://localhost:3000/api/v1/intelligence/recalculate", "method": "POST" } }
+      ]
+    }
+  ]
+}

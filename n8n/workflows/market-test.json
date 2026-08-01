@@ -1,0 +1,46 @@
+{
+  "name": "MARKET TEST",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "test-market",
+        "options": {}
+      },
+      "id": "webhook-market-test",
+      "name": "Webhook Market Test",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:3000/api/markets/score",
+        "options": {}
+      },
+      "id": "http-score-test",
+      "name": "Score Market Opportunity API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [450, 300]
+    }
+  ],
+  "connections": {
+    "Webhook Market Test": {
+      "main": [
+        [
+          {
+            "node": "Score Market Opportunity API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

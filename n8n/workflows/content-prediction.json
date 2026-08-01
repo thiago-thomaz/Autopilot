@@ -1,0 +1,46 @@
+{
+  "name": "CONTENT PREDICTION",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "predict-content",
+        "options": {}
+      },
+      "id": "webhook-content-pred",
+      "name": "Webhook Content Prediction",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:3000/api/predictions/content",
+        "options": {}
+      },
+      "id": "http-predict-content",
+      "name": "Call Content Prediction API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [450, 300]
+    }
+  ],
+  "connections": {
+    "Webhook Content Prediction": {
+      "main": [
+        [
+          {
+            "node": "Call Content Prediction API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

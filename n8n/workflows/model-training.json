@@ -1,0 +1,46 @@
+{
+  "name": "MODEL TRAINING",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "train-model-webhook",
+        "options": {}
+      },
+      "id": "webhook-train",
+      "name": "Webhook - Model Training Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:3000/api/models/train",
+        "options": {}
+      },
+      "id": "http-trigger-train",
+      "name": "Trigger Model Training API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [450, 300]
+    }
+  ],
+  "connections": {
+    "Webhook - Model Training Trigger": {
+      "main": [
+        [
+          {
+            "node": "Trigger Model Training API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

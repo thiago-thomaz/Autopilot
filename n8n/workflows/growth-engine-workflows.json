@@ -1,0 +1,61 @@
+{
+  "name": "MÓDULO 11 — Growth Engine Workflows",
+  "workflows": [
+    {
+      "name": "DAILY GROWTH LOOP",
+      "nodes": [
+        { "name": "Cron Trigger 06:00", "type": "n8n-nodes-base.cron", "parameters": { "triggerTimes": { "item": [{ "hour": 6, "minute": 0 }] } } },
+        { "name": "HTTP Request - Run Growth Loop", "type": "n8n-nodes-base.httpRequest", "parameters": { "url": "http://localhost:3000/api/growth/campaigns", "method": "GET" } }
+      ]
+    },
+    {
+      "name": "CAMPAIGN CREATION",
+      "nodes": [
+        { "name": "Webhook Campaign Create", "type": "n8n-nodes-base.webhook", "parameters": { "path": "growth/campaign-create" } },
+        { "name": "HTTP Request - Create Campaign", "type": "n8n-nodes-base.httpRequest", "parameters": { "url": "http://localhost:3000/api/growth/campaigns", "method": "POST" } }
+      ]
+    },
+    {
+      "name": "CAMPAIGN MONITOR",
+      "nodes": [
+        { "name": "Schedule Every 1 Hour", "type": "n8n-nodes-base.cron", "parameters": { "triggerTimes": { "item": [{ "minute": 0 }] } } },
+        { "name": "Check Campaign Health", "type": "n8n-nodes-base.httpRequest", "parameters": { "url": "http://localhost:3000/api/growth/campaigns", "method": "GET" } }
+      ]
+    },
+    {
+      "name": "BUDGET OPTIMIZATION",
+      "nodes": [
+        { "name": "Schedule Daily 12:00", "type": "n8n-nodes-base.cron", "parameters": { "triggerTimes": { "item": [{ "hour": 12 }] } } },
+        { "name": "Run What-If Simulation", "type": "n8n-nodes-base.httpRequest", "parameters": { "url": "http://localhost:3000/api/growth/what-if", "method": "POST" } }
+      ]
+    },
+    {
+      "name": "EXPERIMENT ENGINE",
+      "nodes": [
+        { "name": "Schedule Daily 18:00", "type": "n8n-nodes-base.cron", "parameters": { "triggerTimes": { "item": [{ "hour": 18 }] } } },
+        { "name": "Evaluate A/B Experiments", "type": "n8n-nodes-base.httpRequest", "parameters": { "url": "http://localhost:3000/api/growth/experiments", "method": "GET" } }
+      ]
+    },
+    {
+      "name": "CAMPAIGN SCALE",
+      "nodes": [
+        { "name": "Scale Signal Webhook", "type": "n8n-nodes-base.webhook", "parameters": { "path": "growth/scale" } },
+        { "name": "POST Scale Endpoint", "type": "n8n-nodes-base.httpRequest", "parameters": { "url": "http://localhost:3000/api/growth/campaigns/scale", "method": "POST" } }
+      ]
+    },
+    {
+      "name": "ANOMALY MONITOR",
+      "nodes": [
+        { "name": "Schedule Every 15 Min", "type": "n8n-nodes-base.cron", "parameters": { "triggerTimes": { "item": [{ "minute": 15 }] } } },
+        { "name": "Fraud & Anomaly Check", "type": "n8n-nodes-base.httpRequest", "parameters": { "url": "http://localhost:3000/api/growth/campaigns", "method": "GET" } }
+      ]
+    },
+    {
+      "name": "DAILY REPORT",
+      "nodes": [
+        { "name": "Schedule 23:59", "type": "n8n-nodes-base.cron", "parameters": { "triggerTimes": { "item": [{ "hour": 23, "minute": 59 }] } } },
+        { "name": "Generate Growth Report", "type": "n8n-nodes-base.httpRequest", "parameters": { "url": "http://localhost:3000/api/growth/simulate", "method": "POST" } }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "name": "GLOBAL MARKET SCANNER",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 24
+            }
+          ]
+        }
+      },
+      "id": "trigger-global-scanner-cron",
+      "name": "Schedule Trigger - 00:00 UTC",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:3000/api/global/opportunities",
+        "options": {}
+      },
+      "id": "http-scan-global-opps",
+      "name": "Fetch Global Opportunities API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [450, 300]
+    }
+  ],
+  "connections": {
+    "Schedule Trigger - 00:00 UTC": {
+      "main": [
+        [
+          {
+            "node": "Fetch Global Opportunities API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

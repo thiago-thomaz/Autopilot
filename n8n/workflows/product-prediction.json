@@ -1,0 +1,46 @@
+{
+  "name": "PRODUCT PREDICTION",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "predict-product",
+        "options": {}
+      },
+      "id": "webhook-product-pred",
+      "name": "Webhook Product Prediction",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:3000/api/predictions/product",
+        "options": {}
+      },
+      "id": "http-predict-product",
+      "name": "Call Product Prediction API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [450, 300]
+    }
+  ],
+  "connections": {
+    "Webhook Product Prediction": {
+      "main": [
+        [
+          {
+            "node": "Call Product Prediction API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

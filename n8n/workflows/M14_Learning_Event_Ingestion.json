@@ -1,0 +1,63 @@
+{
+  "name": "M14 — Learning Event Ingestion Workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "learning-event",
+        "options": {}
+      },
+      "name": "Webhook Ingestion",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000' }}/api/v1/learning/event",
+        "options": {},
+        "bodyParametersUi": {
+          "parameter": [
+            {
+              "name": "source",
+              "value": "={{ $json.body.source || 'n8n_workflow' }}"
+            },
+            {
+              "name": "entityType",
+              "value": "={{ $json.body.entityType }}"
+            },
+            {
+              "name": "entityId",
+              "value": "={{ $json.body.entityId }}"
+            },
+            {
+              "name": "decisionId",
+              "value": "={{ $json.body.decisionId }}"
+            },
+            {
+              "name": "metrics",
+              "value": "={{ JSON.stringify($json.body.metrics) }}"
+            }
+          ]
+        }
+      },
+      "name": "Send to M14 Learning API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 2,
+      "position": [500, 300]
+    }
+  ],
+  "connections": {
+    "Webhook Ingestion": {
+      "main": [
+        [
+          {
+            "node": "Send to M14 Learning API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

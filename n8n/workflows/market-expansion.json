@@ -1,0 +1,46 @@
+{
+  "name": "MARKET EXPANSION",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "expand-market",
+        "options": {}
+      },
+      "id": "webhook-market-expansion",
+      "name": "Webhook Market Expansion",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:3000/api/markets/US/expand",
+        "options": {}
+      },
+      "id": "http-trigger-expansion",
+      "name": "Trigger Market Expansion API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [450, 300]
+    }
+  ],
+  "connections": {
+    "Webhook Market Expansion": {
+      "main": [
+        [
+          {
+            "node": "Trigger Market Expansion API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

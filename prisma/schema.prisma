@@ -1,0 +1,3553 @@
+// Prisma Schema for Affiliate Autopilot
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ==========================================
+// ENUMS
+// ==========================================
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+}
+
+enum PlatformStatus {
+  ACTIVE
+  INACTIVE
+  DEPRECATED
+}
+
+enum AccountStatus {
+  ACTIVE
+  DISCONNECTED
+  ERROR
+  PENDING_VALIDATION
+}
+
+enum AffiliateAccountStatus {
+  PENDING_CONFIGURATION
+  CONFIGURED
+  CONNECTED
+  CONNECTION_ERROR
+  DISABLED
+  MANUAL_REQUIRED
+  NOT_AVAILABLE
+}
+
+enum AffiliateEnvironment {
+  DEVELOPMENT
+  PRODUCTION
+}
+
+enum ProductStatus {
+  DISCOVERED
+  ANALYZING
+  APPROVED
+  REJECTED
+  ARCHIVED
+}
+
+enum ProductSourceType {
+  API
+  MANUAL
+  MOCK
+}
+
+enum ProductTagType {
+  NICHO
+  CATEGORIA
+  MARCA
+  ESTRATEGIA
+  CAMPANHA
+  MANUAL
+}
+
+enum ProductRejectionReason {
+  INVALID_TITLE
+  INVALID_ID
+  INVALID_URL
+  INVALID_PRICE
+  INVALID_RATING
+  INVALID_CURRENCY
+  MISSING_REQUIRED_FIELD
+  UNSUPPORTED_PRODUCT
+}
+
+enum OpportunityClassification {
+  EXCEPTIONAL
+  HIGH
+  GOOD
+  MODERATE
+  LOW
+  VERY_LOW
+}
+
+enum OpportunityPriority {
+  P0
+  P1
+  P2
+  P3
+  P4
+}
+
+enum OpportunityAlertType {
+  NEW_EXCEPTIONAL_PRODUCT
+  PRICE_DROP
+  NEW_HIGH_OPPORTUNITY
+  COMMISSION_CHANGE
+  STOCK_CHANGE
+  SCORE_INCREASE
+  SCORE_DECREASE
+}
+
+enum BlocklistType {
+  PRODUCT
+  BRAND
+  CATEGORY
+  KEYWORD
+}
+
+enum ContentPackageType {
+  SOCIAL_POST
+  SHORT_VIDEO
+  LONG_VIDEO
+  PRODUCT_REVIEW
+  PRODUCT_COMPARISON
+  DEAL_ALERT
+  TOP_LIST
+  TUTORIAL
+  PROBLEM_SOLUTION
+  PRODUCT_SHOWCASE
+  EVERGREEN
+  SEASONAL
+}
+
+enum ContentAngleType {
+  DEAL
+  PROBLEM_SOLUTION
+  BENEFIT
+  COMPARISON
+  REVIEW
+  TUTORIAL
+  TOP_LIST
+  DISCOVERY
+  EDUCATIONAL
+  SEASONAL
+  EVERGREEN
+}
+
+enum ContentPackageStatus {
+  DRAFT
+  GENERATING
+  GENERATED
+  REVIEW_REQUIRED
+  APPROVED
+  REJECTED
+  READY_FOR_PUBLICATION
+  ARCHIVED
+}
+
+enum OmnichannelPublicationStatus {
+  DRAFT
+  QUEUED
+  SCHEDULED
+  VALIDATING
+  PUBLISHING
+  PUBLISHED
+  PARTIALLY_PUBLISHED
+  FAILED
+  RETRYING
+  CANCELLED
+  EXPIRED
+  MANUAL_REQUIRED
+  BLOCKED
+  REVALIDATION_REQUIRED
+}
+
+enum PublicationAccountStatus {
+  ACTIVE
+  INACTIVE
+  AUTH_REQUIRED
+  LIMITED
+  ALLOWLIST_REQUIRED
+  MANUAL_REQUIRED
+  BLOCKED
+  ERROR
+  DISABLED
+}
+
+enum OmnichannelChannel {
+  INSTAGRAM
+  FACEBOOK_PAGES
+  TIKTOK
+  YOUTUBE
+  YOUTUBE_SHORTS
+  PINTEREST
+  X
+  THREADS
+  WHATSAPP
+  TELEGRAM
+  SNAPCHAT
+  LINKEDIN_PAGES
+  GOOGLE_BUSINESS_PROFILE
+  REDDIT
+  DISCORD
+  BLOG
+  EMAIL
+  WEB_PUSH
+  RSS
+  OWN_WEBSITE
+}
+
+enum ClickStatus {
+  VALID
+  INVALID
+  DUPLICATE
+  BOT
+  SUSPICIOUS
+  EXPIRED
+  BLOCKED
+}
+
+enum AffiliateClickStatus {
+  REDIRECTED
+  LANDED
+  FAILED
+  EXPIRED
+  BLOCKED
+  UNKNOWN
+}
+
+enum ConversionType {
+  SALE
+  LEAD
+  SIGNUP
+  SUBSCRIPTION
+  TRIAL
+  APP_INSTALL
+  RENEWAL
+  OTHER
+}
+
+enum ConversionRecordStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+  REFUNDED
+  REVERSED
+  PAID
+  UNKNOWN
+}
+
+enum CommissionRecordStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  REVERSED
+  PAID
+  UNKNOWN
+}
+
+enum CostType {
+  AI
+  API
+  N8N
+  HOSTING
+  DATABASE
+  STORAGE
+  EMAIL
+  MESSAGING
+  ADS
+  DOMAIN
+  SOFTWARE
+  TRANSACTION
+  OTHER
+}
+
+enum AttributionModel {
+  LAST_CLICK
+  FIRST_CLICK
+  LINEAR
+  POSITION_BASED
+  TIME_DECAY
+  DATA_DRIVEN_READY
+}
+
+enum SignalType {
+  INCREASE_PRIORITY
+  DECREASE_PRIORITY
+  PAUSE
+  REVIEW
+  RETEST
+  RELOCALIZE
+  REPUBLISH
+  CHANGE_CONTENT
+  CHANGE_CHANNEL
+  CHANGE_SCHEDULE
+  CHANGE_PRODUCT
+}
+
+enum AlertSeverity {
+  INFO
+  WARNING
+  HIGH
+  CRITICAL
+}
+
+enum ExperimentStatus {
+  DRAFT
+  RUNNING
+  PAUSED
+  COMPLETED
+  CANCELLED
+  INCONCLUSIVE
+}
+
+enum CampaignStatus {
+  DRAFT
+  ACTIVE
+  PAUSED
+  COMPLETED
+  ARCHIVED
+}
+
+enum ContentType {
+  SOCIAL_POST
+  SHORT_VIDEO_SCRIPT
+  EMAIL
+  BLOG_ARTICLE
+  AD_COPY
+  MESSAGE
+}
+
+enum ContentStatus {
+  DRAFT
+  PENDING_COMPLIANCE
+  APPROVED
+  REJECTED
+  ARCHIVED
+}
+
+enum ChannelType {
+  TELEGRAM_CHANNEL
+  TELEGRAM_GROUP
+  WHATSAPP_GROUP
+  INSTAGRAM
+  TIKTOK
+  BLOG
+  EMAIL_LIST
+}
+
+enum ChannelPlatform {
+  TELEGRAM
+  WHATSAPP
+  INSTAGRAM
+  TIKTOK
+  WORDPRESS
+  CUSTOM_WEBHOOK
+}
+
+enum ChannelStatus {
+  ACTIVE
+  INACTIVE
+  ERROR
+  PAUSED
+}
+
+enum PublicationStatus {
+  SCHEDULED
+  PUBLISHING
+  PUBLISHED
+  FAILED
+  CANCELED
+}
+
+enum ConversionStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  REFUNDED
+}
+
+enum CommissionStatus {
+  PENDING
+  APPROVED
+  PAID
+  REJECTED
+}
+
+enum AutomationJobStatus {
+  PENDING
+  RUNNING
+  COMPLETED
+  PARTIAL
+  FAILED
+  CANCELLED
+}
+
+enum QueuePriority {
+  LOW
+  NORMAL
+  HIGH
+  CRITICAL
+}
+
+enum LogLevel {
+  DEBUG
+  INFO
+  WARN
+  ERROR
+  FATAL
+}
+
+enum ComplianceSeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum ComplianceStatus {
+  PENDING
+  PASSED
+  FAILED
+  OVERRIDDEN
+}
+
+enum OperationMode {
+  MANUAL
+  SEMI_AUTOMATICO
+  AUTOMATICO
+}
+
+// ==========================================
+// ENTITIES
+// ==========================================
+
+model User {
+  id               String             @id @default(uuid())
+  name             String
+  email            String             @unique
+  passwordHash     String
+  status           UserStatus         @default(ACTIVE)
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  affiliateAccounts AffiliateAccount[]
+
+  @@index([email])
+  @@index([status])
+}
+
+model AffiliatePlatform {
+  id                            String             @id @default(uuid())
+  name                          String
+  slug                          String             @unique
+  status                        PlatformStatus     @default(ACTIVE)
+  apiAvailable                  Boolean            @default(true)
+  linkGenerationAvailable       Boolean            @default(true)
+  productDiscoveryAvailable     Boolean            @default(true)
+  metricsAvailable              Boolean            @default(false)
+  commissionReportingAvailable  Boolean            @default(false)
+  website                       String?
+  documentationUrl              String?
+  createdAt                     DateTime           @default(now())
+  updatedAt                     DateTime           @updatedAt
+  affiliateAccounts             AffiliateAccount[]
+  products                      Product[]
+  complianceRules               ComplianceRule[]
+
+  @@index([slug])
+  @@index([status])
+}
+
+model AffiliateAccount {
+  id                   String                 @id @default(uuid())
+  userId               String
+  affiliatePlatformId  String
+  accountName          String
+  externalAccountId    String?
+  status               AffiliateAccountStatus @default(PENDING_CONFIGURATION)
+  environment          AffiliateEnvironment   @default(PRODUCTION)
+  credentialReference  String?                // Reference ID for CredentialVault
+  credentialsEncrypted String                 // Never exposed directly to frontend
+  lastConnectionTest   DateTime?
+  lastConnectionStatus String?
+  lastError            String?
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime               @updatedAt
+
+  user              User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  affiliatePlatform AffiliatePlatform @relation(fields: [affiliatePlatformId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([affiliatePlatformId])
+  @@index([status])
+  @@index([environment])
+}
+
+model Product {
+  id                  String            @id @default(uuid())
+  externalId          String
+  affiliatePlatformId String
+  title               String
+  description         String?
+  url                 String
+  imageUrl            String?
+  category            String?
+  brand               String?
+  currentPrice        Float
+  previousPrice       Float?
+  currency            String            @default("BRL")
+  rating              Float?
+  reviewCount         Int?              @default(0)
+  availability        Boolean           @default(true)
+  commissionRate      Float?
+  estimatedCommission Float?
+  opportunityScore    Float?            @default(0.0)
+  status              ProductStatus     @default(DISCOVERED)
+
+  sourceType          ProductSourceType @default(API)
+  sourceUrl           String?
+  sourceMetadata      Json?
+  collectedAt         DateTime          @default(now())
+  lastSyncedAt        DateTime?
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+
+  affiliatePlatform   AffiliatePlatform     @relation(fields: [affiliatePlatformId], references: [id], onDelete: Cascade)
+  contents            Content[]
+  clickEvents         ClickEvent[]
+  conversions         Conversion[]
+  complianceChecks    ComplianceCheck[]
+  priceHistory        ProductPriceHistory[]
+  opportunitySnapshots OpportunitySnapshot[]
+  opportunityAlerts    OpportunityAlert[]
+  contentPackages     ContentPackage[]
+
+  @@unique([affiliatePlatformId, externalId])
+  @@index([externalId])
+  @@index([affiliatePlatformId])
+  @@index([status])
+  @@index([opportunityScore])
+  @@index([category])
+  @@index([currentPrice])
+  @@index([lastSyncedAt])
+}
+
+model ProductPriceHistory {
+  id              String   @id @default(uuid())
+  productId       String
+  price           Float
+  previousPrice   Float?
+  currency        String   @default("BRL")
+  discountPercent Float?   @default(0.0)
+  availability    Boolean  @default(true)
+  source          String?  @default("API")
+  capturedAt      DateTime @default(now())
+
+  product         Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId, capturedAt])
+}
+
+model OpportunitySnapshot {
+  id                  String                    @id @default(uuid())
+  productId           String
+  score               Float
+  adjustedScore       Float
+  confidenceScore     Float
+  classification      OpportunityClassification
+  priority            OpportunityPriority
+  priceScore          Float                     @default(0)
+  priceHistoryScore   Float                     @default(0)
+  discountScore       Float                     @default(0)
+  ratingScore         Float                     @default(0)
+  reviewScore         Float                     @default(0)
+  commissionScore     Float                     @default(0)
+  demandScore         Float                     @default(0)
+  availabilityScore   Float                     @default(0)
+  contentScore        Float                     @default(0)
+  dataQualityScore    Float                     @default(0)
+  bonuses             Json?
+  penalties           Json?
+  explanation         Json?
+  algorithmVersion    String                    @default("v1.0.0")
+  createdAt           DateTime                  @default(now())
+
+  product             Product                   @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId, createdAt])
+  @@index([score, confidenceScore])
+  @@index([classification])
+  @@index([priority])
+}
+
+model OpportunityBatchJob {
+  id                String              @id @default(uuid())
+  status            AutomationJobStatus @default(RUNNING)
+  totalProducts     Int                 @default(0)
+  processedProducts Int                 @default(0)
+  failedProducts    Int                 @default(0)
+  startedAt         DateTime            @default(now())
+  finishedAt        DateTime?
+  algorithmVersion  String              @default("v1.0.0")
+  errorMessage      String?
+
+  @@index([status])
+  @@index([startedAt])
+}
+
+model OpportunityAlert {
+  id         String               @id @default(uuid())
+  productId  String
+  type       OpportunityAlertType
+  scoreDelta Float?
+  status     String               @default("UNREAD")
+  createdAt  DateTime             @default(now())
+
+  product    Product              @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([status])
+  @@index([productId, createdAt])
+}
+
+model OpportunityEngineConfig {
+  id               String   @id @default(uuid())
+  name             String   @default("DefaultConfig")
+  algorithmVersion String   @default("v1.0.0")
+  weights          Json
+  bonuses          Json?
+  penalties        Json?
+  thresholds       Json?
+  freshnessConfig  Json?
+  enabled          Boolean  @default(true)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model ProductBlocklist {
+  id        String        @id @default(uuid())
+  type      BlocklistType
+  value     String
+  reason    String?
+  createdAt DateTime      @default(now())
+
+  @@index([type, value])
+}
+
+model ProductAllowlist {
+  id          String        @id @default(uuid())
+  type        BlocklistType
+  value       String
+  boostFactor Float         @default(1.1)
+  createdAt   DateTime      @default(now())
+
+  @@index([type, value])
+}
+
+model ContentPackage {
+  id                    String               @id @default(uuid())
+  productId             String
+  opportunitySnapshotId String?
+  platform              String               @default("amazon-brasil")
+  contentType           ContentPackageType   @default(SOCIAL_POST)
+  channel               ChannelPlatform      @default(INSTAGRAM)
+  language              String               @default("pt-BR")
+  country               String               @default("BR")
+  angle                 ContentAngleType     @default(DEAL)
+  targetAudience        String?
+  hook                  String
+  title                 String
+  subtitle              String?
+  shortDescription      String?
+  longDescription       String?
+  bullets               Json?
+  caption               String
+  cta                   String
+  hashtags              Json?
+  keywords              Json?
+  script                Json?
+  visualBrief           Json?
+  videoBrief            Json?
+  affiliateDisclosure   String?
+  sourceData            Json?
+  generationMetadata    Json?
+  qualityScore          Float                @default(0)
+  complianceScore       Float                @default(0)
+  status                ContentPackageStatus @default(DRAFT)
+  createdAt             DateTime             @default(now())
+  updatedAt             DateTime             @updatedAt
+
+  product               Product              @relation(fields: [productId], references: [id], onDelete: Cascade)
+  versions              ContentVersion[]
+  queues                ContentQueue[]
+  publicationRecords    PublicationRecord[]
+
+  @@index([productId])
+  @@index([status])
+  @@index([channel])
+  @@index([contentType])
+  @@index([qualityScore])
+  @@index([complianceScore])
+}
+
+model ContentVersion {
+  id               String         @id @default(uuid())
+  contentPackageId String
+  version          Int            @default(1)
+  content          Json
+  generationMethod String         @default("LLM")
+  model            String         @default("gpt-4o-mini")
+  promptVersion    String         @default("v1.0.0")
+  qualityScore     Float          @default(0)
+  complianceScore  Float          @default(0)
+  createdAt        DateTime       @default(now())
+
+  contentPackage   ContentPackage @relation(fields: [contentPackageId], references: [id], onDelete: Cascade)
+
+  @@index([contentPackageId])
+}
+
+model ContentQueue {
+  id               String          @id @default(uuid())
+  contentPackageId String
+  priority         QueuePriority   @default(NORMAL)
+  status           String          @default("PENDING")
+  scheduledAt      DateTime        @default(now())
+  channel          ChannelPlatform @default(INSTAGRAM)
+  createdAt        DateTime        @default(now())
+
+  contentPackage   ContentPackage  @relation(fields: [contentPackageId], references: [id], onDelete: Cascade)
+
+  @@index([status])
+}
+
+model PublicationRecord {
+  id                    String                       @id @default(uuid())
+  contentPackageId      String
+  contentVersionId      String?
+  productId             String
+  opportunityId         String?
+  channel               OmnichannelChannel           @default(INSTAGRAM)
+  platform              String                       @default("instagram")
+  accountId             String?
+  publicationType       String                       @default("AUTOMATIC")
+  status                OmnichannelPublicationStatus @default(DRAFT)
+  publicationPayload    Json?
+  trackingUrl           String?
+  externalPublicationId String?
+  externalUrl           String?
+  scheduledAt           DateTime                     @default(now())
+  startedAt             DateTime?
+  publishedAt           DateTime?
+  failedAt              DateTime?
+  retryCount            Int                          @default(0)
+  maxRetries            Int                          @default(3)
+  idempotencyKey        String                       @unique
+  country               String                       @default("BR")
+  language              String                       @default("pt-BR")
+  currency              String                       @default("BRL")
+  timezone              String                       @default("America/Sao_Paulo")
+  campaignId            String?
+  metadata              Json?
+  createdAt             DateTime                     @default(now())
+  updatedAt             DateTime                     @updatedAt
+
+  contentPackage        ContentPackage               @relation(fields: [contentPackageId], references: [id], onDelete: Cascade)
+  auditLogs             PublicationAuditLog[]
+  queueItems            PublicationQueueItem[]
+
+  @@index([contentPackageId])
+  @@index([status])
+  @@index([channel])
+  @@index([country])
+  @@index([scheduledAt])
+}
+
+model PublicationAccount {
+  id                   String                   @id @default(uuid())
+  platform             String
+  accountName          String
+  accountIdentifier    String
+  country              String                   @default("BR")
+  language             String                   @default("pt-BR")
+  timezone             String                   @default("America/Sao_Paulo")
+  currency             String                   @default("BRL")
+  status               PublicationAccountStatus @default(ACTIVE)
+  credentialReference  String?
+  capabilities         Json?
+  metadata             Json?
+  createdAt            DateTime                 @default(now())
+  updatedAt            DateTime                 @updatedAt
+
+  @@index([platform, status])
+  @@index([accountIdentifier])
+}
+
+model PublicationProfile {
+  id                   String             @id @default(uuid())
+  name                 String
+  channel              OmnichannelChannel
+  accountId            String?
+  country              String             @default("BR")
+  language             String             @default("pt-BR")
+  currency             String             @default("BRL")
+  timezone             String             @default("America/Sao_Paulo")
+  enabled              Boolean            @default(true)
+  autoPublishEnabled   Boolean            @default(true)
+  requiresApproval     Boolean            @default(false)
+  maxDailyPublications Int                @default(10)
+  maxHourlyPublications Int               @default(2)
+  minIntervalMinutes   Int                @default(30)
+  allowedContentTypes  Json?
+  allowedCategories    Json?
+  blockedCategories    Json?
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+
+  @@index([channel])
+  @@index([country])
+}
+
+model PublicationRule {
+  id                  String             @id @default(uuid())
+  channel             OmnichannelChannel
+  country             String             @default("BR")
+  language            String             @default("pt-BR")
+  contentType         String             @default("ALL")
+  enabled             Boolean            @default(true)
+  minQualityScore     Float              @default(70.0)
+  minComplianceScore  Float              @default(90.0)
+  maxDaily            Int                @default(10)
+  maxHourly           Int                @default(2)
+  minInterval         Int                @default(30)
+  allowedHours        Json?
+  blockedHours        Json?
+  requiresApproval    Boolean            @default(false)
+  requiresTracking    Boolean            @default(true)
+  requiresDisclosure  Boolean            @default(true)
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+
+  @@index([channel, country])
+}
+
+model PublicationQueueItem {
+  id            String            @id @default(uuid())
+  publicationId String
+  priority      QueuePriority     @default(NORMAL)
+  scheduledAt   DateTime          @default(now())
+  status        String            @default("PENDING")
+  attempts      Int               @default(0)
+  lockedAt      DateTime?
+  workerId      String?
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+
+  publication   PublicationRecord @relation(fields: [publicationId], references: [id], onDelete: Cascade)
+
+  @@index([status, scheduledAt])
+  @@index([publicationId])
+}
+
+model PublicationAuditLog {
+  id            String            @id @default(uuid())
+  publicationId String
+  event         String
+  details       Json?
+  createdAt     DateTime          @default(now())
+
+  publication   PublicationRecord @relation(fields: [publicationId], references: [id], onDelete: Cascade)
+
+  @@index([publicationId])
+}
+
+model WhatsAppOptIn {
+  id          String   @id @default(uuid())
+  phone       String   @unique
+  status      String   @default("OPTED_IN")
+  optInSource String?
+  optOutReason String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([status])
+}
+
+model WhatsAppSuppressionList {
+  id        String   @id @default(uuid())
+  phone     String   @unique
+  reason    String   @default("USER_OPT_OUT")
+  createdAt DateTime @default(now())
+}
+
+model EmailContact {
+  id           String    @id @default(uuid())
+  email        String    @unique
+  name         String?
+  country      String    @default("BR")
+  language     String    @default("pt-BR")
+  consentGiven Boolean   @default(true)
+  optedOutAt   DateTime?
+  metadata     Json?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@index([consentGiven])
+}
+
+model WhatsAppContact {
+  id           String    @id @default(uuid())
+  phone        String    @unique
+  name         String?
+  country      String    @default("BR")
+  language     String    @default("pt-BR")
+  consentGiven Boolean   @default(true)
+  optedOutAt   DateTime?
+  metadata     Json?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@index([consentGiven])
+}
+
+model PublicationBlocklist {
+  id        String   @id @default(uuid())
+  type      String
+  value     String
+  reason    String?
+  createdAt DateTime @default(now())
+
+  @@index([type, value])
+}
+
+model PublicationAllowlist {
+  id        String   @id @default(uuid())
+  type      String
+  value     String
+  reason    String?
+  createdAt DateTime @default(now())
+
+  @@index([type, value])
+}
+
+model GlobalCampaign {
+  id              String         @id @default(uuid())
+  name            String
+  slug            String         @unique
+  status          CampaignStatus @default(DRAFT)
+  targetCountries Json?
+  targetLanguages Json?
+  startDate       DateTime?
+  endDate         DateTime?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+}
+
+model MarketProfile {
+  id              String   @id @default(uuid())
+  countryCode     String   @unique
+  countryName     String
+  defaultLanguage String
+  defaultCurrency String
+  defaultTimezone String
+  active          Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+// ==========================================
+// MODULE 7: ANALYTICS & ATTRIBUTION MODELS
+// ==========================================
+
+model AnalyticsEvent {
+  id                 String   @id @default(uuid())
+  eventType          String
+  eventSource        String
+  eventSourceId      String?
+  timestamp          DateTime @default(now())
+  userReference      String?
+  sessionId          String?
+  anonymousId        String?
+  country            String   @default("BR")
+  language           String   @default("pt-BR")
+  currency           String   @default("BRL")
+  timezone           String   @default("America/Sao_Paulo")
+  channel            String?
+  platform           String?
+  accountId          String?
+  campaignId         String?
+  contentPackageId   String?
+  contentVersionId   String?
+  publicationId      String?
+  productId          String?
+  opportunityId      String?
+  affiliateProgramId String?
+  affiliateLinkId    String?
+  trackingId         String?
+  metadata           Json?
+  createdAt          DateTime @default(now())
+
+  @@index([timestamp, eventType])
+  @@index([trackingId])
+}
+
+model AnalyticsSession {
+  id              String    @id @default(uuid())
+  anonymousId     String
+  userReference   String?
+  startedAt       DateTime  @default(now())
+  lastActivityAt  DateTime  @default(now())
+  endedAt         DateTime?
+  country         String    @default("BR")
+  language        String    @default("pt-BR")
+  timezone        String    @default("America/Sao_Paulo")
+  device          String?
+  browser         String?
+  os              String?
+  firstSource     String?
+  firstMedium     String?
+  firstCampaign   String?
+  landingPage     String?
+  lastSource      String?
+  lastMedium      String?
+  lastCampaign    String?
+  converted       Boolean   @default(false)
+  conversionValue Decimal?  @db.Decimal(18, 4)
+  currency        String    @default("BRL")
+}
+
+model AnalyticsClick {
+  id               String      @id @default(uuid())
+  trackingId       String
+  timestamp        DateTime    @default(now())
+  channel          String?
+  platform         String?
+  publicationId    String?
+  contentVersionId String?
+  campaignId       String?
+  productId        String?
+  affiliateLinkId  String?
+  country          String      @default("BR")
+  language         String      @default("pt-BR")
+  device           String?
+  sessionId        String?
+  destination      String
+  status           ClickStatus @default(VALID)
+  qualityScore     Float       @default(100.0)
+
+  @@index([trackingId, status])
+}
+
+model AffiliateClickRecord {
+  id                 String               @id @default(uuid())
+  trackingId         String
+  affiliateLinkId    String?
+  affiliateProgramId String?
+  networkId          String?
+  productId          String?
+  publicationId      String?
+  channel            String?
+  campaignId         String?
+  timestamp          DateTime             @default(now())
+  country            String               @default("BR")
+  currency           String               @default("BRL")
+  sessionId          String?
+  status             AffiliateClickStatus @default(REDIRECTED)
+}
+
+model AnalyticsConversion {
+  id                 String                 @id @default(uuid())
+  conversionType     ConversionType         @default(SALE)
+  timestamp          DateTime               @default(now())
+  trackingId         String?
+  clickId            String?
+  sessionId          String?
+  productId          String?
+  affiliateProgramId String?
+  affiliateLinkId    String?
+  orderReference     String?
+  quantity           Int                    @default(1)
+  saleAmount         Decimal                @db.Decimal(18, 4)
+  currency           String                 @default("BRL")
+  commissionAmount   Decimal                @db.Decimal(18, 4)
+  commissionCurrency String                 @default("BRL")
+  status             ConversionRecordStatus @default(PENDING)
+  source             String?
+  metadata           Json?
+
+  @@index([trackingId, status])
+}
+
+model SaleRecord {
+  id                   String   @id @default(uuid())
+  externalOrderId      String
+  affiliateProgramId   String?
+  networkId            String?
+  productId            String?
+  campaignId           String?
+  trackingId           String?
+  clickId              String?
+  saleDate             DateTime @default(now())
+  quantity             Int      @default(1)
+  grossAmount          Decimal  @db.Decimal(18, 4)
+  discountAmount       Decimal  @default(0) @db.Decimal(18, 4)
+  netAmount            Decimal  @db.Decimal(18, 4)
+  currency             String   @default("BRL")
+  commissionAmount     Decimal  @db.Decimal(18, 4)
+  commissionCurrency   String   @default("BRL")
+  status               String   @default("CONFIRMED")
+  reconciliationStatus String   @default("MATCHED")
+  source               String   @default("AFFILIATE_REPORT")
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  @@unique([externalOrderId, affiliateProgramId])
+}
+
+model CommissionRecord {
+  id                  String                 @id @default(uuid())
+  saleId              String?
+  affiliateProgramId  String?
+  networkId           String?
+  affiliateLinkId     String?
+  productId           String?
+  amount              Decimal                @db.Decimal(18, 4)
+  currency            String                 @default("BRL")
+  status              CommissionRecordStatus @default(PENDING)
+  expectedAt          DateTime?
+  approvedAt          DateTime?
+  paidAt              DateTime?
+  reversedAt          DateTime?
+  externalCommissionId String?
+  metadata            Json?
+  createdAt           DateTime               @default(now())
+
+  @@index([saleId, status])
+}
+
+model RevenueRecord {
+  id              String   @id @default(uuid())
+  source          String   @default("COMMISSION")
+  sourceReference String?
+  amount          Decimal  @db.Decimal(18, 4)
+  currency        String   @default("BRL")
+  country         String   @default("BR")
+  date            DateTime @default(now())
+  campaignId      String?
+  channel         String?
+  platform        String?
+  productId       String?
+  status          String   @default("CONFIRMED")
+}
+
+model CostRecord {
+  id          String   @id @default(uuid())
+  costType    CostType @default(AI)
+  source      String
+  amount      Decimal  @db.Decimal(18, 4)
+  currency    String   @default("BRL")
+  date        DateTime @default(now())
+  campaignId  String?
+  channel     String?
+  platform    String?
+  productId   String?
+  description String?
+}
+
+model ProfitRecord {
+  id                String   @id @default(uuid())
+  date              DateTime @default(now())
+  currency          String   @default("BRL")
+  grossRevenue      Decimal  @db.Decimal(18, 4)
+  commissionRevenue Decimal  @db.Decimal(18, 4)
+  cost              Decimal  @db.Decimal(18, 4)
+  profit            Decimal  @db.Decimal(18, 4)
+  roi               Float?
+  campaignId        String?
+  channel           String?
+  country           String   @default("BR")
+  productId         String?
+}
+
+model AttributionRecord {
+  id                    String           @id @default(uuid())
+  conversionId          String
+  touchpointId          String
+  model                 AttributionModel @default(LAST_CLICK)
+  credit                Float
+  weight                Float
+  attributedRevenue     Decimal          @db.Decimal(18, 4)
+  attributedCommission  Decimal          @db.Decimal(18, 4)
+  attributedProfit      Decimal          @db.Decimal(18, 4)
+  createdAt             DateTime         @default(now())
+
+  @@index([conversionId])
+}
+
+model DailyPerformance {
+  id                String   @id @default(uuid())
+  date              DateTime @default(now())
+  country           String   @default("BR")
+  language          String   @default("pt-BR")
+  channel           String
+  platform          String
+  campaignId        String?
+  productId         String?
+  impressions       Int      @default(0)
+  clicks            Int      @default(0)
+  validClicks       Int      @default(0)
+  conversions       Int      @default(0)
+  sales             Int      @default(0)
+  grossSalesAmount  Decimal  @default(0) @db.Decimal(18, 4)
+  commissionRevenue Decimal  @default(0) @db.Decimal(18, 4)
+  cost              Decimal  @default(0) @db.Decimal(18, 4)
+  netProfit         Decimal  @default(0) @db.Decimal(18, 4)
+  ctr               Float    @default(0.0)
+  cvr               Float    @default(0.0)
+  epc               Decimal  @default(0) @db.Decimal(18, 4)
+
+  @@index([date, country, channel, productId])
+}
+
+model OptimizationSignal {
+  id                String     @id @default(uuid())
+  type              SignalType @default(INCREASE_PRIORITY)
+  scope             String
+  entityId          String
+  reason            String
+  confidence        Float      @default(0.8)
+  recommendedAction String
+  createdAt         DateTime   @default(now())
+  status            String     @default("ACTIVE")
+}
+
+model ExperimentRecord {
+  id            String           @id @default(uuid())
+  name          String
+  hypothesis    String
+  entityType    String
+  entityId      String
+  variants      Json
+  startDate     DateTime         @default(now())
+  endDate       DateTime?
+  minimumSample Int              @default(100)
+  successMetric String           @default("CVR")
+  status        ExperimentStatus @default(DRAFT)
+}
+
+model AnalyticsAlert {
+  id            String        @id @default(uuid())
+  type          String
+  severity      AlertSeverity @default(WARNING)
+  scope         String
+  message       String
+  metric        String
+  currentValue  Float
+  expectedValue Float
+  threshold     Float
+  status        String        @default("UNRESOLVED")
+  createdAt     DateTime      @default(now())
+  resolvedAt    DateTime?
+}
+
+// ==========================================
+// OTHER ENTITIES
+// ==========================================
+
+model PromptTemplate {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  version   String   @default("v1.0.0")
+  purpose   String
+  template  String
+  variables Json?
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([name])
+}
+
+model ContentGenerationJob {
+  id             String              @id @default(uuid())
+  status         AutomationJobStatus @default(RUNNING)
+  total          Int                 @default(0)
+  processed      Int                 @default(0)
+  successful     Int                 @default(0)
+  failed         Int                 @default(0)
+  reviewRequired Int                 @default(0)
+  startedAt      DateTime            @default(now())
+  finishedAt     DateTime?
+
+  @@index([status])
+}
+
+model ProductCategory {
+  id               String            @id @default(uuid())
+  name             String
+  slug             String            @unique
+  parentId         String?
+  status           String            @default("ACTIVE")
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+
+  parent           ProductCategory?  @relation("CategoryHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
+  children         ProductCategory[] @relation("CategoryHierarchy")
+
+  @@index([slug])
+  @@index([parentId])
+}
+
+model ProductTag {
+  id        String         @id @default(uuid())
+  name      String
+  slug      String         @unique
+  type      ProductTagType @default(MANUAL)
+  createdAt DateTime       @default(now())
+
+  @@index([slug])
+  @@index([type])
+}
+
+model ProductRejection {
+  id          String                 @id @default(uuid())
+  platformId  String?
+  externalId  String?
+  reason      ProductRejectionReason
+  metadata    Json?
+  createdAt   DateTime               @default(now())
+
+  @@index([platformId])
+  @@index([reason])
+  @@index([createdAt])
+}
+
+model DiscoverySearch {
+  id              String   @id @default(uuid())
+  platform        String
+  accountId       String?
+  query           String
+  filters         Json?
+  resultsCount    Int      @default(0)
+  importedCount   Int      @default(0)
+  updatedCount    Int      @default(0)
+  rejectedCount   Int      @default(0)
+  executionTimeMs Int      @default(0)
+  status          String   @default("COMPLETED")
+  errorMessage    String?
+  createdAt       DateTime @default(now())
+
+  @@index([platform, createdAt])
+  @@index([status])
+}
+
+model DiscoveryJob {
+  id            String              @id @default(uuid())
+  platform      String
+  accountId     String?
+  searchId      String?
+  status        AutomationJobStatus @default(PENDING)
+  startedAt     DateTime            @default(now())
+  finishedAt    DateTime?
+  itemsFound    Int                 @default(0)
+  itemsImported Int                 @default(0)
+  itemsUpdated  Int                 @default(0)
+  itemsRejected Int                 @default(0)
+  errorMessage  String?
+  metadata      Json?
+
+  @@index([status])
+  @@index([startedAt])
+}
+
+model DiscoveryQueue {
+  id          String        @id @default(uuid())
+  platform    String
+  accountId   String?
+  query       String
+  category    String?
+  priority    QueuePriority @default(NORMAL)
+  status      String        @default("PENDING")
+  scheduledAt DateTime      @default(now())
+  startedAt   DateTime?
+  finishedAt  DateTime?
+  attempts    Int           @default(0)
+  lastError   String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@index([status])
+  @@index([priority])
+}
+
+model DiscoveryQuery {
+  id        String   @id @default(uuid())
+  name      String
+  platform  String
+  query     String
+  category  String?
+  brand     String?
+  minPrice  Float?
+  maxPrice  Float?
+  minRating Float?
+  sortBy    String?  @default("RELEVANCE")
+  active    Boolean  @default(true)
+  priority  Int      @default(1)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([platform])
+  @@index([active])
+}
+
+model Campaign {
+  id                  String               @id @default(uuid())
+  name                String
+  description         String?
+  status              CampaignStatus       @default(DRAFT)
+  startAt             DateTime?
+  endAt               DateTime?
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+
+  // Module 11 Growth Campaign fields
+  objectiveId         String?
+  objective           GrowthObjective?     @relation(fields: [objectiveId], references: [id], onDelete: SetNull)
+  strategy            CampaignStrategy     @default(HARVEST)
+  productId           String?
+  offerId             String?
+  affiliateProgramId  String?
+  marketId            String?
+  language            String               @default("pt-BR")
+  channel             String               @default("INSTAGRAM")
+  budget              Decimal              @default(0) @db.Decimal(18, 4)
+  growthStatus        GrowthCampaignStatus @default(DRAFT)
+  startDate           DateTime?
+  endDate             DateTime?
+  priority            String               @default("P2")
+  expectedRevenue     Decimal              @default(0) @db.Decimal(18, 4)
+  expectedProfit      Decimal              @default(0) @db.Decimal(18, 4)
+  expectedROI         Decimal              @default(0) @db.Decimal(18, 4)
+  confidence          Float                @default(0.8)
+  risk                Float                @default(0.1)
+
+  contents            Content[]
+  clickEvents         ClickEvent[]
+  conversions         Conversion[]
+  variants            CampaignVariant[]
+  experiments         GrowthExperiment[]
+  tasks               GrowthTask[]
+  health              CampaignHealth?
+
+  @@index([status])
+  @@index([status, priority])
+  @@index([startAt])
+  @@index([endAt])
+}
+
+model Content {
+  id               String            @id @default(uuid())
+  productId        String
+  campaignId       String?
+  contentType      ContentType
+  title            String
+  body             String
+  callToAction     String?
+  disclosure       String?           // Compliance notice, e.g., "#ad #afiliado"
+  status           ContentStatus     @default(DRAFT)
+  aiModel          String?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+
+  product          Product           @relation(fields: [productId], references: [id], onDelete: Cascade)
+  campaign         Campaign?         @relation(fields: [campaignId], references: [id], onDelete: SetNull)
+  publications     Publication[]
+  complianceChecks ComplianceCheck[]
+
+  @@index([productId])
+  @@index([campaignId])
+  @@index([status])
+  @@index([contentType])
+}
+
+model Channel {
+  id               String            @id @default(uuid())
+  name             String
+  type             ChannelType
+  platform         ChannelPlatform
+  status           ChannelStatus     @default(ACTIVE)
+  configuration    Json?             // Encrypted / non-sensitive channel metadata
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+
+  publications     Publication[]
+  clickEvents      ClickEvent[]
+  conversions      Conversion[]
+  complianceChecks ComplianceCheck[]
+
+  @@index([type])
+  @@index([platform])
+  @@index([status])
+}
+
+model Publication {
+  id           String            @id @default(uuid())
+  contentId    String
+  channelId    String
+  externalId   String?
+  status       PublicationStatus @default(SCHEDULED)
+  publishedAt  DateTime?
+  url          String?
+  errorMessage String?
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+
+  content      Content           @relation(fields: [contentId], references: [id], onDelete: Cascade)
+  channel      Channel           @relation(fields: [channelId], references: [id], onDelete: Cascade)
+
+  @@index([contentId])
+  @@index([channelId])
+  @@index([status])
+  @@index([publishedAt])
+}
+
+model ClickEvent {
+  id         String    @id @default(uuid())
+  productId  String
+  campaignId String?
+  channelId  String?
+  source     String?
+  medium     String?
+  campaign   String?
+  content    String?
+  clickedAt  DateTime  @default(now())
+
+  product    Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  campaignRef Campaign? @relation(fields: [campaignId], references: [id], onDelete: SetNull)
+  channelRef Channel?  @relation(fields: [channelId], references: [id], onDelete: SetNull)
+
+  @@index([productId])
+  @@index([campaignId])
+  @@index([channelId])
+  @@index([clickedAt])
+}
+
+model Conversion {
+  id              String           @id @default(uuid())
+  productId       String
+  campaignId      String?
+  channelId       String?
+  externalOrderId String
+  amount          Float
+  currency        String           @default("BRL")
+  status          ConversionStatus @default(PENDING)
+  convertedAt     DateTime         @default(now())
+
+  product         Product          @relation(fields: [productId], references: [id], onDelete: Cascade)
+  campaignRef     Campaign?        @relation(fields: [campaignId], references: [id], onDelete: SetNull)
+  channelRef      Channel?         @relation(fields: [channelId], references: [id], onDelete: SetNull)
+  commission      Commission?
+
+  @@index([productId])
+  @@index([campaignId])
+  @@index([channelId])
+  @@index([externalOrderId])
+  @@index([status])
+  @@index([convertedAt])
+}
+
+model Commission {
+  id           String           @id @default(uuid())
+  conversionId String           @unique
+  amount       Float
+  currency     String           @default("BRL")
+  status       CommissionStatus @default(PENDING)
+  paidAt       DateTime?
+  createdAt    DateTime         @default(now())
+
+  conversion   Conversion       @relation(fields: [conversionId], references: [id], onDelete: Cascade)
+
+  @@index([conversionId])
+  @@index([status])
+  @@index([paidAt])
+}
+
+model AutomationJob {
+  id           String              @id @default(uuid())
+  type         String
+  status       AutomationJobStatus @default(PENDING)
+  startedAt    DateTime            @default(now())
+  finishedAt   DateTime?
+  errorMessage String?
+  metadata     Json?
+
+  @@index([type])
+  @@index([status])
+  @@index([startedAt])
+}
+
+model SystemLog {
+  id        String   @id @default(uuid())
+  level     LogLevel @default(INFO)
+  module    String
+  event     String
+  message   String
+  metadata  Json?
+  createdAt DateTime @default(now())
+
+  @@index([level])
+  @@index([module])
+  @@index([event])
+  @@index([createdAt])
+}
+
+model ComplianceRule {
+  id                  String             @id @default(uuid())
+  affiliatePlatformId String?
+  ruleCode            String             @unique
+  name                String
+  description         String
+  severity            ComplianceSeverity @default(MEDIUM)
+  active              Boolean            @default(true)
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+
+  affiliatePlatform   AffiliatePlatform? @relation(fields: [affiliatePlatformId], references: [id], onDelete: SetNull)
+  checks              ComplianceCheck[]
+
+  @@index([ruleCode])
+  @@index([affiliatePlatformId])
+  @@index([active])
+}
+
+model ComplianceCheck {
+  id         String           @id @default(uuid())
+  productId  String?
+  contentId  String?
+  channelId  String?
+  ruleId     String
+  status     ComplianceStatus @default(PENDING)
+  reason     String?
+  checkedAt  DateTime         @default(now())
+
+  product    Product?         @relation(fields: [productId], references: [id], onDelete: Cascade)
+  content    Content?         @relation(fields: [contentId], references: [id], onDelete: Cascade)
+  channel    Channel?         @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  rule       ComplianceRule   @relation(fields: [ruleId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
+  @@index([contentId])
+  @@index([channelId])
+  @@index([ruleId])
+  @@index([status])
+  @@index([checkedAt])
+}
+
+model Setting {
+  id          String   @id @default(uuid())
+  key         String   @unique
+  value       String
+  type        String   @default("string") // string, boolean, number, json
+  description String?
+  updatedAt   DateTime @updatedAt
+
+  @@index([key])
+}
+
+// ==========================================
+// MÓDULO 8 — AUTONOMOUS OPTIMIZATION & DECISION ENGINE ENUMS
+// ==========================================
+
+enum AutonomyLevel {
+  LEVEL_0_OBSERVE
+  LEVEL_1_RECOMMEND
+  LEVEL_2_AUTO_LOW_RISK
+  LEVEL_3_AUTO_MEDIUM_RISK
+  LEVEL_4_SUPERVISED_HIGH_IMPACT
+  LEVEL_5_FULL_AUTONOMY_ALLOWED_ACTIONS
+}
+
+enum DecisionType {
+  INCREASE_PRIORITY
+  DECREASE_PRIORITY
+  PAUSE
+  RESUME
+  RETEST
+  RECREATE_CONTENT
+  REFRESH_CONTENT
+  CHANGE_CONTENT_VARIANT
+  CHANGE_CHANNEL
+  CHANGE_COUNTRY
+  CHANGE_LANGUAGE
+  CHANGE_SCHEDULE
+  INCREASE_DISTRIBUTION
+  DECREASE_DISTRIBUTION
+  CHANGE_PRODUCT
+  CHANGE_OFFER
+  STOP_UNPROFITABLE
+  SCALE_WINNER
+  START_EXPERIMENT
+  END_EXPERIMENT
+  REQUEST_REVIEW
+}
+
+enum PolicyResult {
+  ALLOW
+  DENY
+  REVIEW_REQUIRED
+  UNKNOWN
+}
+
+enum DecisionStatus {
+  PENDING
+  ANALYZING
+  APPROVED
+  REJECTED
+  SCHEDULED
+  EXECUTING
+  EXECUTED
+  FAILED
+  ROLLED_BACK
+  EXPIRED
+  CANCELLED
+}
+
+enum ActionType {
+  UPDATE_PRIORITY
+  PAUSE_CAMPAIGN
+  RESUME_CAMPAIGN
+  CREATE_CONTENT_TASK
+  CHANGE_CONTENT_VARIANT
+  CREATE_PUBLICATION_TASK
+  UPDATE_SCHEDULE
+  CHANGE_CHANNEL_PRIORITY
+  CHANGE_COUNTRY_PRIORITY
+  CHANGE_LANGUAGE_PRIORITY
+  CREATE_EXPERIMENT
+  END_EXPERIMENT
+  REFRESH_PRODUCT_DATA
+  REFRESH_OFFER
+  DISABLE_PRODUCT
+  ENABLE_PRODUCT
+  SEND_REPORT
+  SEND_ALERT
+}
+
+enum ActionStatus {
+  PENDING
+  SCHEDULED
+  EXECUTING
+  COMPLETED
+  FAILED
+  ROLLED_BACK
+  CANCELLED
+}
+
+enum RiskLevel {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum ApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  SNOOZED
+}
+
+// ==========================================
+// MÓDULO 8 — AUTONOMOUS OPTIMIZATION & DECISION ENGINE MODELS
+// ==========================================
+
+model Decision {
+  id               String         @id @default(uuid())
+  timestamp        DateTime       @default(now())
+  scope            String         @default("GLOBAL") // GLOBAL, PRODUCT, CHANNEL, CAMPAIGN, COUNTRY
+  entityType       String         // Product, Campaign, Content, Channel, etc.
+  entityId         String
+  decisionType     DecisionType
+  reason           String
+  confidence       Float          @default(0.0) // 0.0 to 1.0
+  expectedImpact   Json?          // { profitDelta: number, roiDelta: number }
+  riskScore        Float          @default(0.0) // 0 to 100
+  priority         Int            @default(3) // 0 to 5
+  autonomyLevel    AutonomyLevel  @default(LEVEL_1_RECOMMEND)
+  policyResult     PolicyResult   @default(UNKNOWN)
+  approvalRequired Boolean        @default(true)
+  status           DecisionStatus @default(PENDING)
+  createdAt        DateTime       @default(now())
+  executedAt       DateTime?
+
+  actions          Action[]
+  actionPlans      ActionPlan[]
+  outcomes         DecisionOutcome[]
+  riskAssessments  RiskAssessment[]
+  approvalRequests ApprovalRequest[]
+  histories        DecisionHistory[]
+
+  @@index([status, createdAt])
+  @@index([entityType, entityId])
+}
+
+model Action {
+  id                String       @id @default(uuid())
+  decisionId        String
+  actionType        ActionType
+  platform          String       @default("INTERNAL") // WEBSITE, BLOG, EMAIL, INSTAGRAM, etc.
+  accountId         String?
+  entityType        String
+  entityId          String
+  payload           Json?
+  scheduledAt       DateTime?
+  executedAt        DateTime?
+  status            ActionStatus @default(PENDING)
+  result            Json?
+  error             String?
+  rollbackAvailable Boolean      @default(false)
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+
+  decision          Decision          @relation(fields: [decisionId], references: [id], onDelete: Cascade)
+  approvalRequests  ApprovalRequest[]
+
+  @@index([status, scheduledAt])
+  @@index([decisionId])
+}
+
+model ActionPlan {
+  id                String       @id @default(uuid())
+  decisionId        String
+  steps             Json         // Array of step definitions
+  estimatedCost     Float        @default(0.0)
+  estimatedDuration Int          @default(0) // seconds
+  risk              RiskLevel    @default(LOW)
+  rollbackPlan      Json?        // Steps to revert
+  approvalRequired  Boolean      @default(true)
+  status            ActionStatus @default(PENDING)
+  createdAt         DateTime     @default(now())
+
+  decision          Decision     @relation(fields: [decisionId], references: [id], onDelete: Cascade)
+
+  @@index([decisionId])
+}
+
+model DecisionOutcome {
+  id               String   @id @default(uuid())
+  decisionId       String
+  beforeMetrics    Json
+  afterMetrics     Json
+  delta            Json
+  profitImpact     Float    @default(0.0)
+  revenueImpact    Float    @default(0.0)
+  commissionImpact Float    @default(0.0)
+  roiImpact        Float    @default(0.0)
+  success          Boolean  @default(true)
+  confidence       Float    @default(0.0)
+  createdAt        DateTime @default(now())
+
+  decision         Decision @relation(fields: [decisionId], references: [id], onDelete: Cascade)
+
+  @@index([decisionId])
+}
+
+model DecisionRule {
+  id          String                @id @default(uuid())
+  ruleCode    String                @unique
+  name        String
+  description String
+  scope       String                @default("GLOBAL")
+  active      Boolean               @default(true)
+  priority    Int                   @default(1)
+  createdAt   DateTime              @default(now())
+  updatedAt   DateTime              @updatedAt
+  versions    DecisionRuleVersion[]
+
+  @@index([ruleCode])
+  @@index([active])
+}
+
+model DecisionRuleVersion {
+  id         String       @id @default(uuid())
+  ruleId     String
+  version    Int          @default(1)
+  conditions Json         // Condition tree definition
+  action     Json         // Decision action specification
+  active     Boolean      @default(true)
+  createdAt  DateTime     @default(now())
+
+  rule       DecisionRule @relation(fields: [ruleId], references: [id], onDelete: Cascade)
+
+  @@index([ruleId])
+}
+
+model Policy {
+  id          String          @id @default(uuid())
+  policyCode  String          @unique
+  name        String
+  platform    String?         // Specific platform or NULL for global
+  country     String?         // Specific country or NULL for global
+  active      Boolean         @default(true)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  versions    PolicyVersion[]
+
+  @@index([policyCode])
+  @@index([platform])
+}
+
+model PolicyVersion {
+  id         String   @id @default(uuid())
+  policyId   String
+  version    Int      @default(1)
+  rules      Json     // Array of compliance constraints
+  active     Boolean  @default(true)
+  createdAt  DateTime @default(now())
+
+  policy     Policy   @relation(fields: [policyId], references: [id], onDelete: Cascade)
+
+  @@index([policyId])
+}
+
+model RiskAssessment {
+  id         String    @id @default(uuid())
+  decisionId String
+  riskScore  Float     // 0 to 100
+  riskLevel  RiskLevel
+  factors    Json      // Risk factors list
+  createdAt  DateTime  @default(now())
+
+  decision   Decision  @relation(fields: [decisionId], references: [id], onDelete: Cascade)
+
+  @@index([decisionId])
+}
+
+model Budget {
+  id                  String   @id @default(uuid())
+  scope               String   @default("GLOBAL") // GLOBAL, PLATFORM, CAMPAIGN
+  scopeId             String   @default("GLOBAL")
+  dailyBudget         Float    @default(100.0)
+  monthlyBudget       Float    @default(3000.0)
+  dailyLossLimit      Float    @default(50.0)
+  currentDailySpend   Float    @default(0.0)
+  currentMonthlySpend Float    @default(0.0)
+  currency            String   @default("USD")
+  updatedAt           DateTime @updatedAt
+
+  @@index([scope, scopeId])
+}
+
+model AutomationHealth {
+  id                   String   @id @default(uuid())
+  healthScore          Float    @default(100.0) // 0 to 100
+  apiStatus            String   @default("HEALTHY")
+  dbStatus             String   @default("HEALTHY")
+  circuitBreakerActive Boolean  @default(false)
+  globalKillSwitch     Boolean  @default(false)
+  updatedAt            DateTime @updatedAt
+}
+
+model ApprovalRequest {
+  id          String         @id @default(uuid())
+  decisionId  String
+  actionId    String?
+  status      ApprovalStatus @default(PENDING)
+  reason      String?
+  createdAt   DateTime       @default(now())
+  resolvedAt  DateTime?
+
+  decision    Decision       @relation(fields: [decisionId], references: [id], onDelete: Cascade)
+  action      Action?        @relation(fields: [actionId], references: [id], onDelete: SetNull)
+
+  @@index([status])
+  @@index([decisionId])
+}
+
+model DecisionHistory {
+  id             String   @id @default(uuid())
+  decisionId     String
+  actionTaken    String
+  reason         String
+  policyApplied  Json?
+  riskAssessment Json?
+  result         Json?
+  createdAt      DateTime @default(now())
+
+  decision       Decision @relation(fields: [decisionId], references: [id], onDelete: Cascade)
+
+  @@index([decisionId])
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  actor      String   @default("SYSTEM") // SYSTEM, USER, AI
+  action     String
+  entityType String
+  entityId   String
+  details    Json?
+  createdAt  DateTime @default(now())
+
+  @@index([actor])
+  @@index([entityType, entityId])
+  @@index([createdAt])
+}
+
+// ==========================================
+// MÓDULO 9 — AI LEARNING & PREDICTIVE INTELLIGENCE ENGINE MODELS
+// ==========================================
+
+enum ModelType {
+  BASELINE
+  STATISTICAL
+  ML_CLASSIFICATION
+  ML_REGRESSION
+  ENSEMBLE
+}
+
+enum ModelTarget {
+  CONVERSION
+  COMMISSION
+  PROFIT
+  ROI
+  EPC
+  REVENUE
+  COST
+  JOURNEY
+  SEO
+}
+
+enum ModelStatus {
+  TRAINING
+  VALIDATING
+  ACTIVE
+  SHADOW
+  DEPRECATED
+  FAILED
+}
+
+enum PredictionType {
+  CVR
+  COMMISSION_PROBABILITY
+  PROFIT_PROBABILITY
+  EXPECTED_PROFIT
+  EXPECTED_ROI
+  EXPECTED_EPC
+  EXPECTED_REVENUE
+  OPPORTUNITY_SCORE
+  JOURNEY
+  SEO
+}
+
+enum RecommendationType {
+  PRODUCT
+  OFFER
+  CHANNEL
+  COUNTRY
+  CONTENT
+  SCHEDULE
+  AFFILIATE_PROGRAM
+}
+
+enum RecommendationStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  EXECUTED
+  EXPIRED
+}
+
+enum AIMaturityLevel {
+  LEVEL_0_RULES
+  LEVEL_1_STATISTICAL
+  LEVEL_2_ML
+  LEVEL_3_ENSEMBLE
+  LEVEL_4_PREDICTIVE
+  LEVEL_5_ADAPTIVE
+}
+
+model PredictionDataset {
+  id                 String   @id @default(uuid())
+  timestamp          DateTime @default(now())
+  productId          String?
+  offerId            String?
+  affiliateProgramId String?
+  category           String?
+  subcategory        String?
+  country            String?
+  language           String?
+  currency           String?  @default("USD")
+  channel            String?
+  contentType        String?
+  contentVariant     String?
+  publicationTime    DateTime?
+  dayOfWeek          Int?
+  price              Decimal? @db.Decimal(18, 4)
+  commissionRate     Decimal? @db.Decimal(18, 4)
+  commissionAmount   Decimal? @db.Decimal(18, 4)
+  affiliateClicks    Int      @default(0)
+  clicks             Int      @default(0)
+  impressions        Int      @default(0)
+  conversions        Int      @default(0)
+  sales              Int      @default(0)
+  refunds            Int      @default(0)
+  reversals          Int      @default(0)
+  revenue            Decimal  @default(0) @db.Decimal(18, 4)
+  cost               Decimal  @default(0) @db.Decimal(18, 4)
+  profit             Decimal  @default(0) @db.Decimal(18, 4)
+  ROI                Decimal  @default(0) @db.Decimal(18, 4)
+  ROAS               Decimal  @default(0) @db.Decimal(18, 4)
+  EPC                Decimal  @default(0) @db.Decimal(18, 4)
+  CTR                Decimal  @default(0) @db.Decimal(18, 4)
+  CVR                Decimal  @default(0) @db.Decimal(18, 4)
+  engagementRate     Decimal  @default(0) @db.Decimal(18, 4)
+  dataQualityScore   Float    @default(100.0)
+  createdAt          DateTime @default(now())
+
+  @@index([productId])
+  @@index([category, country])
+  @@index([timestamp])
+}
+
+model FeatureStore {
+  id             String           @id @default(uuid())
+  name           String           @unique
+  version        Int              @default(1)
+  source         String
+  calculation    String
+  freshnessScore Float            @default(1.0)
+  lastUpdated    DateTime         @updatedAt
+  createdAt      DateTime         @default(now())
+  versions       FeatureVersion[]
+
+  @@index([name])
+}
+
+model FeatureVersion {
+  id             String       @id @default(uuid())
+  featureStoreId String
+  version        Int          @default(1)
+  schema         Json
+  calculation    String
+  active         Boolean      @default(true)
+  createdAt      DateTime     @default(now())
+
+  featureStore   FeatureStore @relation(fields: [featureStoreId], references: [id], onDelete: Cascade)
+
+  @@index([featureStoreId])
+}
+
+model Model {
+  id                 String         @id @default(uuid())
+  name               String
+  version            String
+  modelType          ModelType      @default(STATISTICAL)
+  target             ModelTarget
+  features           Json
+  trainingDatasetId  String?
+  metrics            Json?
+  status             ModelStatus    @default(ACTIVE)
+  createdAt          DateTime       @default(now())
+  deprecatedAt       DateTime?
+  versions           ModelVersion[]
+
+  @@index([status, target])
+  @@index([name, version])
+}
+
+model ModelVersion {
+  id              String      @id @default(uuid())
+  modelId         String
+  version         Int         @default(1)
+  weights         Json?
+  hyperparameters Json?
+  metrics         Json
+  status          ModelStatus @default(SHADOW)
+  createdAt       DateTime    @default(now())
+
+  model           Model       @relation(fields: [modelId], references: [id], onDelete: Cascade)
+
+  @@index([modelId])
+}
+
+model Prediction {
+  id              String         @id @default(uuid())
+  predictionType  PredictionType
+  entityType      String
+  entityId        String
+  predictedValue  Decimal        @db.Decimal(18, 4)
+  lowerBound      Decimal?       @db.Decimal(18, 4)
+  upperBound      Decimal?       @db.Decimal(18, 4)
+  confidenceScore Float          @default(0.0) // 0.0 to 1.0
+  riskScore       Float          @default(0.0) // 0.0 to 100.0
+  modelVersion    String?
+  featureVersion  String?
+  timestamp       DateTime       @default(now())
+
+  histories       PredictionHistory[]
+
+  @@index([entityType, entityId])
+  @@index([predictionType, timestamp])
+}
+
+model PredictionHistory {
+  id              String     @id @default(uuid())
+  predictionId    String
+  predictedValue  Decimal    @db.Decimal(18, 4)
+  actualValue     Decimal    @db.Decimal(18, 4)
+  error           Decimal    @db.Decimal(18, 4)
+  percentageError Float
+  modelVersion    String
+  timestamp       DateTime   @default(now())
+
+  prediction      Prediction @relation(fields: [predictionId], references: [id], onDelete: Cascade)
+
+  @@index([predictionId])
+}
+
+model Recommendation {
+  id                 String               @id @default(uuid())
+  recommendationType RecommendationType
+  entityId           String
+  score              Float                @default(0.0)
+  confidence         Float                @default(0.0)
+  expectedImpact     Json?
+  risk               Float                @default(0.0)
+  reason             String
+  status             RecommendationStatus @default(PENDING)
+  createdAt          DateTime             @default(now())
+
+  @@index([status, score])
+  @@index([recommendationType, entityId])
+}
+
+model ProductCluster {
+  id          String   @id @default(uuid())
+  name        String
+  category    String
+  priceRange  String
+  features    Json
+  productIds  Json
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([category])
+}
+
+model ContentCluster {
+  id               String   @id @default(uuid())
+  name             String
+  contentType      String
+  format           String
+  performanceScore Float    @default(0.0)
+  contentIds       Json
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([contentType])
+}
+
+model MarketCluster {
+  id            String   @id @default(uuid())
+  name          String
+  country       String
+  language      String
+  affinityScore Float    @default(0.0)
+  channels      Json
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([country, language])
+}
+
+model AIUsageRecord {
+  id            String   @id @default(uuid())
+  provider      String   @default("OPENAI") // OPENAI, ANTHROPIC, GEMINI, etc.
+  model         String
+  inputTokens   Int      @default(0)
+  outputTokens  Int      @default(0)
+  requests      Int      @default(1)
+  estimatedCost Decimal  @default(0) @db.Decimal(18, 4)
+  createdAt     DateTime @default(now())
+
+  @@index([provider, createdAt])
+}
+
+// ==========================================
+// MÓDULO 10 — GLOBAL MARKET EXPANSION & LOCALIZATION ENGINE MODELS
+// ==========================================
+
+enum MarketStatus {
+  ACTIVE
+  TESTING
+  OPPORTUNITY
+  DECLINING
+  BLOCKED
+}
+
+enum TextDirection {
+  LTR
+  RTL
+}
+
+enum OpportunityRecommendation {
+  BLOCK
+  WAIT
+  RESEARCH
+  TEST
+  EXPAND
+  SCALE
+}
+
+enum TranslationMethod {
+  LLM
+  TRANSLATION_API
+  HUMAN
+  HYBRID
+}
+
+enum LocalizationStatus {
+  DRAFT
+  QA_PENDING
+  READY_FOR_PUBLICATION
+  STALE
+  BLOCKED
+}
+
+enum MarketRiskLevel {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+model Market {
+  id                   String       @id @default(uuid())
+  countryCode          String       @unique // ISO 3166-1 alpha-2 or alpha-3
+  countryName          String
+  region               String
+  continent            String
+  defaultLanguage      String
+  languages            Json
+  currency             String
+  timezone             String
+  population           BigInt       @default(0)
+  internetPenetration  Float        @default(0.0)
+  ecommerceIndicators  Json?
+  marketStatus         MarketStatus @default(OPPORTUNITY)
+  createdAt            DateTime     @default(now())
+  updatedAt            DateTime     @updatedAt
+
+  @@index([countryCode])
+  @@index([region])
+}
+
+model Language {
+  id             String   @id @default(uuid())
+  code           String   @unique
+  name           String
+  nativeName     String
+  marketCoverage Json?
+  createdAt      DateTime @default(now())
+
+  @@index([code])
+}
+
+model Locale {
+  id        String        @id @default(uuid())
+  code      String        @unique // e.g. en-US, pt-BR, de-DE
+  name      String
+  direction TextDirection @default(LTR)
+  createdAt DateTime      @default(now())
+
+  @@index([code])
+}
+
+model GlobalMarketProfile {
+  id                          String   @id @default(uuid())
+  country                     String   @unique
+  language                    String
+  currency                    String
+  timezone                    String
+  consumerBehavior            Json?
+  ecommerceMaturity           Float    @default(50.0)
+  preferredChannels           Json?
+  preferredFormats            Json?
+  shoppingSeasonality         Json?
+  regulatoryNotes             String?
+  affiliateAvailability       Boolean  @default(true)
+  marketSize                  Decimal  @default(0) @db.Decimal(18, 4)
+  competitionLevel            Float    @default(50.0)
+  averageOrderValue           Decimal  @default(0) @db.Decimal(18, 4)
+  estimatedConversionBehavior Json?
+  createdAt                   DateTime @default(now())
+  updatedAt                   DateTime @updatedAt
+
+  @@index([country])
+}
+
+model MarketOpportunity {
+  id               String                    @id @default(uuid())
+  productId        String
+  country          String
+  language         String
+  currency         String
+  channel          String
+  opportunityScore Float                     @default(0.0)
+  expectedProfit   Decimal                   @default(0) @db.Decimal(18, 4)
+  expectedROI      Decimal                   @default(0) @db.Decimal(18, 4)
+  confidence       Float                     @default(0.0)
+  riskScore        Float                     @default(0.0)
+  localizationCost Decimal                   @default(0) @db.Decimal(18, 4)
+  recommendation   OpportunityRecommendation @default(RESEARCH)
+  status           String                    @default("PENDING")
+  createdAt        DateTime                  @default(now())
+
+  @@index([productId, country, channel])
+  @@index([country, opportunityScore])
+}
+
+model MarketPolicy {
+  id                  String          @id @default(uuid())
+  country             String
+  affiliatePolicies   Json?
+  platformPolicies    Json?
+  advertisingPolicies Json?
+  privacyRules        Json?
+  riskLevel           MarketRiskLevel @default(LOW)
+  status              String          @default("ACTIVE")
+  updatedAt           DateTime        @updatedAt
+
+  @@index([country, status])
+}
+
+model MarketRisk {
+  id              String   @id @default(uuid())
+  country         String   @unique
+  regulatoryRisk  Float    @default(0.0)
+  currencyRisk    Float    @default(0.0)
+  competitionRisk Float    @default(0.0)
+  overallRisk     Float    @default(0.0)
+  updatedAt       DateTime @updatedAt
+
+  @@index([country])
+}
+
+model Localization {
+  id                String             @id @default(uuid())
+  contentPackageId  String
+  parentContentId   String?
+  country           String
+  language          String
+  locale            String
+  translatedTitle   String
+  translatedCaption String?
+  translatedBody    String
+  localizedPrice    Decimal?           @db.Decimal(18, 4)
+  localizedCurrency String?
+  exchangeRate      Decimal?           @db.Decimal(18, 4)
+  translationMethod TranslationMethod  @default(LLM)
+  qualityScore      Float              @default(100.0)
+  status            LocalizationStatus @default(DRAFT)
+  createdAt         DateTime           @default(now())
+
+  @@index([contentPackageId, locale])
+  @@index([country, language])
+}
+
+model TranslationMemory {
+  id             String   @id @default(uuid())
+  sourceHash     String
+  sourceText     String
+  translatedText String
+  languageFrom   String
+  languageTo     String
+  domain         String   @default("AFFILIATE")
+  usageCount     Int      @default(1)
+  createdAt      DateTime @default(now())
+
+  @@index([sourceHash, languageFrom, languageTo])
+}
+
+model GlobalGlossary {
+  id             String   @id @default(uuid())
+  term           String
+  translatedTerm String
+  languageFrom   String
+  languageTo     String
+  domain         String   @default("PRODUCT")
+  createdAt      DateTime @default(now())
+
+  @@index([term, languageFrom, languageTo])
+}
+
+model FXRate {
+  id           String   @id @default(uuid())
+  currencyFrom String
+  currencyTo   String
+  rate         Decimal  @db.Decimal(18, 4)
+  source       String   @default("INTERNAL")
+  timestamp    DateTime @default(now())
+
+  @@index([currencyFrom, currencyTo, timestamp])
+}
+
+model MarketEvent {
+  id         String   @id @default(uuid())
+  event      String
+  country    String
+  startDate  DateTime
+  endDate    DateTime
+  importance Int      @default(3)
+  categories Json?
+  confidence Float    @default(1.0)
+
+  @@index([country, startDate])
+}
+
+model GlobalPortfolio {
+  id                String   @id @default(uuid())
+  country           String   @unique
+  productCount      Int      @default(0)
+  expectedRevenue   Decimal  @default(0) @db.Decimal(18, 4)
+  expectedProfit    Decimal  @default(0) @db.Decimal(18, 4)
+  marketShare       Float    @default(0.0)
+  concentrationRisk Float    @default(0.0)
+  updatedAt         DateTime @updatedAt
+
+  @@index([country])
+}
+
+// ==========================================
+// MÓDULO 11 — AUTONOMOUS GROWTH & CAMPAIGN ORCHESTRATION ENGINE
+// ==========================================
+
+enum GrowthObjectiveType {
+  REVENUE
+  PROFIT
+  ROI
+  CONVERSIONS
+  EPC
+  CTR
+  CVR
+  TRAFFIC
+  CONTENT
+  MARKET_EXPANSION
+  PRODUCT_EXPANSION
+  CHANNEL_EXPANSION
+  CUSTOM
+}
+
+enum GrowthObjectivePriority {
+  CRITICAL
+  HIGH
+  MEDIUM
+  LOW
+}
+
+enum CampaignStrategy {
+  HARVEST
+  EXPANSION
+  EXPLORATION
+  DEFENSE
+  RECOVERY
+  DIVERSIFICATION
+  EFFICIENCY
+}
+
+enum GrowthCampaignStatus {
+  DRAFT
+  PLANNED
+  READY
+  RUNNING
+  PAUSED
+  OPTIMIZING
+  SCALING
+  COMPLETED
+  FAILED
+  EXITED
+}
+
+enum GrowthExperimentType {
+  A_B
+  CONTENT
+  HOOK
+  CTA
+  THUMBNAIL
+  TITLE
+  FORMAT
+  CHANNEL
+  MARKET
+  PRODUCT
+  OFFER
+  PRICE_PRESENTATION
+  PUBLISH_TIME
+}
+
+enum GrowthExperimentStatus {
+  DRAFT
+  RUNNING
+  PAUSED
+  COMPLETED
+  INCONCLUSIVE
+}
+
+enum GrowthTaskType {
+  DISCOVER
+  ANALYZE
+  GENERATE
+  LOCALIZE
+  QA
+  PUBLISH
+  MEASURE
+  OPTIMIZE
+  PAUSE
+  SCALE
+  REPORT
+  REVIEW
+}
+
+enum GrowthTaskPriority {
+  P0
+  P1
+  P2
+  P3
+}
+
+enum GrowthTaskStatus {
+  PENDING
+  QUEUED
+  RUNNING
+  COMPLETED
+  FAILED
+  BLOCKED
+  REVIEW
+}
+
+enum BudgetScope {
+  GLOBAL
+  MARKET
+  PRODUCT
+  CHANNEL
+  CAMPAIGN
+  EXPERIMENT
+}
+
+enum CampaignHealthLevel {
+  HEALTHY
+  WATCH
+  WARNING
+  CRITICAL
+}
+
+enum GrowthPeriod {
+  DAILY
+  WEEKLY
+  MONTHLY
+  QUARTERLY
+}
+
+enum GrowthAutomationLevel {
+  MANUAL
+  ASSISTED
+  SUPERVISED
+  AUTONOMOUS
+}
+
+model GrowthObjective {
+  id          String                  @id @default(uuid())
+  name        String
+  description String?
+  type        GrowthObjectiveType     @default(PROFIT)
+  targetValue Decimal                 @db.Decimal(18, 4)
+  currentValue Decimal                 @default(0) @db.Decimal(18, 4)
+  deadline    DateTime?
+  priority    GrowthObjectivePriority @default(MEDIUM)
+  status      String                  @default("ACTIVE")
+  createdAt   DateTime                @default(now())
+  updatedAt   DateTime                @updatedAt
+
+  campaigns   Campaign[]
+
+  @@index([status])
+  @@index([priority])
+}
+
+model CampaignVariant {
+  id         String   @id @default(uuid())
+  campaignId String
+  contentId  String?
+  hook       String?
+  headline   String?
+  CTA        String?
+  creative   String?
+  language   String   @default("pt-BR")
+  market     String   @default("BR")
+  channel    String   @default("INSTAGRAM")
+  status     String   @default("ACTIVE")
+  performance Json?
+  createdAt  DateTime @default(now())
+
+  campaign   Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@index([campaignId])
+  @@index([status])
+}
+
+model GrowthExperiment {
+  id                   String                 @id @default(uuid())
+  campaignId           String
+  experimentType       GrowthExperimentType   @default(A_B)
+  hypothesis           String
+  controlVariantId     String?
+  treatmentVariantId   String?
+  minimumSample        Int                    @default(100)
+  minimumDuration      Int                    @default(7)
+  confidenceThreshold  Float                  @default(0.95)
+  status               GrowthExperimentStatus @default(DRAFT)
+  winnerVariantId      String?
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime               @updatedAt
+
+  campaign             Campaign               @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@index([status, campaignId])
+  @@index([campaignId])
+}
+
+model GrowthTask {
+  id           String             @id @default(uuid())
+  campaignId   String?
+  type         GrowthTaskType
+  priority     GrowthTaskPriority @default(P2)
+  status       GrowthTaskStatus   @default(PENDING)
+  dependencies Json?
+  scheduledAt  DateTime           @default(now())
+  completedAt  DateTime?
+  error        String?
+  createdAt    DateTime           @default(now())
+
+  campaign     Campaign?          @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@index([status, scheduledAt])
+  @@index([campaignId])
+}
+
+model GrowthBudget {
+  id              String      @id @default(uuid())
+  scope           BudgetScope @default(GLOBAL)
+  scopeId         String      @default("GLOBAL")
+  allocatedAmount Decimal     @db.Decimal(18, 4)
+  spentAmount     Decimal     @default(0) @db.Decimal(18, 4)
+  remainingAmount Decimal     @db.Decimal(18, 4)
+  reservedAmount  Json?
+  updatedAt       DateTime    @updatedAt
+
+  @@index([scope, scopeId])
+}
+
+model BudgetAllocation {
+  id                  String      @id @default(uuid())
+  growthBudgetId      String?
+  scope               BudgetScope @default(GLOBAL)
+  scopeId             String?
+  allocatedAmount     Decimal     @db.Decimal(18, 4)
+  spentAmount         Decimal     @default(0) @db.Decimal(18, 4)
+  remainingAmount     Decimal     @db.Decimal(18, 4)
+  operationalReserve  Decimal     @default(0) @db.Decimal(18, 4)
+  experimentalReserve Decimal     @default(0) @db.Decimal(18, 4)
+  emergencyReserve    Decimal     @default(0) @db.Decimal(18, 4)
+  updatedAt           DateTime    @updatedAt
+
+  @@index([scope])
+}
+
+model CampaignHealth {
+  id          String              @id @default(uuid())
+  campaignId  String              @unique
+  healthScore Float               @default(100.0)
+  healthLevel CampaignHealthLevel @default(HEALTHY)
+  ctrScore    Float               @default(100.0)
+  cvrScore    Float               @default(100.0)
+  profitScore Float               @default(100.0)
+  roiScore    Float               @default(100.0)
+  updatedAt   DateTime            @updatedAt
+
+  campaign    Campaign            @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@index([campaignId, healthLevel])
+}
+
+model CampaignProposal {
+  id             String           @id @default(uuid())
+  name           String
+  period         GrowthPeriod     @default(WEEKLY)
+  strategy       CampaignStrategy @default(HARVEST)
+  objectives     Json?
+  markets        Json?
+  products       Json?
+  channels       Json?
+  budget         Decimal          @db.Decimal(18, 4)
+  expectedProfit Decimal          @db.Decimal(18, 4)
+  risk           Float            @default(0.1)
+  approved       Boolean          @default(false)
+  status         String           @default("PROPOSED")
+  createdAt      DateTime         @default(now())
+
+  @@index([status])
+}
+
+model GrowthPlan {
+  id             String       @id @default(uuid())
+  period         GrowthPeriod @default(MONTHLY)
+  objectives     Json?
+  markets        Json?
+  products       Json?
+  channels       Json?
+  budget         Decimal      @db.Decimal(18, 4)
+  expectedProfit Decimal      @db.Decimal(18, 4)
+  risk           Float        @default(0.1)
+  approved       Boolean      @default(false)
+  createdAt      DateTime     @default(now())
+
+  @@index([period])
+}
+
+// ==========================================
+// MÓDULO 12 — AUTONOMOUS AFFILIATE BUSINESS OPERATING SYSTEM
+// ==========================================
+
+enum BusinessModelType {
+  AFFILIATE
+  CONTENT_AFFILIATE
+  DEAL_AFFILIATE
+  COMPARISON_AFFILIATE
+  LEAD_AFFILIATE
+  MIXED
+}
+
+enum RiskToleranceLevel {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum BusinessObjectiveType {
+  NET_PROFIT
+  REVENUE
+  ROI
+  CASH_FLOW
+  MARKET_EXPANSION
+  PRODUCT_EXPANSION
+  CHANNEL_EXPANSION
+  EFFICIENCY
+  CUSTOM
+}
+
+enum BusinessObjectivePeriod {
+  DAILY
+  WEEKLY
+  MONTHLY
+  QUARTERLY
+  YEARLY
+}
+
+enum BusinessObjectiveStatus {
+  NOT_STARTED
+  ON_TRACK
+  AT_RISK
+  BEHIND
+  ACHIEVED
+  FAILED
+}
+
+enum StrategicHorizon {
+  DAYS_30
+  DAYS_90
+  DAYS_180
+  DAYS_365
+}
+
+enum RecurringPeriod {
+  NONE
+  WEEKLY
+  MONTHLY
+  ANNUAL
+}
+
+enum CostCenterCategory {
+  AI
+  CONTENT
+  MARKETING
+  PUBLICATION
+  MESSAGING
+  INFRASTRUCTURE
+  TOOLS
+  AFFILIATE
+}
+
+enum CashReserveStatus {
+  NORMAL
+  WARNING
+  SAFETY_LOCK
+}
+
+enum BusinessRiskCategory {
+  FINANCIAL
+  MARKET
+  PLATFORM
+  AFFILIATE
+  TECHNICAL
+  COMPLIANCE
+  OPERATIONAL
+  CONCENTRATION
+  AI
+}
+
+enum BusinessLessonType {
+  SUCCESS
+  FAILURE
+  MARKET
+  PRODUCT
+  CHANNEL
+  CONTENT
+  FINANCE
+  RISK
+}
+
+enum BusinessActorType {
+  HUMAN
+  AI
+  N8N
+  SYSTEM
+}
+
+enum AffiliatePayoutStatus {
+  PENDING
+  APPROVED
+  PAID
+  DISPUTED
+}
+
+model BusinessProfile {
+  id            String             @id @default(uuid())
+  name          String             @default("Default Affiliate Business")
+  description   String?
+  baseCurrency  String             @default("USD")
+  baseCountry   String             @default("US")
+  businessModel BusinessModelType  @default(AFFILIATE)
+  riskTolerance RiskToleranceLevel @default(MEDIUM)
+  growthMode    String             @default("BALANCED")
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+}
+
+model BusinessObjective {
+  id              String                  @id @default(uuid())
+  name            String
+  type            BusinessObjectiveType   @default(NET_PROFIT)
+  period          BusinessObjectivePeriod @default(MONTHLY)
+  targetValue     Decimal                 @db.Decimal(18, 4)
+  currentValue    Decimal                 @default(0) @db.Decimal(18, 4)
+  deadline        DateTime?
+  requiredRunRate Decimal                 @default(0) @db.Decimal(18, 4)
+  status          BusinessObjectiveStatus @default(NOT_STARTED)
+  createdAt       DateTime                @default(now())
+
+  @@index([status, deadline])
+}
+
+model BusinessStrategy {
+  id               String           @id @default(uuid())
+  horizon          StrategicHorizon @default(DAYS_90)
+  objectives       Json?
+  targetMarkets    Json?
+  targetCategories Json?
+  budgetAllocation Json?
+  riskStrategy     Json?
+  version          Int              @default(1)
+  createdAt        DateTime         @default(now())
+}
+
+model BusinessFinancial {
+  id                String   @id @default(uuid())
+  date              DateTime @default(now())
+  currency          String   @default("USD")
+  grossRevenue      Decimal  @default(0) @db.Decimal(18, 4)
+  netRevenue        Decimal  @default(0) @db.Decimal(18, 4)
+  commissionRevenue Decimal  @default(0) @db.Decimal(18, 4)
+  refunds           Decimal  @default(0) @db.Decimal(18, 4)
+  reversals         Decimal  @default(0) @db.Decimal(18, 4)
+  operatingCosts    Json?
+  netProfit         Decimal  @default(0) @db.Decimal(18, 4)
+  profitMargin      Float    @default(0.0)
+  ROI               Float    @default(0.0)
+  cashFlow          Decimal  @default(0) @db.Decimal(18, 4)
+  cashBalance       Decimal  @default(0) @db.Decimal(18, 4)
+  createdAt         DateTime @default(now())
+
+  @@index([date, currency])
+}
+
+model BusinessExpense {
+  id         String             @id @default(uuid())
+  category   String
+  vendor     String?
+  amount     Decimal            @db.Decimal(18, 4)
+  currency   String             @default("USD")
+  date       DateTime           @default(now())
+  recurring  RecurringPeriod    @default(NONE)
+  costCenter CostCenterCategory @default(INFRASTRUCTURE)
+  campaignId String?
+  createdAt  DateTime           @default(now())
+
+  @@index([category, date])
+}
+
+model CashReserve {
+  id                  String            @id @default(uuid())
+  minimumCashReserve  Decimal           @db.Decimal(18, 4)
+  operationalReserve  Decimal           @db.Decimal(18, 4)
+  emergencyReserve    Decimal           @db.Decimal(18, 4)
+  currentBalance      Decimal           @db.Decimal(18, 4)
+  currency            String            @default("USD")
+  status              CashReserveStatus @default(NORMAL)
+  updatedAt           DateTime          @updatedAt
+}
+
+model BusinessRisk {
+  id             String               @id @default(uuid())
+  category       BusinessRiskCategory
+  description    String
+  probability    Float                @default(0.5)
+  impact         Float                @default(0.5)
+  score          Float                @default(50.0)
+  mitigationPlan String?
+  status         String               @default("ACTIVE")
+  updatedAt      DateTime             @updatedAt
+}
+
+model BusinessLesson {
+  id              String             @id @default(uuid())
+  type            BusinessLessonType
+  lesson          String
+  evidence        Json?
+  context         Json?
+  confidenceScore Float              @default(0.8)
+  createdAt       DateTime           @default(now())
+}
+
+model BusinessMemory {
+  id              String             @id @default(uuid())
+  type            BusinessLessonType
+  lesson          String
+  evidence        Json?
+  context         Json?
+  confidenceScore Float              @default(0.8)
+  createdAt       DateTime           @default(now())
+}
+
+model BusinessDecisionLog {
+  id             String            @id @default(uuid())
+  decisionType   String
+  actor          BusinessActorType @default(SYSTEM)
+  inputs         Json?
+  outputs        Json?
+  reason         String?
+  expectedImpact Json?
+  realizedImpact Json?
+  confidence     Float             @default(0.8)
+  cost           Decimal           @default(0) @db.Decimal(18, 4)
+  createdAt      DateTime          @default(now())
+
+  @@index([actor, createdAt])
+}
+
+model AffiliatePayout {
+  id             String                @id @default(uuid())
+  programId      String
+  period         String?
+  expectedAmount Decimal               @db.Decimal(18, 4)
+  approvedAmount Decimal               @default(0) @db.Decimal(18, 4)
+  paidAmount     Decimal               @default(0) @db.Decimal(18, 4)
+  currency       String                @default("USD")
+  payoutDate     DateTime?
+  status         AffiliatePayoutStatus @default(PENDING)
+  createdAt      DateTime              @default(now())
+
+  @@index([status, payoutDate])
+}
+
+// ==========================================
+// MÓDULO 13 — AUTONOMOUS INTELLIGENCE & DECISION LAYER
+// ==========================================
+
+enum IntelligenceEventType {
+  SIGNAL_RECEIVED
+  OPPORTUNITY_DETECTED
+  RISK_DETECTED
+  DECISION_CREATED
+  APPROVAL_REQUIRED
+  ACTION_STARTED
+  OUTCOME_RECEIVED
+  LEARNING_COMPLETED
+}
+
+enum MemoryType {
+  EPISODIC
+  SEMANTIC
+  STRATEGIC
+  PROCEDURAL
+  WORKING
+}
+
+enum EvidenceConfidenceType {
+  DIRECT
+  INDIRECT
+  HISTORICAL
+  PREDICTIVE
+  EXTERNAL
+  INFERRED
+  UNKNOWN
+}
+
+enum DecisionHierarchyLevel {
+  LEVEL_1_OPERATIONAL
+  LEVEL_2_TACTICAL
+  LEVEL_3_STRATEGIC
+}
+
+enum DecisionActionType {
+  OBSERVE
+  INVESTIGATE
+  TEST
+  OPTIMIZE
+  SCALE
+  PAUSE
+  STOP
+  REJECT
+  CREATE
+  REPLICATE
+  DIVERSIFY
+  ESCALATE
+  REQUEST_APPROVAL
+  DO_NOTHING
+}
+
+enum DecisionStatusType {
+  PROPOSED
+  PENDING_APPROVAL
+  APPROVED
+  REJECTED
+  EXECUTING
+  COMPLETED
+  FAILED
+  ROLLED_BACK
+}
+
+enum AgentType {
+  MARKET_INTELLIGENCE
+  PRODUCT_INTELLIGENCE
+  CONTENT_INTELLIGENCE
+  CHANNEL_INTELLIGENCE
+  AFFILIATE_INTELLIGENCE
+  FINANCIAL_INTELLIGENCE
+  RISK_COMPLIANCE
+  EXPERIMENTATION
+  GROWTH
+  STRATEGY
+}
+
+enum ApprovalChannelType {
+  DASHBOARD
+  WEBHOOK
+  TELEGRAM
+  WHATSAPP
+  EMAIL
+}
+
+model IntelligenceEvent {
+  id           String                @id @default(uuid())
+  eventType    IntelligenceEventType @default(SIGNAL_RECEIVED)
+  sourceModule String
+  entityType   String
+  entityId     String
+  payload      Json?
+  timestamp    DateTime              @default(now())
+
+  @@index([eventType, timestamp])
+}
+
+model IntelligenceContext {
+  id                         String   @id @default(uuid())
+  timestamp                  DateTime @default(now())
+  financialSnapshot          Json?
+  objectivesSnapshot         Json?
+  channelPerformanceSnapshot Json?
+  marketConstraintsSnapshot Json?
+  autonomyMode               String   @default("SUPERVISED")
+}
+
+model IntelligenceMemory {
+  id              String     @id @default(uuid())
+  type            MemoryType @default(EPISODIC)
+  key             String
+  content         Json
+  confidenceScore Float      @default(0.8)
+  decayRate       Float      @default(0.01)
+  validUntil      DateTime?
+  createdAt       DateTime   @default(now())
+
+  @@index([type, confidenceScore])
+}
+
+model MemoryEmbedding {
+  id        String   @id @default(uuid())
+  memoryId  String
+  vector    Json?
+  modelName String   @default("text-embedding-3-small")
+  createdAt DateTime @default(now())
+}
+
+model IntelligenceEvidence {
+  id               String                 @id @default(uuid())
+  evidenceType     EvidenceConfidenceType @default(DIRECT)
+  description      String
+  source           String
+  reliabilityScore Float                  @default(0.8)
+  payload          Json?
+  createdAt        DateTime               @default(now())
+}
+
+model IntelligenceHypothesis {
+  id          String   @id @default(uuid())
+  title       String
+  explanation String
+  confidence  Float    @default(0.5)
+  status      String   @default("FORMULATED")
+  evidenceIds Json?
+  createdAt   DateTime @default(now())
+}
+
+model IntelligencePrediction {
+  id                 String   @id @default(uuid())
+  targetMetric       String
+  lowerBound         Decimal  @db.Decimal(18, 4)
+  expectedValue      Decimal  @db.Decimal(18, 4)
+  upperBound         Decimal  @db.Decimal(18, 4)
+  confidenceInterval Float    @default(0.9)
+  horizonDays        Int      @default(30)
+  createdAt          DateTime @default(now())
+}
+
+model IntelligenceScenario {
+  id                 String   @id @default(uuid())
+  scenarioType       String   @default("BASE")
+  projectedNetProfit Decimal  @db.Decimal(18, 4)
+  projectedROI       Float    @default(0.0)
+  probability        Float    @default(0.5)
+  createdAt          DateTime @default(now())
+}
+
+model IntelligenceOpportunity {
+  id                String   @id @default(uuid())
+  title             String
+  domain            String
+  expectedNetProfit Decimal  @db.Decimal(18, 4)
+  cvr               Float    @default(0.0)
+  epc               Decimal  @db.Decimal(18, 4)
+  riskScore         Float    @default(0.0)
+  priorityScore     Float    @default(0.0)
+  opportunityScore  Float    @default(0.0)
+  status            String   @default("DETECTED")
+  createdAt         DateTime @default(now())
+}
+
+model IntelligenceRisk {
+  id             String   @id @default(uuid())
+  category       String
+  description    String
+  severity       String   @default("MEDIUM")
+  probability    Float    @default(0.5)
+  impact         Float    @default(0.5)
+  riskScore      Float    @default(0.0)
+  mitigationPlan String?
+  status         String   @default("ACTIVE")
+  createdAt      DateTime @default(now())
+}
+
+model IntelligenceDecision {
+  id                    String                 @id @default(uuid())
+  title                 String
+  level                 DecisionHierarchyLevel @default(LEVEL_1_OPERATIONAL)
+  actionType            DecisionActionType     @default(OBSERVE)
+  entityType            String
+  entityId              String
+  reason                String
+  confidenceScore       Float                  @default(0.8)
+  expectedProfitImpact  Decimal                @db.Decimal(18, 4)
+  expectedRiskScore     Float                  @default(0.0)
+  priorityScore         Float                  @default(0.0)
+  idempotencyKey        String                 @unique
+  status                DecisionStatusType     @default(PROPOSED)
+  requiresHumanApproval Boolean                @default(false)
+  createdAt             DateTime               @default(now())
+
+  @@index([status, priorityScore])
+}
+
+model DecisionAlternative {
+  id             String   @id @default(uuid())
+  decisionId     String
+  optionName     String
+  expectedProfit Decimal  @db.Decimal(18, 4)
+  riskScore      Float    @default(0.0)
+  discardReason  String?
+  createdAt      DateTime @default(now())
+}
+
+model DecisionJournal {
+  id              String   @id @default(uuid())
+  decisionId      String
+  contextSnapshot Json?
+  whyReasoning    String
+  evaluatedRisks  Json?
+  agentOpinions   Json?
+  actualOutcome   Json?
+  createdAt       DateTime @default(now())
+}
+
+model IntelligenceActionPlan {
+  id                String   @id @default(uuid())
+  decisionId        String
+  estimatedCost     Decimal  @db.Decimal(18, 4)
+  estimatedDuration Int      @default(0)
+  rollbackAvailable Boolean  @default(true)
+  status            String   @default("PLANNED")
+  createdAt         DateTime @default(now())
+}
+
+model IntelligenceAction {
+  id           String   @id @default(uuid())
+  planId       String
+  stepOrder    Int      @default(1)
+  actionName   String
+  targetModule String
+  payload      Json?
+  status       String   @default("PENDING")
+  createdAt    DateTime @default(now())
+}
+
+model IntelligenceOutcome {
+  id                String   @id @default(uuid())
+  decisionId        String
+  expectedNetProfit Decimal  @db.Decimal(18, 4)
+  actualNetProfit   Decimal  @db.Decimal(18, 4)
+  variance          Decimal  @db.Decimal(18, 4)
+  accuracyScore     Float    @default(0.0)
+  evaluatedAt       DateTime @default(now())
+}
+
+model DecisionLearningLog {
+  id              String   @id @default(uuid())
+  decisionId      String
+  lessonLearned   String
+  adjustmentsMade Json?
+  confidenceDelta Float    @default(0.0)
+  createdAt       DateTime @default(now())
+}
+
+model AgentTask {
+  id              String    @id @default(uuid())
+  agentType       AgentType
+  taskDescription String
+  status          String    @default("PENDING")
+  createdAt       DateTime  @default(now())
+}
+
+model AgentOutput {
+  id          String    @id @default(uuid())
+  taskId      String
+  agentType   AgentType
+  vote        String
+  confidence  Float     @default(0.8)
+  rationale   String
+  createdAt   DateTime  @default(now())
+}
+
+model AgentConsensus {
+  id                   String   @id @default(uuid())
+  decisionId           String
+  weightedScore        Float    @default(0.0)
+  consensusReached     Boolean  @default(true)
+  disagreementScore    Float    @default(0.0)
+  finalRecommendation  String   @default("PROCEED")
+  createdAt            DateTime @default(now())
+}
+
+model HumanApprovalRequest {
+  id           String              @id @default(uuid())
+  decisionId   String
+  requestedBy  String              @default("SYSTEM")
+  channel      ApprovalChannelType @default(DASHBOARD)
+  status       String              @default("PENDING")
+  responseNote String?
+  respondedAt  DateTime?
+  createdAt    DateTime            @default(now())
+
+  @@index([status])
+}
+
+model SystemDigitalTwinState {
+  id                   String   @id @default(uuid())
+  stateVersion         Int      @default(1)
+  financialState       Json?
+  activeCampaignsState Json?
+  channelHealthState   Json?
+  lastUpdated          DateTime @default(now())
+}
+
+// ==========================================
+// MODULE 14 — CONTINUOUS LEARNING ENUMS
+// ==========================================
+
+enum KnowledgeType {
+  PATTERN
+  RULE
+  STRATEGY
+  INSIGHT
+  RISK
+  PLAYBOOK
+}
+
+enum KnowledgeStatus {
+  NEW
+  VALIDATED
+  PROCESSED
+  REJECTED
+  ARCHIVED
+}
+
+enum LearningQueuePriority {
+  P0
+  P1
+  P2
+  P3
+  P4
+  HIGH
+  MEDIUM
+  LOW
+  BACKGROUND
+}
+
+enum CalibrationTargetModule {
+  M9
+  M13
+}
+
+// ==========================================
+// MODULE 14 — CONTINUOUS LEARNING MODELS
+// ==========================================
+
+model LearningEvent {
+  id              String                @id @default(uuid())
+  timestamp       DateTime              @default(now())
+  source          String
+  entityType      String
+  entityId        String
+  decisionId      String?
+  campaignId      String?
+  experimentId    String?
+  market          String?
+  country         String?
+  language        String?
+  channel         String?
+  metrics         Json
+  context         Json
+  confidenceScore Decimal               @default(0.5000) @db.Decimal(18, 4)
+  qualityScore    Decimal               @default(0.5000) @db.Decimal(18, 4)
+  status          KnowledgeStatus       @default(NEW)
+  createdAt       DateTime              @default(now())
+
+  @@index([source])
+  @@index([entityType, entityId])
+  @@index([decisionId])
+  @@index([campaignId])
+  @@index([status])
+  @@index([timestamp])
+}
+
+model DiscoveredKnowledge {
+  id                 String               @id @default(uuid())
+  knowledgeType      KnowledgeType
+  title              String
+  description        String
+  confidence         Decimal              @default(50.0000) @db.Decimal(18, 4)
+  importance         Decimal              @default(50.0000) @db.Decimal(18, 4)
+  decayFactor        Decimal              @default(0.0100) @db.Decimal(18, 4)
+  evidence           Json
+  sampleSize         Int                  @default(1)
+  market             String?
+  country            String?
+  language           String?
+  channel            String?
+  version            Int                  @default(1)
+  status             KnowledgeStatus      @default(NEW)
+  validFrom          DateTime             @default(now())
+  validUntil         DateTime?
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+
+  versions           KnowledgeVersion[]
+
+  @@index([knowledgeType])
+  @@index([status])
+  @@index([country, language])
+  @@index([createdAt])
+}
+
+model KnowledgeVersion {
+  id                 String              @id @default(uuid())
+  knowledgeId        String
+  knowledge          DiscoveredKnowledge @relation(fields: [knowledgeId], references: [id], onDelete: Cascade)
+  version            Int
+  delta              Json
+  previousConfidence Decimal             @db.Decimal(18, 4)
+  newConfidence      Decimal             @db.Decimal(18, 4)
+  reason             String
+  createdAt          DateTime            @default(now())
+
+  @@index([knowledgeId])
+  @@index([version])
+}
+
+model ModelCalibrationRecord {
+  id                 String                  @id @default(uuid())
+  modelId            String
+  targetModule       CalibrationTargetModule
+  previousMetric     Decimal                 @db.Decimal(18, 4)
+  calibratedMetric   Decimal                 @db.Decimal(18, 4)
+  adjustmentFactor   Decimal                 @db.Decimal(18, 4)
+  reason             String?
+  appliedAt          DateTime                @default(now())
+
+  @@index([modelId])
+  @@index([targetModule])
+  @@index([appliedAt])
+}
+
+
+
+
+
+
+
