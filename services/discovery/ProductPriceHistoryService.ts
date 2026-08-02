@@ -54,17 +54,21 @@ export class ProductPriceHistoryService {
    * Consulta o histórico de preços de um produto filtrado por período de dias.
    */
   public static async getPriceHistory(productId: string, days?: number) {
-    let whereClause: any = { productId };
+    try {
+      let whereClause: any = { productId };
 
-    if (days && days > 0) {
-      const startDate = new Date();
-      startDate.setDate(startDate.getDate() - days);
-      whereClause.capturedAt = { gte: startDate };
+      if (days && days > 0) {
+        const startDate = new Date();
+        startDate.setDate(startDate.getDate() - days);
+        whereClause.capturedAt = { gte: startDate };
+      }
+
+      return await prisma.productPriceHistory.findMany({
+        where: whereClause,
+        orderBy: { capturedAt: 'asc' },
+      });
+    } catch {
+      return [];
     }
-
-    return await prisma.productPriceHistory.findMany({
-      where: whereClause,
-      orderBy: { capturedAt: 'asc' },
-    });
   }
 }
