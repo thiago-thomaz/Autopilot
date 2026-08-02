@@ -18,12 +18,14 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     }
 
     if (!product) {
-      product = inMemoryProducts.find((p) => p.id === params.id || p.externalId === params.id);
-      if (product) {
+      const found = inMemoryProducts.find((p) => p.id === params.id || p.externalId === params.id);
+      if (found) {
+        const activeUrl = `https://www.amazon.com.br/s?k=${encodeURIComponent(found.title)}&tag=thomazpromos-20`;
         product = {
-          ...product,
-          priceHistory: product.priceHistory || [],
-          affiliatePlatform: product.affiliatePlatform || { name: 'Amazon Brasil', slug: 'amazon-brasil' },
+          ...found,
+          url: activeUrl,
+          priceHistory: found.priceHistory || [],
+          affiliatePlatform: found.affiliatePlatform || { name: 'Amazon Brasil', slug: 'amazon-brasil' },
         };
       }
     }

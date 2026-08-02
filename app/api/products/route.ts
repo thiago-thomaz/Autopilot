@@ -34,7 +34,10 @@ export async function GET(req: NextRequest) {
     }
 
     if (products.length === 0 && inMemoryProducts.length > 0) {
-      products = [...inMemoryProducts];
+      products = inMemoryProducts.map((p) => ({
+        ...p,
+        url: `https://www.amazon.com.br/s?k=${encodeURIComponent(p.title)}&tag=thomazpromos-20`,
+      }));
     }
 
     return NextResponse.json({ success: true, count: products.length, products });

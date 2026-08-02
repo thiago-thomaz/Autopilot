@@ -323,17 +323,26 @@ export class AmazonCreatorsApiClient {
         },
       ];
 
-      // Se a busca for aberta/geral, retorna mix completo de todos os departamentos
+      // Se a busca for aberta/geral, retorna mix completo de todos os departamentos com URLs 100% ativas e garantidas sem 404
       if (!lower || lower.includes('tudo') || lower.includes('todas') || lower.includes('oferta') || lower.includes('promoc')) {
-        return allDepartmentCatalog;
+        return allDepartmentCatalog.map((item) => ({
+          ...item,
+          url: `https://www.amazon.com.br/s?k=${encodeURIComponent(item.title)}&tag=${tag}`,
+        }));
       }
 
       // Filtragem por palavra-chave / departamento solicitado
-      const matches = allDepartmentCatalog.filter((item) =>
-        item.title.toLowerCase().includes(lower) ||
-        item.category.toLowerCase().includes(lower) ||
-        item.description.toLowerCase().includes(lower)
-      );
+      const matches = allDepartmentCatalog
+        .filter(
+          (item) =>
+            item.title.toLowerCase().includes(lower) ||
+            item.category.toLowerCase().includes(lower) ||
+            item.description.toLowerCase().includes(lower)
+        )
+        .map((item) => ({
+          ...item,
+          url: `https://www.amazon.com.br/s?k=${encodeURIComponent(item.title)}&tag=${tag}`,
+        }));
 
       if (matches.length > 0) {
         return matches;
