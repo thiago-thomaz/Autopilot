@@ -36,7 +36,7 @@ export async function GET(req: NextRequest) {
     if (products.length === 0 && inMemoryProducts.length > 0) {
       products = inMemoryProducts.map((p) => ({
         ...p,
-        url: p.url || `https://www.amazon.com.br/s?k=%22${encodeURIComponent(p.title)}%22&tag=thomazpromos-20`,
+        url: p.url || `https://www.amazon.com.br/dp/${p.externalId}?tag=thomazpromos-20`,
       }));
     }
 
