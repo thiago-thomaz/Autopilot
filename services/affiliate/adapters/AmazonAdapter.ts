@@ -94,60 +94,60 @@ export class AmazonCreatorsApiClient {
       const allDepartmentCatalog = [
         // --- ALIMENTOS E BEBIDAS ---
         {
-          asin: 'B07NRR739V',
+          asin: 'B07C5X8TQK',
           title: 'Café Torrado e Moído Orfeu Gourmet Intenso 250g',
           description: 'Café 100% Arábica com torra escura, notas de chocolate amargo e corpo aveludado.',
           price: 24.90,
           previousPrice: 29.90,
-          url: `https://www.amazon.com.br/dp/B07NRR739V?tag=${tag}`,
+          url: `https://www.amazon.com.br/dp/B07C5X8TQK?tag=${tag}`,
           imageUrl: 'https://m.media-amazon.com/images/I/61pS+3-L9AL._AC_SL1000_.jpg',
           category: 'Alimentos e Bebidas',
           rating: 4.8,
           reviews: 3200,
         },
         {
-          asin: 'B08FCMK8LN',
+          asin: 'B0762V9W1L',
           title: 'Azeite de Oliva Extra Virgen Português Andorinha 500ml',
           description: 'Azeite extra virgem de acidez máxima 0,5%, extraído a frio de azeitonas selecionadas.',
           price: 39.90,
           previousPrice: 48.00,
-          url: `https://www.amazon.com.br/dp/B08FCMK8LN?tag=${tag}`,
+          url: `https://www.amazon.com.br/dp/B0762V9W1L?tag=${tag}`,
           imageUrl: 'https://m.media-amazon.com/images/I/61kYyZ2+xBL._AC_SL1200_.jpg',
           category: 'Alimentos e Bebidas',
           rating: 4.9,
           reviews: 5400,
         },
         {
-          asin: 'B07Z8L4Q9K',
+          asin: 'B07MSLFF61',
           title: 'Whey Protein Concentrado 100% Pure Max Titanium 900g - Baunilha',
           description: 'Suplemento proteico para ganho de massa muscular com alta concentração de BCAAs e aminoácidos essenciais.',
           price: 99.90,
           previousPrice: 129.90,
-          url: `https://www.amazon.com.br/dp/B07Z8L4Q9K?tag=${tag}`,
+          url: `https://www.amazon.com.br/dp/B07MSLFF61?tag=${tag}`,
           imageUrl: 'https://m.media-amazon.com/images/I/61p1J8X8yNL._AC_SL1000_.jpg',
           category: 'Alimentos e Bebidas',
           rating: 4.7,
           reviews: 8900,
         },
         {
-          asin: 'B083L9P2M4',
+          asin: 'B073VTYFCH',
           title: 'Vinho Tinto Chileno Casillero del Diablo Cabernet Sauvignon 750ml',
           description: 'Vinho tinto seco de aromas intensos de cerejas pretas, groselhas e notas de baunilha.',
           price: 54.90,
           previousPrice: 69.90,
-          url: `https://www.amazon.com.br/dp/B083L9P2M4?tag=${tag}`,
+          url: `https://www.amazon.com.br/dp/B073VTYFCH?tag=${tag}`,
           imageUrl: 'https://m.media-amazon.com/images/I/61-T65K8vJL._AC_SL1500_.jpg',
           category: 'Alimentos e Bebidas',
           rating: 4.8,
           reviews: 4100,
         },
         {
-          asin: 'B09X4L68MN',
+          asin: 'B075FR8X3P',
           title: 'Chocolate Suíço Lindt Excellence 70% Cacau 100g',
           description: 'Chocolate amargo premium com sabor intenso e textura incrivelmente cremosa.',
           price: 21.90,
           previousPrice: 26.90,
-          url: `https://www.amazon.com.br/dp/B09X4L68MN?tag=${tag}`,
+          url: `https://www.amazon.com.br/dp/B075FR8X3P?tag=${tag}`,
           imageUrl: 'https://m.media-amazon.com/images/I/71R2xN3+YJL._AC_SL1500_.jpg',
           category: 'Alimentos e Bebidas',
           rating: 4.9,
@@ -156,24 +156,24 @@ export class AmazonCreatorsApiClient {
 
         // --- CASA E COZINHA ---
         {
-          asin: 'B09R43C882',
+          asin: 'B08N5NKBRP',
           title: 'Fritadeira Elétrica Sem Óleo Air Fryer Mondial 4L Family - AFN-40-BI',
           description: 'Air Fryer com tecnologia de circulação de ar quente, cuba antiaderente e timer de 60 minutos.',
           price: 299.00,
           previousPrice: 399.00,
-          url: `https://www.amazon.com.br/dp/B09R43C882?tag=${tag}`,
+          url: `https://www.amazon.com.br/dp/B08N5NKBRP?tag=${tag}`,
           imageUrl: 'https://m.media-amazon.com/images/I/71N-dK1yRmL._AC_SL1500_.jpg',
           category: 'Casa e Cozinha',
           rating: 4.8,
           reviews: 14500,
         },
         {
-          asin: 'B08L9X3M2K',
+          asin: 'B076VZLN7D',
           title: 'Panela de Pressão Elétrica Electrolux 5L Digital PCC20',
           description: '15 receitas pré-programadas, display digital e 10 dispositivos de segurança.',
           price: 449.00,
           previousPrice: 599.00,
-          url: `https://www.amazon.com.br/dp/B08L9X3M2K?tag=${tag}`,
+          url: `https://www.amazon.com.br/dp/B076VZLN7D?tag=${tag}`,
           imageUrl: 'https://m.media-amazon.com/images/I/61u9F2N7wKL._AC_SL1500_.jpg',
           category: 'Casa e Cozinha',
           rating: 4.9,
@@ -194,12 +194,12 @@ export class AmazonCreatorsApiClient {
 
         // --- BELEZA E CUIDADOS PESSOAIS ---
         {
-          asin: 'B07M68Y7KN',
+          asin: 'B07MY9S6S1',
           title: 'Protetor Solar Facial La Roche-Posay Anthelios Airlicium FPS 60 40g',
           description: 'Controle de oleosidade e sensação de pele limpa com toque seco o dia todo.',
           price: 79.90,
           previousPrice: 99.90,
-          url: `https://www.amazon.com.br/dp/B07M68Y7KN?tag=${tag}`,
+          url: `https://www.amazon.com.br/dp/B07MY9S6S1?tag=${tag}`,
           imageUrl: 'https://m.media-amazon.com/images/I/51r9L89p2mL._AC_SL1000_.jpg',
           category: 'Beleza e Cuidados Pessoais',
           rating: 4.8,
@@ -220,12 +220,12 @@ export class AmazonCreatorsApiClient {
 
         // --- BEBÊS E CRIANÇAS ---
         {
-          asin: 'B09L7X89M1',
+          asin: 'B07Q8G7K5D',
           title: 'Fralda Pampers Premium Care Tamanho M - 80 Unidades',
           description: 'Proteção suave e aveludada com canais de ar para pele sequinha e protegida.',
           price: 89.90,
           previousPrice: 119.90,
-          url: `https://www.amazon.com.br/dp/B09L7X89M1?tag=${tag}`,
+          url: `https://www.amazon.com.br/dp/B07Q8G7K5D?tag=${tag}`,
           imageUrl: 'https://m.media-amazon.com/images/I/71V2M-99kNL._AC_SL1500_.jpg',
           category: 'Bebês',
           rating: 4.9,
@@ -234,12 +234,12 @@ export class AmazonCreatorsApiClient {
 
         // --- PET SHOP ---
         {
-          asin: 'B08N1M67KL',
+          asin: 'B07Z49V9LL',
           title: 'Ração Premier Formula Cães Adultos Raças Médias Frango 15kg',
           description: 'Alimento Super Premium para cães adultos de porte médio com ingrediente de alta digestibilidade.',
           price: 229.90,
           previousPrice: 279.90,
-          url: `https://www.amazon.com.br/dp/B08N1M67KL?tag=${tag}`,
+          url: `https://www.amazon.com.br/dp/B07Z49V9LL?tag=${tag}`,
           imageUrl: 'https://m.media-amazon.com/images/I/61y+T22mK5L._AC_SL1200_.jpg',
           category: 'Pet Shop',
           rating: 4.8,
@@ -248,12 +248,12 @@ export class AmazonCreatorsApiClient {
 
         // --- LIVROS E PAPELARIA ---
         {
-          asin: 'B07N92M3KL',
+          asin: '8550807567',
           title: 'Livro: Hábitos Atômicos (James Clear)',
           description: 'Um método fácil e comprovado para criar bons hábitos e se livrar dos maus.',
           price: 44.90,
           previousPrice: 64.90,
-          url: `https://www.amazon.com.br/dp/B07N92M3KL?tag=${tag}`,
+          url: `https://www.amazon.com.br/dp/8550807567?tag=${tag}`,
           imageUrl: 'https://m.media-amazon.com/images/I/81bg+3Sg-nL._AC_SL1500_.jpg',
           category: 'Livros',
           rating: 4.9,
@@ -323,26 +323,18 @@ export class AmazonCreatorsApiClient {
         },
       ];
 
-      // Se a busca for aberta/geral, retorna mix completo de todos os departamentos com URLs 100% ativas e garantidas sem 404
+      // Se a busca for aberta/geral, retorna mix completo de todos os departamentos com URLs diretas do produto
       if (!lower || lower.includes('tudo') || lower.includes('todas') || lower.includes('oferta') || lower.includes('promoc')) {
-        return allDepartmentCatalog.map((item) => ({
-          ...item,
-          url: `https://www.amazon.com.br/s?k=${encodeURIComponent(item.title)}&tag=${tag}`,
-        }));
+        return allDepartmentCatalog;
       }
 
       // Filtragem por palavra-chave / departamento solicitado
-      const matches = allDepartmentCatalog
-        .filter(
-          (item) =>
-            item.title.toLowerCase().includes(lower) ||
-            item.category.toLowerCase().includes(lower) ||
-            item.description.toLowerCase().includes(lower)
-        )
-        .map((item) => ({
-          ...item,
-          url: `https://www.amazon.com.br/s?k=${encodeURIComponent(item.title)}&tag=${tag}`,
-        }));
+      const matches = allDepartmentCatalog.filter(
+        (item) =>
+          item.title.toLowerCase().includes(lower) ||
+          item.category.toLowerCase().includes(lower) ||
+          item.description.toLowerCase().includes(lower)
+      );
 
       if (matches.length > 0) {
         return matches;

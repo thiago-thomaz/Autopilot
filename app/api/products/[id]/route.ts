@@ -20,10 +20,10 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     if (!product) {
       const found = inMemoryProducts.find((p) => p.id === params.id || p.externalId === params.id);
       if (found) {
-        const activeUrl = `https://www.amazon.com.br/s?k=${encodeURIComponent(found.title)}&tag=thomazpromos-20`;
+        const directUrl = found.url || `https://www.amazon.com.br/dp/${found.externalId}?tag=thomazpromos-20`;
         product = {
           ...found,
-          url: activeUrl,
+          url: directUrl,
           priceHistory: found.priceHistory || [],
           affiliatePlatform: found.affiliatePlatform || { name: 'Amazon Brasil', slug: 'amazon-brasil' },
         };
