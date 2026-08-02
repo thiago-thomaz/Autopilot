@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { inMemoryProducts } from '@/services/discovery/ProductPersistenceService';
 
+import { getSanitizedAffiliateUrl } from '@/lib/utils/affiliateUrl';
+
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
@@ -34,13 +36,20 @@ export async function GET(req: NextRequest) {
     }
 
     if (products.length === 0 && inMemoryProducts.length > 0) {
-      products = inMemoryProducts.map((p) => ({
-        ...p,
-        url: p.url || `https://www.amazon.com.br/dp/${p.externalId}?tag=thomazpromos-20`,
-      }));
+      products = [...inMemoryProducts];
     }
 
-    return NextResponse.json({ success: true, count: products.length, products });
+    const sanitizedProducts = products.map((p) => {
+      const sanitizedUrl = getSanitizedAffiliateUrl(p);
+      return {
+        ...p,
+        url: sanitizedUrl,
+        original_url: sanitizedUrl,
+        affiliate_url: sanitizedUrl,
+      };
+    });
+
+    return NextResponse.json({ success: true, count: sanitizedProducts.length, products: sanitizedProducts });
   } catch (error: any) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }

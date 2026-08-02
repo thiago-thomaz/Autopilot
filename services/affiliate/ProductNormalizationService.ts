@@ -3,6 +3,8 @@ import { ProductService } from '../products';
 import { prisma } from '../../lib/prisma';
 import { Logger } from '@/lib/logger';
 
+import { getSanitizedAffiliateUrl } from '@/lib/utils/affiliateUrl';
+
 export class ProductNormalizationService {
   private static productService = new ProductService();
 
@@ -12,6 +14,8 @@ export class ProductNormalizationService {
    */
   public static async saveOrUpdateNormalizedProduct(input: NormalizedProductInput) {
     try {
+      const sanitizedUrl = getSanitizedAffiliateUrl(input);
+      input.url = sanitizedUrl;
       const opportunityScore = this.productService.calculateOpportunityScore({
         externalId: input.externalId,
         platformSlug: input.affiliatePlatformId,

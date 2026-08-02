@@ -13,6 +13,8 @@ export interface PersistOptions {
 
 export const inMemoryProducts: any[] = [];
 
+import { getSanitizedAffiliateUrl } from '@/lib/utils/affiliateUrl';
+
 export class ProductPersistenceService {
   private static productService = new ProductService();
 
@@ -20,6 +22,8 @@ export class ProductPersistenceService {
    * Grava ou atualiza um produto no PostgreSQL de forma atômica via prisma.$transaction().
    */
   public static async upsertProduct(input: NormalizedProductInput, options: PersistOptions = {}) {
+    const sanitizedUrl = getSanitizedAffiliateUrl(input);
+    input.url = sanitizedUrl;
     const opportunityScore = this.productService.calculateOpportunityScore({
       externalId: input.externalId,
       platformSlug: input.affiliatePlatformId,

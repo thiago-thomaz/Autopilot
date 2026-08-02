@@ -2,6 +2,8 @@ import { prisma } from '@/lib/prisma';
 import { notFound } from 'next/navigation';
 import { Tag, ExternalLink, ShieldCheck, Star } from 'lucide-react';
 
+import { getSanitizedAffiliateUrl } from '@/lib/utils/affiliateUrl';
+
 export default async function PublicDealPage({ params }: { params: { slug: string } }) {
   // Buscar produto ou snapshot relacionado ao slug da oferta
   const products = await prisma.product.findMany({
@@ -80,7 +82,7 @@ export default async function PublicDealPage({ params }: { params: { slug: strin
       {/* Chamada para Ação / Botão de Compra */}
       <div className="space-y-4 pt-4 border-t border-gray-800">
         <a
-          href={product.url}
+          href={getSanitizedAffiliateUrl(product)}
           target="_blank"
           rel="noopener noreferrer"
           className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-base py-4 px-6 rounded-xl flex items-center justify-center gap-2 shadow-lg hover:shadow-emerald-500/20 transition-all"

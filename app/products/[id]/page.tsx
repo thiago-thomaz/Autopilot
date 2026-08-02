@@ -15,6 +15,7 @@ import {
   Calendar
 } from 'lucide-react';
 import Link from 'next/link';
+import { getSanitizedAffiliateUrl } from '@/lib/utils/affiliateUrl';
 
 export default function ProductDetailPage() {
   const params = useParams();
@@ -108,9 +109,9 @@ export default function ProductDetailPage() {
               Origem: <strong className="text-gray-200">{product.sourceType}</strong>
             </span>
             <a
-              href={product.url}
+              href={getSanitizedAffiliateUrl(product)}
               target="_blank"
-              rel="noreferrer"
+              rel="noopener noreferrer"
               className="bg-emerald-600 hover:bg-emerald-500 text-white font-medium px-3 py-1 rounded transition-all flex items-center gap-1.5 ml-auto"
             >
               <span>Ver no Site Original</span>

@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { inMemoryProducts } from '@/services/discovery/ProductPersistenceService';
 
+import { getSanitizedAffiliateUrl } from '@/lib/utils/affiliateUrl';
+
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   try {
     let product: any = null;
@@ -20,10 +22,8 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     if (!product) {
       const found = inMemoryProducts.find((p) => p.id === params.id || p.externalId === params.id);
       if (found) {
-        const directUrl = found.url || `https://www.amazon.com.br/dp/${found.externalId}?tag=thomazpromos-20`;
         product = {
           ...found,
-          url: directUrl,
           priceHistory: found.priceHistory || [],
           affiliatePlatform: found.affiliatePlatform || { name: 'Amazon Brasil', slug: 'amazon-brasil' },
         };
@@ -33,6 +33,14 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     if (!product) {
       return NextResponse.json({ success: false, error: 'Produto não encontrado.' }, { status: 404 });
     }
+
+    const sanitizedUrl = getSanitizedAffiliateUrl(product);
+    product = {
+      ...product,
+      url: sanitizedUrl,
+      original_url: sanitizedUrl,
+      affiliate_url: sanitizedUrl,
+    };
 
     return NextResponse.json({ success: true, product });
   } catch (error: any) {
