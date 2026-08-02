@@ -80,7 +80,7 @@ export class OpportunityEngine {
       availability: product.availability,
       commissionRate: product.commissionRate || undefined,
       estimatedCommission: product.estimatedCommission || undefined,
-      priceHistory: product.priceHistory.map((h) => ({ price: h.price, capturedAt: h.capturedAt })),
+      priceHistory: (product.priceHistory || []).map((h: any) => ({ price: h.price, capturedAt: h.capturedAt })),
     });
 
     // 3. Calcular Score com Clamp (0..100)
