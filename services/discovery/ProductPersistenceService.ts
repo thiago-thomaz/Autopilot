@@ -13,7 +13,7 @@ export interface PersistOptions {
 
 export const inMemoryProducts: any[] = [];
 
-import { getSanitizedAffiliateUrl } from '@/lib/utils/affiliateUrl';
+import { getSanitizedAffiliateUrl } from '../../lib/utils/url';
 
 export class ProductPersistenceService {
   private static productService = new ProductService();
