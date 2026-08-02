@@ -7,8 +7,6 @@ services:
       dockerfile: Dockerfile
     container_name: affiliate_autopilot_app
     restart: always
-    ports:
-      - "3000:3000"
     env_file:
       - .env
     environment:
@@ -26,8 +24,6 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres_secure_pass
       POSTGRES_DB: affiliate_autopilot
-    ports:
-      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -40,8 +36,6 @@ services:
     image: docker.n8n.io/n8nio/n8n:latest
     container_name: affiliate_autopilot_n8n
     restart: always
-    ports:
-      - "5678:5678"
     environment:
       - N8N_HOST=0.0.0.0
       - N8N_PORT=5678
