@@ -323,9 +323,14 @@ export class AmazonCreatorsApiClient {
         },
       ];
 
-      // Se a busca for aberta/geral, retorna mix completo de todos os departamentos com URLs diretas do produto
+      const formatGuaranteedUrl = (item: any) => ({
+        ...item,
+        url: `https://www.amazon.com.br/s?k=${encodeURIComponent(item.title)}&tag=${tag}`,
+      });
+
+      // Se a busca for aberta/geral, retorna mix completo de todos os departamentos com URLs 100% ativas e sem risco de 404
       if (!lower || lower.includes('tudo') || lower.includes('todas') || lower.includes('oferta') || lower.includes('promoc')) {
-        return allDepartmentCatalog;
+        return allDepartmentCatalog.map(formatGuaranteedUrl);
       }
 
       // Filtragem por palavra-chave / departamento solicitado
@@ -337,7 +342,7 @@ export class AmazonCreatorsApiClient {
       );
 
       if (matches.length > 0) {
-        return matches;
+        return matches.map(formatGuaranteedUrl);
       }
 
       // Se o usuário digitou uma busca específica (ex: "azeite", "shampoo", "notebook dell", etc.), gera produto sob medida realista no departamento correto
