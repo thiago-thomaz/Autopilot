@@ -55,6 +55,8 @@ export function getSanitizedProductUrl(product: ProductUrlPayload): string {
     cleanId = 'B07XQ8P6S1'; // ASIN ativo para Café Orfeu 250g
   } else if (cleanId === 'B08FCMK8LN') {
     cleanId = 'B075F38KMD'; // ASIN ativo para Azeite Andorinha 500ml
+  } else if (cleanId === 'B073VTVS44') {
+    cleanId = 'B083321VT8'; // ASIN ativo para Vinho Casillero del Diablo Cabernet Sauvignon 750ml
   }
 
   // 1. Tenta extrair qualquer URL direta informada no payload
@@ -75,6 +77,8 @@ export function getSanitizedProductUrl(product: ProductUrlPayload): string {
       cleanUrl = cleanUrl.replace('B07NRR739V', 'B07XQ8P6S1');
     } else if (cleanUrl.includes('B08FCMK8LN')) {
       cleanUrl = cleanUrl.replace('B08FCMK8LN', 'B075F38KMD');
+    } else if (cleanUrl.includes('B073VTVS44')) {
+      cleanUrl = cleanUrl.replace('B073VTVS44', 'B083321VT8');
     }
 
     // Garante obrigatoriamente o protocolo https://
