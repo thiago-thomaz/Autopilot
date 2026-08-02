@@ -2,6 +2,8 @@ import { prisma } from '../../lib/prisma';
 import { OpportunityAnalysisResult } from '../../types/opportunity/opportunity.types';
 import { Logger } from '../../lib/logger';
 
+export const inMemorySnapshots: any[] = [];
+
 export class OpportunityPersistenceService {
   /**
    * Grava o snapshot de análise no banco de dados e atualiza a coluna `opportunityScore` na tabela Product.
@@ -64,8 +66,38 @@ export class OpportunityPersistenceService {
         return snapshot;
       });
     } catch (err: any) {
-      Logger.error('OPPORTUNITY_ENGINE', 'PERSISTENCE_FAILED', `Falha ao salvar snapshot: ${err.message}`);
-      throw err;
+      Logger.warn('OPPORTUNITY_ENGINE', 'PERSISTENCE_FALLBACK', `Utilizando store de resiliência em memória para snapshot: ${err.message}`);
+      const snapshot = {
+        id: `snap_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
+        productId: result.productId,
+        score: result.score,
+        adjustedScore: result.adjustedScore,
+        confidenceScore: result.confidenceScore,
+        classification: result.classification,
+        priority: result.priority,
+        priceScore: result.factorScores.priceScore,
+        priceHistoryScore: result.factorScores.priceHistoryScore,
+        discountScore: result.factorScores.discountScore,
+        ratingScore: result.factorScores.ratingScore,
+        reviewScore: result.factorScores.reviewScore,
+        commissionScore: result.factorScores.commissionScore,
+        demandScore: result.factorScores.demandScore,
+        availabilityScore: result.factorScores.availabilityScore,
+        contentScore: result.factorScores.contentScore,
+        dataQualityScore: result.factorScores.dataQualityScore,
+        bonuses: result.bonusesApplied,
+        penalties: result.penaltiesApplied,
+        explanation: result.explanation,
+        algorithmVersion: result.algorithmVersion || 'v1.0.0',
+        createdAt: new Date(),
+      };
+      const existingIdx = inMemorySnapshots.findIndex((s) => s.productId === result.productId);
+      if (existingIdx >= 0) {
+        inMemorySnapshots[existingIdx] = snapshot;
+      } else {
+        inMemorySnapshots.push(snapshot);
+      }
+      return snapshot;
     }
   }
 

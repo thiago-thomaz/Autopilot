@@ -7,6 +7,7 @@ import { OpportunityScoringService, DEFAULT_OPPORTUNITY_CONFIG } from './Opportu
 import { OpportunityClassificationService } from './OpportunityClassificationService';
 import { OpportunityExplanationService } from './OpportunityExplanationService';
 import { OpportunityPersistenceService } from './OpportunityPersistenceService';
+import { inMemoryProducts } from '../discovery/ProductPersistenceService';
 import { Logger } from '../../lib/logger';
 
 export class OpportunityEngine {
@@ -17,13 +18,29 @@ export class OpportunityEngine {
     productId: string,
     config: OpportunityScoringConfig = DEFAULT_OPPORTUNITY_CONFIG
   ): Promise<OpportunityAnalysisResult> {
-    const product = await prisma.product.findUnique({
-      where: { id: productId },
-      include: {
-        priceHistory: { orderBy: { capturedAt: 'asc' } },
-        affiliatePlatform: true,
-      },
-    });
+    let product: any = null;
+    try {
+      product = await prisma.product.findUnique({
+        where: { id: productId },
+        include: {
+          priceHistory: { orderBy: { capturedAt: 'asc' } },
+          affiliatePlatform: true,
+        },
+      });
+    } catch {
+      // DB offline fallback
+    }
+
+    if (!product) {
+      const foundInMemory = inMemoryProducts.find((p) => p.id === productId);
+      if (foundInMemory) {
+        product = {
+          ...foundInMemory,
+          priceHistory: foundInMemory.priceHistory || [],
+          affiliatePlatform: foundInMemory.affiliatePlatform || { name: 'Amazon Brasil', slug: 'amazon-brasil' },
+        };
+      }
+    }
 
     if (!product) {
       throw new OpportunityError(`Produto com ID '${productId}' não encontrado.`, 'PRODUCT_NOT_FOUND', 404);
@@ -103,11 +120,20 @@ export class OpportunityEngine {
    * Recalcula a análise de oportunidade em lote para todos os produtos ativos.
    */
   public static async analyzeBatch(limit = 100): Promise<{ processed: number; failed: number }> {
-    const products = await prisma.product.findMany({
-      take: limit,
-      select: { id: true },
-      orderBy: { updatedAt: 'desc' },
-    });
+    let products: { id: string }[] = [];
+    try {
+      products = await prisma.product.findMany({
+        take: limit,
+        select: { id: true },
+        orderBy: { updatedAt: 'desc' },
+      });
+    } catch {
+      // DB offline fallback
+    }
+
+    if (products.length === 0 && inMemoryProducts.length > 0) {
+      products = inMemoryProducts.slice(0, limit).map((p) => ({ id: p.id }));
+    }
 
     let processed = 0;
     let failed = 0;
