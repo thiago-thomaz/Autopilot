@@ -8,6 +8,7 @@ import { OpportunityClassificationService } from './OpportunityClassificationSer
 import { OpportunityExplanationService } from './OpportunityExplanationService';
 import { OpportunityPersistenceService } from './OpportunityPersistenceService';
 import { inMemoryProducts } from '../discovery/ProductPersistenceService';
+import { ProductDiscoveryService } from '../discovery/ProductDiscoveryService';
 import { Logger } from '../../lib/logger';
 
 export class OpportunityEngine {
@@ -129,6 +130,17 @@ export class OpportunityEngine {
       });
     } catch {
       // DB offline fallback
+    }
+
+    if (products.length === 0 && inMemoryProducts.length === 0) {
+      try {
+        await ProductDiscoveryService.discoverProducts({
+          platform: 'amazon-brasil',
+          query: 'Gourmet',
+        });
+      } catch (err) {
+        Logger.warn('OPPORTUNITY_ENGINE', 'AUTO_DISCOVERY_FALLBACK_FAILED', `Falha ao executar descoberta automatica: ${err}`);
+      }
     }
 
     if (products.length === 0 && inMemoryProducts.length > 0) {

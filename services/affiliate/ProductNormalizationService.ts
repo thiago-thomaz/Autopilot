@@ -1,6 +1,6 @@
 import { NormalizedProductInput } from './types/affiliate.types';
 import { ProductService } from '../products';
-import { prisma } from '@/lib/prisma';
+import { prisma } from '../../lib/prisma';
 import { Logger } from '@/lib/logger';
 
 export class ProductNormalizationService {

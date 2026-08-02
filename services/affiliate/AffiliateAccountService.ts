@@ -1,4 +1,4 @@
-import { prisma } from '@/lib/prisma';
+import { prisma } from '../../lib/prisma';
 import { CredentialVault } from './CredentialVault';
 import { AffiliateError } from './types/affiliate.errors';
 import { AffiliatePlatformService } from './AffiliatePlatformService';
