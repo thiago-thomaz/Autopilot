@@ -94,24 +94,24 @@ export class AmazonCreatorsApiClient {
       const allDepartmentCatalog = [
         // --- ALIMENTOS E BEBIDAS ---
         {
-          asin: 'B07C5X8TQK',
+          asin: 'B07XQ8P6S1',
           title: 'Café Torrado e Moído Orfeu Gourmet Intenso 250g',
           description: 'Café 100% Arábica com torra escura, notas de chocolate amargo e corpo aveludado.',
           price: 24.90,
           previousPrice: 29.90,
-          url: `https://www.amazon.com.br/dp/B07C5X8TQK?tag=${tag}`,
+          url: `https://www.amazon.com.br/dp/B07XQ8P6S1?tag=${tag}`,
           imageUrl: 'https://m.media-amazon.com/images/I/61pS+3-L9AL._AC_SL1000_.jpg',
           category: 'Alimentos e Bebidas',
           rating: 4.8,
           reviews: 3200,
         },
         {
-          asin: 'B0762V9W1L',
+          asin: 'B075F38KMD',
           title: 'Azeite de Oliva Extra Virgen Português Andorinha 500ml',
           description: 'Azeite extra virgem de acidez máxima 0,5%, extraído a frio de azeitonas selecionadas.',
           price: 39.90,
           previousPrice: 48.00,
-          url: `https://www.amazon.com.br/dp/B0762V9W1L?tag=${tag}`,
+          url: `https://www.amazon.com.br/dp/B075F38KMD?tag=${tag}`,
           imageUrl: 'https://m.media-amazon.com/images/I/61kYyZ2+xBL._AC_SL1200_.jpg',
           category: 'Alimentos e Bebidas',
           rating: 4.9,
@@ -130,12 +130,12 @@ export class AmazonCreatorsApiClient {
           reviews: 8900,
         },
         {
-          asin: 'B073VTYFCH',
+          asin: 'B073VTVS44',
           title: 'Vinho Tinto Chileno Casillero del Diablo Cabernet Sauvignon 750ml',
           description: 'Vinho tinto seco de aromas intensos de cerejas pretas, groselhas e notas de baunilha.',
           price: 54.90,
           previousPrice: 69.90,
-          url: `https://www.amazon.com.br/dp/B073VTYFCH?tag=${tag}`,
+          url: `https://www.amazon.com.br/dp/B073VTVS44?tag=${tag}`,
           imageUrl: 'https://m.media-amazon.com/images/I/61-T65K8vJL._AC_SL1500_.jpg',
           category: 'Alimentos e Bebidas',
           rating: 4.8,
@@ -323,14 +323,9 @@ export class AmazonCreatorsApiClient {
         },
       ];
 
-      const formatGuaranteedUrl = (item: any) => ({
-        ...item,
-        url: `https://www.amazon.com.br/s?k=${encodeURIComponent(item.title)}&tag=${tag}`,
-      });
-
-      // Se a busca for aberta/geral, retorna mix completo de todos os departamentos com URLs 100% ativas e sem risco de 404
+      // Se a busca for aberta/geral, retorna mix completo de todos os departamentos com URLs diretas do produto
       if (!lower || lower.includes('tudo') || lower.includes('todas') || lower.includes('oferta') || lower.includes('promoc')) {
-        return allDepartmentCatalog.map(formatGuaranteedUrl);
+        return allDepartmentCatalog;
       }
 
       // Filtragem por palavra-chave / departamento solicitado
@@ -342,7 +337,7 @@ export class AmazonCreatorsApiClient {
       );
 
       if (matches.length > 0) {
-        return matches.map(formatGuaranteedUrl);
+        return matches;
       }
 
       // Se o usuário digitou uma busca específica (ex: "azeite", "shampoo", "notebook dell", etc.), gera produto sob medida realista no departamento correto
