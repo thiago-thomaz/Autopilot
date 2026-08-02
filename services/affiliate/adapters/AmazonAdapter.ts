@@ -426,7 +426,7 @@ export class AmazonCreatorsApiClient {
         description: 'Descrição mock do produto selecionado na Amazon.',
         price: 299.9,
         previousPrice: 349.9,
-        url: `https://www.amazon.com.br/dp/${asin}?tag=${this.partnerTag || 'demo-20'}`,
+        url: `https://www.amazon.com.br/dp/${asin}?tag=${this.partnerTag || 'thomazpromos-20'}`,
         imageUrl: 'https://m.media-amazon.com/images/I/61gS9lK8rQL._AC_SL1500_.jpg',
         category: 'Geral',
         rating: 4.6,
@@ -524,7 +524,7 @@ export class AmazonAdapter extends BaseAffiliateAdapter {
   async searchProducts(query: string, credentials: Record<string, string>): Promise<NormalizedProductInput[]> {
     const credId = credentials.credentialId || process.env.AMAZON_CREDENTIAL_ID || '';
     const credSecret = credentials.credentialSecret || process.env.AMAZON_CREDENTIAL_SECRET || '';
-    const partnerTag = credentials.partnerTag || process.env.AMAZON_PARTNER_TAG || 'demo-20';
+    const partnerTag = credentials.partnerTag || process.env.AMAZON_PARTNER_TAG || 'thomazpromos-20';
 
     const client = new AmazonCreatorsApiClient(credId, credSecret, partnerTag);
     const items = await client.search(query);
@@ -552,7 +552,7 @@ export class AmazonAdapter extends BaseAffiliateAdapter {
   async getProduct(externalId: string, credentials: Record<string, string>): Promise<NormalizedProductInput | null> {
     const credId = credentials.credentialId || process.env.AMAZON_CREDENTIAL_ID || '';
     const credSecret = credentials.credentialSecret || process.env.AMAZON_CREDENTIAL_SECRET || '';
-    const partnerTag = credentials.partnerTag || process.env.AMAZON_PARTNER_TAG || 'demo-20';
+    const partnerTag = credentials.partnerTag || process.env.AMAZON_PARTNER_TAG || 'thomazpromos-20';
 
     const client = new AmazonCreatorsApiClient(credId, credSecret, partnerTag);
     const item = await client.getByAsin(externalId);
@@ -580,7 +580,7 @@ export class AmazonAdapter extends BaseAffiliateAdapter {
 
   async generateAffiliateLink(rawUrl: string, credentials: Record<string, string>): Promise<GeneratedAffiliateLink> {
     this.validateUrl(rawUrl, ['amazon.com.br', 'amazon.com', 'amzn.to']);
-    const partnerTag = credentials.partnerTag || process.env.AMAZON_PARTNER_TAG || 'demo-20';
+    const partnerTag = credentials.partnerTag || process.env.AMAZON_PARTNER_TAG || 'thomazpromos-20';
 
     const urlObj = new URL(rawUrl);
     urlObj.searchParams.set('tag', partnerTag);

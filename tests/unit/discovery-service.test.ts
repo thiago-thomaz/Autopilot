@@ -9,7 +9,7 @@ vi.mock('../../services/discovery/ProductSearchService', () => ({
         affiliatePlatformId: 'amazon-brasil',
         title: 'Kindle Paperwhite 16GB',
         description: 'Kindle Paperwhite com luz quente.',
-        url: 'https://www.amazon.com.br/dp/B08N5WRWNW?tag=demo-20',
+        url: 'https://www.amazon.com.br/dp/B08N5WRWNW?tag=thomazpromos-20',
         imageUrl: 'https://m.media-amazon.com/images/I/61gS9lK8rQL._AC_SL1500_.jpg',
         category: 'Informática',
         brand: 'Amazon',

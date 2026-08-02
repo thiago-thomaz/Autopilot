@@ -49,9 +49,9 @@ async function main() {
     update: { lastSyncedAt: new Date() },
     create: {
       externalId: 'B08N5WRWNW',
-      title: '[DEMO] Kindle Paperwhite 16GB Tela 6.8" com Luz Quente',
+      title: 'Kindle Paperwhite 16GB Tela 6.8" com Luz Quente',
       description: 'Kindle Paperwhite com tela de 6,8 polegadas e luz quente ajustável.',
-      url: 'https://www.amazon.com.br/dp/B08N5WRWNW?tag=demo-20',
+      url: 'https://www.amazon.com.br/dp/B08N5WRWNW?tag=thomazpromos-20',
       imageUrl: 'https://m.media-amazon.com/images/I/61gS9lK8rQL._AC_SL1500_.jpg',
       category: 'Informática',
       brand: 'Amazon',
@@ -86,7 +86,7 @@ async function main() {
   const click = await prisma.analyticsClick.create({
     data: {
       trackingId: 'tr_seed_1001',
-      destination: 'https://www.amazon.com.br/dp/B08N5WRWNW?tag=demo-20',
+      destination: 'https://www.amazon.com.br/dp/B08N5WRWNW?tag=thomazpromos-20',
       channel: 'INSTAGRAM',
       country: 'BR',
       status: 'VALID',
