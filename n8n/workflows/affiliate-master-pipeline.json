@@ -1,0 +1,157 @@
+{
+  "name": "AFFILIATE AUTOPILOT — MASTER PIPELINE",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 2
+            }
+          ]
+        }
+      },
+      "id": "e96f139d-3f04-4c22-b5b6-7eb0f7690bc0",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        220,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://cop.projetosunion.cloud/api/n8n/discovery/search",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-n8n-api-key",
+              "value": "n8n_secret_autopilot_key_2026"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"limit\": 3,\n  \"platforms\": [\"AMAZON\"]\n}",
+        "options": {}
+      },
+      "id": "1c7a8f3b-6e7e-4b2e-a5e2-63a1158a74e5",
+      "name": "Discover Deals",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        460,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://cop.projetosunion.cloud/api/n8n/content/generate-batch",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-n8n-api-key",
+              "value": "n8n_secret_autopilot_key_2026"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"products\": {{$json.data || $json.products || []}}\n}",
+        "options": {}
+      },
+      "id": "c621815b-21c6-4b28-8d26-7c9eb17e811c",
+      "name": "Generate Copy & Posts",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        680,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://cop.projetosunion.cloud/api/n8n/publications/process-queue",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-n8n-api-key",
+              "value": "n8n_secret_autopilot_key_2026"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{}",
+        "options": {}
+      },
+      "id": "3b29c15e-5b29-4171-8813-cf8a48ff98e2",
+      "name": "Process Publish Queue",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        900,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Discover Deals",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Discover Deals": {
+      "main": [
+        [
+          {
+            "node": "Generate Copy & Posts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Copy & Posts": {
+      "main": [
+        [
+          {
+            "node": "Process Publish Queue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
