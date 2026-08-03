@@ -8,7 +8,7 @@ export function Navbar() {
       <div className="flex items-center gap-3">
         <h2 className="text-lg font-semibold text-gray-200">Painel de Controle</h2>
         <span className="text-xs text-gray-400 bg-gray-800 px-2.5 py-1 rounded-full border border-gray-700">
-          v1.0.2 (Fundação)
+          v1.0.3 (Fundação)
         </span>
       </div>
 

@@ -51,4 +51,13 @@ describe('Engine de URLs de Afiliado (Anti-404)', () => {
     const result = getSanitizedProductUrl(payload);
     expect(result).toBe(`https://www.amazon.com.br/?tag=${DEFAULT_TAG}`);
   });
+
+  it('7. Deve interceptar o ASIN obsoleto do Whey B07MSLFF61 e redirecionar para a busca correspondente', () => {
+    const payload = {
+      url: 'https://www.amazon.com.br/dp/B07MSLFF61',
+    };
+    const result = getSanitizedProductUrl(payload);
+    const expectedQuery = encodeURIComponent('Whey Protein Concentrado 100% Pure Max Titanium 900g Baunilha');
+    expect(result).toBe(`https://www.amazon.com.br/s?k=${expectedQuery}&tag=${DEFAULT_TAG}`);
+  });
 });
