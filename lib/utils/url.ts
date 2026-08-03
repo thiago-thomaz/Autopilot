@@ -45,17 +45,56 @@ export const AFFILIATE_CONFIG = {
 };
 
 /**
- * Sanitiza e garante URL de afiliado válida no mundo real (Amazon, ML, Shopee, etc.)
+ * Função utilitária para extrair um ASIN de 10 caracteres alfanuméricos da URL ou dos campos do produto
  */
+function extractAmazonAsin(product: ProductUrlPayload): string | null {
+  const candidates = [
+    product.externalId,
+    product.asin,
+    product.id,
+  ];
+
+  for (const cand of candidates) {
+    if (cand && typeof cand === 'string') {
+      const clean = cand.trim().toUpperCase();
+      // Valida padrão oficial ASIN (10 caracteres alfanuméricos) ignorando mocks de teste conhecidos
+      if (/^[A-Z0-9]{10}$/.test(clean) && clean !== 'B07XQ8P6S1' && clean !== 'B07MSLFF61' && clean !== 'ASIN123456') {
+        return clean;
+      }
+    }
+  }
+
+  // Tenta extrair da string da URL caso o ASIN esteja dentro do parâmetro /dp/ASIN
+  const rawUrl = product.affiliateUrl || product.originalUrl || product.url || product.original_url || product.affiliate_url;
+  if (rawUrl && typeof rawUrl === 'string') {
+    const match = rawUrl.match(/\/(?:dp|gp\/product)\/([A-Z0-9]{10})/i);
+    if (match && match[1]) {
+      const extracted = match[1].toUpperCase();
+      if (extracted !== 'B07XQ8P6S1' && extracted !== 'B07MSLFF61') {
+        return extracted;
+      }
+    }
+  }
+
+  return null;
+}
+
 export function getSanitizedProductUrl(product: ProductUrlPayload): string {
   if (!product) return `https://www.amazon.com.br/?tag=${DEFAULT_AMAZON_TAG}`;
 
-  // 1. Se houver uma URL direta VÁLIDA da API que não seja um mock antigo
+  // 1. PRIORIDADE MÁXIMA: Tenta extrair o ASIN real do produto para ir DIRETO à página do item (/dp/ASIN)
+  const realAsin = extractAmazonAsin(product);
+  if (realAsin) {
+    return `https://www.amazon.com.br/dp/${realAsin}?tag=${DEFAULT_AMAZON_TAG}`;
+  }
+
+  // 2. Se houver uma URL direta VÁLIDA da API que NÃO seja uma URL de busca (/s?k=) e nem um mock antigo
   const rawUrl = product.affiliateUrl || product.originalUrl || product.url;
   if (
     rawUrl &&
     typeof rawUrl === 'string' &&
     rawUrl.startsWith('http') &&
+    !rawUrl.includes('/s?k=') && // Ignora URLs de busca salvas no banco
     !rawUrl.includes('/dp/B07XQ8P6S1') &&
     !rawUrl.includes('/dp/B07MSLFF61') &&
     !rawUrl.includes('ASIN123')
@@ -79,35 +118,31 @@ export function getSanitizedProductUrl(product: ProductUrlPayload): string {
     }
   }
 
-  // 2. REGRA MESTRA ANTI-404: Se houver título, SEMPRE gera a Busca Qualificada da Amazon
+  // 3. FALLBACK DE ALTA PRECISÃO POR TÍTULO (Com aspas para busca exata do produto)
   if (product.title && product.title.trim().length > 0) {
-    const searchQuery = encodeURIComponent(product.title.trim());
+    const exactTitle = `"${product.title.trim()}"`;
+    const searchQuery = encodeURIComponent(exactTitle);
     return `https://www.amazon.com.br/s?k=${searchQuery}&tag=${DEFAULT_AMAZON_TAG}`;
   }
 
-  // 3. Fallbacks de segurança (busca pelo ID ou página inicial)
+  // 4. Fallback de suporte a outros marketplaces pelo ID
   let cleanId = (product.externalId || product.asin || product.id || '').toString().trim();
   const sanitizedId = cleanId.replace(/[^a-zA-Z0-9_-]/g, '');
 
-  if (sanitizedId.length > 0) {
-    // Suporte a outros marketplaces
-    if (product.platform) {
-      const platformRaw = product.platform.toString().toUpperCase().replace(/[-_]/g, '');
-      if (platformRaw.includes('MERCADO') || platformRaw.includes('MELI')) {
-        return `https://www.mercadolivre.com.br/p/${sanitizedId}`;
-      }
-      if (platformRaw.includes('SHOPEE')) {
-        return `https://shopee.com.br/product/${sanitizedId}`;
-      }
-      if (platformRaw.includes('ALIEXPRESS')) {
-        return `https://pt.aliexpress.com/item/${sanitizedId}.html`;
-      }
-      if (platformRaw.includes('MAGALU') || platformRaw.includes('MAGAZINE')) {
-        return `https://www.magazineluiza.com.br/p/${sanitizedId}`;
-      }
+  if (sanitizedId.length > 0 && product.platform) {
+    const platformRaw = product.platform.toString().toUpperCase().replace(/[-_]/g, '');
+    if (platformRaw.includes('MERCADO') || platformRaw.includes('MELI')) {
+      return `https://www.mercadolivre.com.br/p/${sanitizedId}`;
     }
-    // Para a Amazon, busca por ID
-    return `https://www.amazon.com.br/s?k=${encodeURIComponent(sanitizedId)}&tag=${DEFAULT_AMAZON_TAG}`;
+    if (platformRaw.includes('SHOPEE')) {
+      return `https://shopee.com.br/product/${sanitizedId}`;
+    }
+    if (platformRaw.includes('ALIEXPRESS')) {
+      return `https://pt.aliexpress.com/item/${sanitizedId}.html`;
+    }
+    if (platformRaw.includes('MAGALU') || platformRaw.includes('MAGAZINE')) {
+      return `https://www.magazineluiza.com.br/p/${sanitizedId}`;
+    }
   }
 
   return `https://www.amazon.com.br/?tag=${DEFAULT_AMAZON_TAG}`;
