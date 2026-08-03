@@ -42,40 +42,24 @@ export const AFFILIATE_CONFIG = {
 export function getSanitizedProductUrl(product: ProductUrlPayload): string {
   if (!product) return `https://www.amazon.com.br/?tag=${DEFAULT_AMAZON_TAG}`;
 
-  // 1. Se houver uma URL original VÁLIDA emitida por API oficial com domínio Amazon real (e que não seja link mock)
-  const rawUrl = product.affiliateUrl || product.originalUrl || product.url;
-  if (
-    rawUrl &&
-    typeof rawUrl === 'string' &&
-    rawUrl.startsWith('http') &&
-    rawUrl.includes('amazon.com.br') &&
-    !rawUrl.includes('/s?k=') &&
-    !rawUrl.includes('/dp/B07') &&
-    !rawUrl.includes('ASIN123')
-  ) {
-    try {
-      const parsed = new URL(rawUrl);
-      parsed.searchParams.set('tag', DEFAULT_AMAZON_TAG);
-      return parsed.toString();
-    } catch {
-      return rawUrl;
-    }
-  }
-
-  // 2. ENGINE UNIVERSAL DE BUSCA LIMPA (Aplica para 100% dos produtos do catálogo)
+  // 1. ENGINE DE BUSCA INTELIGENTE E LIMPA (Aplica para todos os produtos)
   if (product.title && product.title.trim().length > 0) {
-    // Sanitiza o título removendo caracteres e ruídos que quebram a busca da Amazon
-    const cleanTitle = product.title
-      .replace(/["'""'']/g, '') // Remove qualquer tipo de aspas (simples, duplas, curvas)
+    // Limpa aspas, parênteses, palavras de stop-words e gramaturas exatas que travam a busca da Amazon
+    const cleanedTitle = product.title
+      .replace(/["'""'']/g, '') // Remove aspas que travam a busca exata
       .replace(/[\(\)\[\]\{\}]/g, ' ') // Remove parênteses e colchetes
-      .replace(/\s+/g, ' ') // Normaliza espaços duplos
+      .replace(/\b(250g|500g|1kg|900g|1000g|ml|l)\b/gi, '') // Remove gramaturas rígidas
+      .replace(/\s+/g, ' ') // Remove espaços duplicados
       .trim();
 
-    const searchQuery = encodeURIComponent(cleanTitle);
+    // Pega as primeiras 5 palavras principais para uma busca ampla e precisa
+    const words = cleanedTitle.split(' ').slice(0, 5).join(' ');
+
+    const searchQuery = encodeURIComponent(words);
     return `https://www.amazon.com.br/s?k=${searchQuery}&tag=${DEFAULT_AMAZON_TAG}`;
   }
 
-  // 3. Fallback de emergência caso não exista título
+  // 2. Fallback de emergência caso não exista título
   return `https://www.amazon.com.br/?tag=${DEFAULT_AMAZON_TAG}`;
 }
 
