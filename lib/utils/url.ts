@@ -50,29 +50,17 @@ export const AFFILIATE_CONFIG = {
 export function getSanitizedProductUrl(product: ProductUrlPayload): string {
   if (!product) return `https://www.amazon.com.br/?tag=${DEFAULT_AMAZON_TAG}`;
 
-  const rawUrl = product.affiliateUrl || product.originalUrl || product.url || '';
-
-  // Se a URL salva no banco for um link direto /dp/ ou /gp/ da Amazon, ignoramos para forçar a busca por título
-  const isDirectDpLink = typeof rawUrl === 'string' && (rawUrl.includes('/dp/') || rawUrl.includes('/gp/'));
-
-  // 1. Para outros links válidos (como Mercado Livre) que não sejam links diretos da Amazon
-  if (!isDirectDpLink && rawUrl && typeof rawUrl === 'string' && rawUrl.startsWith('http') && !rawUrl.includes('mock')) {
-    return rawUrl.trim();
-  }
-
-  // 2. Fallback Obrigatório por Título na Amazon
-  if (product.title && product.title.trim().length > 0) {
-    const searchQuery = encodeURIComponent(product.title.trim());
-    return `https://www.amazon.com.br/s?k=${searchQuery}&tag=${DEFAULT_AMAZON_TAG}`;
-  }
-
-  // 3. Suporte a fallback de ID de outros marketplaces
+  // 1. Se houver um externalId/ASIN válido da Amazon (10 caracteres)
   let cleanId = (product.externalId || product.asin || product.id || '').toString().trim();
   const sanitizedId = cleanId.replace(/[^a-zA-Z0-9_-]/g, '');
 
-  if (sanitizedId.length > 0 && !isDirectDpLink) {
-    const platformRaw = (product.platform || '').toString().toUpperCase().replace(/[-_]/g, '');
+  if (sanitizedId.length === 10 && (!product.platform || product.platform.toString().toUpperCase().includes('AMAZON'))) {
+    return `https://www.amazon.com.br/dp/${sanitizedId}?tag=${DEFAULT_AMAZON_TAG}`;
+  }
 
+  // 2. Se houver externalId/id válido para outras plataformas
+  if (sanitizedId.length > 0 && product.platform) {
+    const platformRaw = product.platform.toString().toUpperCase().replace(/[-_]/g, '');
     if (platformRaw.includes('MERCADO') || platformRaw.includes('MELI')) {
       return `https://www.mercadolivre.com.br/p/${sanitizedId}`;
     }
@@ -85,6 +73,34 @@ export function getSanitizedProductUrl(product: ProductUrlPayload): string {
     if (platformRaw.includes('MAGALU') || platformRaw.includes('MAGAZINE')) {
       return `https://www.magazineluiza.com.br/p/${sanitizedId}`;
     }
+  }
+
+  // 3. Se houver uma URL original/afiliada direta válida
+  const rawUrl = product.affiliateUrl || product.originalUrl || product.url || '';
+  if (rawUrl && typeof rawUrl === 'string' && rawUrl.startsWith('http') && !rawUrl.includes('mock') && !rawUrl.includes('ASIN123')) {
+    let cleanUrl = rawUrl.trim();
+    try {
+      const parsed = new URL(cleanUrl);
+      if (parsed.hostname.includes('amazon.')) {
+        parsed.searchParams.set('tag', DEFAULT_AMAZON_TAG);
+        return parsed.toString();
+      }
+      if (parsed.hostname.includes('mercadolivre.') || parsed.hostname.includes('mercadolibre.')) {
+        if (!parsed.searchParams.has('p') && !parsed.searchParams.has('matt_tool')) {
+          parsed.searchParams.set('p', `ml_afiliado_${DEFAULT_AMAZON_TAG}`);
+        }
+        return parsed.toString();
+      }
+      return cleanUrl;
+    } catch {
+      return cleanUrl;
+    }
+  }
+
+  // 4. Fallback: Busca por Título
+  if (product.title && product.title.trim().length > 0) {
+    const searchQuery = encodeURIComponent(product.title.trim());
+    return `https://www.amazon.com.br/s?k=${searchQuery}&tag=${DEFAULT_AMAZON_TAG}`;
   }
 
   return `https://www.amazon.com.br/?tag=${DEFAULT_AMAZON_TAG}`;
