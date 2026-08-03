@@ -50,34 +50,16 @@ export const AFFILIATE_CONFIG = {
 export function getSanitizedProductUrl(product: ProductUrlPayload): string {
   if (!product) return `https://www.amazon.com.br/?tag=${DEFAULT_AMAZON_TAG}`;
 
-  // 1. Se houver um externalId/ASIN válido da Amazon (10 caracteres)
-  let cleanId = (product.externalId || product.asin || product.id || '').toString().trim();
-  const sanitizedId = cleanId.replace(/[^a-zA-Z0-9_-]/g, '');
-
-  if (sanitizedId.length === 10 && (!product.platform || product.platform.toString().toUpperCase().includes('AMAZON'))) {
-    return `https://www.amazon.com.br/dp/${sanitizedId}?tag=${DEFAULT_AMAZON_TAG}`;
-  }
-
-  // 2. Se houver externalId/id válido para outras plataformas
-  if (sanitizedId.length > 0 && product.platform) {
-    const platformRaw = product.platform.toString().toUpperCase().replace(/[-_]/g, '');
-    if (platformRaw.includes('MERCADO') || platformRaw.includes('MELI')) {
-      return `https://www.mercadolivre.com.br/p/${sanitizedId}`;
-    }
-    if (platformRaw.includes('SHOPEE')) {
-      return `https://shopee.com.br/product/${sanitizedId}`;
-    }
-    if (platformRaw.includes('ALIEXPRESS')) {
-      return `https://pt.aliexpress.com/item/${sanitizedId}.html`;
-    }
-    if (platformRaw.includes('MAGALU') || platformRaw.includes('MAGAZINE')) {
-      return `https://www.magazineluiza.com.br/p/${sanitizedId}`;
-    }
-  }
-
-  // 3. Se houver uma URL original/afiliada direta válida
-  const rawUrl = product.affiliateUrl || product.originalUrl || product.url || '';
-  if (rawUrl && typeof rawUrl === 'string' && rawUrl.startsWith('http') && !rawUrl.includes('mock') && !rawUrl.includes('ASIN123')) {
+  // 1. Se houver uma URL direta VÁLIDA da API que não seja um mock antigo
+  const rawUrl = product.affiliateUrl || product.originalUrl || product.url;
+  if (
+    rawUrl &&
+    typeof rawUrl === 'string' &&
+    rawUrl.startsWith('http') &&
+    !rawUrl.includes('/dp/B07XQ8P6S1') &&
+    !rawUrl.includes('/dp/B07MSLFF61') &&
+    !rawUrl.includes('ASIN123')
+  ) {
     let cleanUrl = rawUrl.trim();
     try {
       const parsed = new URL(cleanUrl);
@@ -97,10 +79,35 @@ export function getSanitizedProductUrl(product: ProductUrlPayload): string {
     }
   }
 
-  // 4. Fallback: Busca por Título
+  // 2. REGRA MESTRA ANTI-404: Se houver título, SEMPRE gera a Busca Qualificada da Amazon
   if (product.title && product.title.trim().length > 0) {
     const searchQuery = encodeURIComponent(product.title.trim());
     return `https://www.amazon.com.br/s?k=${searchQuery}&tag=${DEFAULT_AMAZON_TAG}`;
+  }
+
+  // 3. Fallbacks de segurança (busca pelo ID ou página inicial)
+  let cleanId = (product.externalId || product.asin || product.id || '').toString().trim();
+  const sanitizedId = cleanId.replace(/[^a-zA-Z0-9_-]/g, '');
+
+  if (sanitizedId.length > 0) {
+    // Suporte a outros marketplaces
+    if (product.platform) {
+      const platformRaw = product.platform.toString().toUpperCase().replace(/[-_]/g, '');
+      if (platformRaw.includes('MERCADO') || platformRaw.includes('MELI')) {
+        return `https://www.mercadolivre.com.br/p/${sanitizedId}`;
+      }
+      if (platformRaw.includes('SHOPEE')) {
+        return `https://shopee.com.br/product/${sanitizedId}`;
+      }
+      if (platformRaw.includes('ALIEXPRESS')) {
+        return `https://pt.aliexpress.com/item/${sanitizedId}.html`;
+      }
+      if (platformRaw.includes('MAGALU') || platformRaw.includes('MAGAZINE')) {
+        return `https://www.magazineluiza.com.br/p/${sanitizedId}`;
+      }
+    }
+    // Para a Amazon, busca por ID
+    return `https://www.amazon.com.br/s?k=${encodeURIComponent(sanitizedId)}&tag=${DEFAULT_AMAZON_TAG}`;
   }
 
   return `https://www.amazon.com.br/?tag=${DEFAULT_AMAZON_TAG}`;
