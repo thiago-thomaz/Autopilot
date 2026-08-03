@@ -48,9 +48,8 @@ export const AFFILIATE_CONFIG = {
  * Sanitiza e garante URL de afiliado válida no mundo real (Amazon, ML, Shopee, etc.)
  */
 export function getSanitizedProductUrl(product: ProductUrlPayload): string {
-  if (!product) return `${AFFILIATE_CONFIG.DEFAULT_DOMAIN}/?tag=${DEFAULT_AMAZON_TAG}`;
+  if (!product) return `https://www.amazon.com.br/?tag=${DEFAULT_AMAZON_TAG}`;
 
-  // 1. Tenta usar a URL de afiliado completa retornada pelas APIs oficiais
   let rawUrl =
     product.affiliateUrl ||
     product.originalUrl ||
@@ -58,13 +57,15 @@ export function getSanitizedProductUrl(product: ProductUrlPayload): string {
     product.original_url ||
     product.url;
 
-  if (rawUrl && typeof rawUrl === 'string' && rawUrl.trim().length > 0) {
-    let cleanUrl = rawUrl.trim();
+  // Identifica se a URL contém ASINs de mock/testes ou se estamos em modo mock
+  const isMockUrl = rawUrl && typeof rawUrl === 'string' && (
+    rawUrl.includes('B07MSLFF61') || 
+    rawUrl.includes('ASIN123')
+  );
 
-    if (cleanUrl.includes('B07MSLFF61')) {
-      const query = encodeURIComponent('Whey Protein Concentrado 100% Pure Max Titanium 900g Baunilha');
-      return `https://www.amazon.com.br/s?k=${query}&tag=${DEFAULT_AMAZON_TAG}`;
-    }
+  // 1. Se existir uma URL completa real (e não for mock), usa ela
+  if (rawUrl && typeof rawUrl === 'string' && rawUrl.startsWith('http') && !isMockUrl) {
+    let cleanUrl = rawUrl.trim();
 
     // Mapeamento de correção para ASINs obsoletos conhecidos na URL
     if (cleanUrl.includes('B092DC27PN')) {
@@ -77,9 +78,6 @@ export function getSanitizedProductUrl(product: ProductUrlPayload): string {
       cleanUrl = cleanUrl.replace('B073VTVS44', 'B083321VT8');
     }
 
-    if (!cleanUrl.startsWith('http://') && !cleanUrl.startsWith('https://')) {
-      cleanUrl = `https://${cleanUrl.replace(/^\/+/, '')}`;
-    }
     try {
       const parsed = new URL(cleanUrl);
 
@@ -92,10 +90,6 @@ export function getSanitizedProductUrl(product: ProductUrlPayload): string {
         else if (cleanId === 'B07NRR739V') cleanId = 'B07XQ8P6S1';
         else if (cleanId === 'B08FCMK8LN') cleanId = 'B075F38KMD';
         else if (cleanId === 'B073VTVS44') cleanId = 'B083321VT8';
-        else if (cleanId === 'B07MSLFF61') {
-          const query = encodeURIComponent(product.title || 'Whey Protein Concentrado 100% Pure Max Titanium 900g Baunilha');
-          return `https://www.amazon.com.br/s?k=${query}&tag=${DEFAULT_AMAZON_TAG}`;
-        }
 
         const sanitizedId = cleanId.replace(/[^a-zA-Z0-9_-]/g, '');
         if (sanitizedId && (parsed.pathname.includes('/dp/') || parsed.pathname.includes('/gp/product/'))) {
@@ -118,22 +112,34 @@ export function getSanitizedProductUrl(product: ProductUrlPayload): string {
     }
   }
 
-  // 2. Se houver externalId/ASIN/ID válido, tenta gerar URL — mas PREFERE busca por título
-  //    para evitar 404 de ASINs descontinuados
+  // 2. FALLBACK INFALÍVEL ANTI-404: Busca por Título na Amazon com Tag de Afiliado
+  let searchQuery = product.title?.trim();
+  if (!searchQuery && rawUrl && typeof rawUrl === 'string' && rawUrl.includes('B07MSLFF61')) {
+    searchQuery = 'Whey Protein Concentrado 100% Pure Max Titanium 900g Baunilha';
+  }
+
+  if (searchQuery && searchQuery.length > 0) {
+    const encodedQuery = encodeURIComponent(searchQuery);
+    return `https://www.amazon.com.br/s?k=${encodedQuery}&tag=${DEFAULT_AMAZON_TAG}`;
+  }
+
+  // 3. Se tiver ID direto
   let cleanId = (product.externalId || product.asin || product.id || '').toString().trim();
   if (cleanId === 'B092DC27PN') cleanId = 'B0B8K3ZSK6';
   else if (cleanId === 'B07NRR739V') cleanId = 'B07XQ8P6S1';
   else if (cleanId === 'B08FCMK8LN') cleanId = 'B075F38KMD';
   else if (cleanId === 'B073VTVS44') cleanId = 'B083321VT8';
-  else if (cleanId === 'B07MSLFF61') {
-    const query = encodeURIComponent(product.title || 'Whey Protein Concentrado 100% Pure Max Titanium 900g Baunilha');
-    return `https://www.amazon.com.br/s?k=${query}&tag=${DEFAULT_AMAZON_TAG}`;
-  }
 
   const sanitizedId = cleanId.replace(/[^a-zA-Z0-9_-]/g, '');
+  const isMockId = ['B07MSLFF61', 'ASIN123'].includes(sanitizedId);
 
-  // Para Mercado Livre, Shopee, etc. links diretos por ID costumam funcionar
-  if (sanitizedId.length > 0) {
+  // Se o ID for o mock Whey ASIN, fazemos o fallback de busca mesmo sem a URL
+  if (cleanId === 'B07MSLFF61') {
+    const encodedQuery = encodeURIComponent('Whey Protein Concentrado 100% Pure Max Titanium 900g Baunilha');
+    return `https://www.amazon.com.br/s?k=${encodedQuery}&tag=${DEFAULT_AMAZON_TAG}`;
+  }
+
+  if (sanitizedId.length > 0 && !isMockId) {
     const platformRaw = (product.platform || '').toString().toUpperCase().replace(/[-_]/g, '');
 
     if (platformRaw.includes('MERCADO') || platformRaw.includes('MELI')) {
@@ -148,21 +154,11 @@ export function getSanitizedProductUrl(product: ProductUrlPayload): string {
     if (platformRaw.includes('MAGALU') || platformRaw.includes('MAGAZINE')) {
       return `https://www.magazineluiza.com.br/p/${sanitizedId}`;
     }
-  }
 
-  // 3. FALLBACK ANTI-404: Busca por Título na Amazon com Tag de Afiliado
-  //    Para Amazon, como ASINs podem ser descontinuados, busca por título é mais seguro
-  if (product.title) {
-    const cleanQuery = encodeURIComponent(product.title.trim());
-    return `https://www.amazon.com.br/s?k=${cleanQuery}&tag=${DEFAULT_AMAZON_TAG}`;
-  }
-
-  // 4. Se tiver ASIN e não tiver título, tenta link direto como último recurso
-  if (sanitizedId.length >= 10) {
+    // Se for Amazon ou padrão
     return `https://www.amazon.com.br/dp/${sanitizedId}?tag=${DEFAULT_AMAZON_TAG}`;
   }
 
-  // 5. Fallback padrão da loja com tag
   return `https://www.amazon.com.br/?tag=${DEFAULT_AMAZON_TAG}`;
 }
 
