@@ -4,31 +4,33 @@ import { getSanitizedProductUrl } from '../../lib/utils/url';
 describe('Engine de URLs de Afiliado (Anti-404)', () => {
   const DEFAULT_TAG = 'thomazpromos-20';
 
-  it('1. Deve usar a URL de afiliado/original se fornecida e válida, injetando a tag se for Amazon', () => {
+  it('1. Deve ignorar links diretos da Amazon (/dp/) e fazer fallback de busca pelo título se fornecido', () => {
     const payload = {
       url: 'https://www.amazon.com.br/dp/B0B8K3ZSK6',
+      title: 'Console PlayStation 5 Slim',
     };
     const result = getSanitizedProductUrl(payload);
-    expect(result).toBe(`https://www.amazon.com.br/dp/B0B8K3ZSK6?tag=${DEFAULT_TAG}`);
+    const expectedQuery = encodeURIComponent('Console PlayStation 5 Slim');
+    expect(result).toBe(`https://www.amazon.com.br/s?k=${expectedQuery}&tag=${DEFAULT_TAG}`);
   });
 
-  it('2. Deve substituir ASINs obsoletos conhecidos na URL', () => {
+  it('2. Deve ignorar links diretos da Amazon (/gp/) e cair na página inicial se não houver título', () => {
     const payload = {
-      url: 'https://www.amazon.com.br/dp/B092DC27PN', // Obsoleto
+      url: 'https://www.amazon.com.br/gp/product/B092DC27PN',
     };
     const result = getSanitizedProductUrl(payload);
-    expect(result).toBe(`https://www.amazon.com.br/dp/B0B8K3ZSK6?tag=${DEFAULT_TAG}`);
+    expect(result).toBe(`https://www.amazon.com.br/?tag=${DEFAULT_TAG}`);
   });
 
-  it('3. Deve usar externalId/ASIN se for fornecido direto sem URL', () => {
+  it('3. Deve usar URLs que não sejam da Amazon diretamente (ex: Mercado Livre)', () => {
     const payload = {
-      externalId: 'B0B8K3ZSK6',
+      url: 'https://www.mercadolivre.com.br/p/MLB12345678',
     };
     const result = getSanitizedProductUrl(payload);
-    expect(result).toBe(`https://www.amazon.com.br/dp/B0B8K3ZSK6?tag=${DEFAULT_TAG}`);
+    expect(result).toBe('https://www.mercadolivre.com.br/p/MLB12345678');
   });
 
-  it('4. Deve suportar links diretos de Mercado Livre e outras plataformas se o ID e a plataforma forem definidos', () => {
+  it('4. Deve construir links diretos para Mercado Livre e outras plataformas a partir do ID se a plataforma for definida', () => {
     const payload = {
       externalId: 'MLB12345678',
       platform: 'MERCADO_LIVRE',
@@ -37,7 +39,7 @@ describe('Engine de URLs de Afiliado (Anti-404)', () => {
     expect(result).toBe('https://www.mercadolivre.com.br/p/MLB12345678');
   });
 
-  it('5. Deve fazer fallback de busca real pelo título se não houver URL nem ID válido (Anti-404)', () => {
+  it('5. Deve fazer fallback de busca real pelo título se não houver URL válida', () => {
     const payload = {
       title: 'Console PlayStation 5 Slim',
     };
@@ -50,14 +52,5 @@ describe('Engine de URLs de Afiliado (Anti-404)', () => {
     const payload = {};
     const result = getSanitizedProductUrl(payload);
     expect(result).toBe(`https://www.amazon.com.br/?tag=${DEFAULT_TAG}`);
-  });
-
-  it('7. Deve interceptar o ASIN obsoleto do Whey B07MSLFF61 e redirecionar para a busca correspondente', () => {
-    const payload = {
-      url: 'https://www.amazon.com.br/dp/B07MSLFF61',
-    };
-    const result = getSanitizedProductUrl(payload);
-    const expectedQuery = encodeURIComponent('Whey Protein Concentrado 100% Pure Max Titanium 900g Baunilha');
-    expect(result).toBe(`https://www.amazon.com.br/s?k=${expectedQuery}&tag=${DEFAULT_TAG}`);
   });
 });
