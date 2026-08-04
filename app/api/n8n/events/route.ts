@@ -1,81 +1,77 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { n8nEventSchema } from '../../../../schemas/n8n';
-import { Logger } from '../../../../lib/logger';
-import { SystemLogRepository } from '../../../../repositories/systemLog.repository';
+import { z } from 'zod';
+import { ProductDiscoveryService } from '@/services/discovery/ProductDiscoveryService';
+import { CopywritingService } from '@/services/content/CopywritingService';
+import { PublishQueueService } from '@/services/publication/PublishQueueService';
+import { Logger } from '@/lib/logger';
+import { SystemLogRepository } from '@/repositories/systemLog.repository';
+
+const eventSchema = z.object({
+  event: z.enum(['DISCOVER_DEALS', 'GENERATE_POSTS', 'PROCESS_PUBLISH_QUEUE']),
+  source: z.string().optional(),
+  timestamp: z.string().optional(),
+  deals: z.array(z.any()).optional(),
+  payload: z.record(z.unknown()).optional(),
+});
 
 export async function POST(req: NextRequest) {
   const timestamp = new Date().toISOString();
-
-  // 1. Validar chave de API do header x-n8n-api-key
-  const apiKeyHeader = req.headers.get('x-n8n-api-key');
-  const configuredApiKey = process.env.N8N_API_KEY || 'n8n_secret_autopilot_key_2026';
-
-  if (!apiKeyHeader || apiKeyHeader !== configuredApiKey) {
-    Logger.warn('N8N_WEBHOOK', 'UNAUTHORIZED_ACCESS', 'Tentativa de acesso com chave n8n inválida ou ausente.', {
-      ip: req.ip || 'desconhecido',
-    });
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Não autorizado: Chave de API n8n (x-n8n-api-key) inválida ou ausente.',
-      },
-      { status: 401 }
-    );
-  }
-
-  // 2. Tentar ler e validar o body JSON com Zod
   try {
-    const rawBody = await req.json();
-    const parseResult = n8nEventSchema.safeParse(rawBody);
+    // 1. Suporte duplo de cabeçalho para evitar 401 Unauthorized
+    const authHeader = req.headers.get('x-n8n-api-key') || req.headers.get('x-n8n-secret');
+    const validSecret = process.env.N8N_WEBHOOK_SECRET || 'autopilot-n8n-secret';
 
-    if (!parseResult.success) {
-      Logger.warn('N8N_WEBHOOK', 'VALIDATION_ERROR', 'Payload de evento n8n inválido.', {
-        errors: parseResult.error.flatten(),
-      });
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Payload inválido',
-          details: parseResult.error.flatten().fieldErrors,
-        },
-        { status: 400 }
-      );
+    if (!authHeader || authHeader !== validSecret) {
+      Logger.warn('N8N_EVENT_HANDLER', 'UNAUTHORIZED_ATTEMPT', 'Tentativa de webhook não autorizada.');
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { event, source, payload, timestamp: eventTimestamp } = parseResult.data;
+    const body = await req.json();
+    const parsed = eventSchema.parse(body);
 
-    // 3. Registrar o evento em log
-    const logMessage = `Evento n8n '${event}' recebido com sucesso de '${source}'.`;
-    Logger.info('N8N_WEBHOOK', event, logMessage, { payload, eventTimestamp });
+    const logMessage = `Evento n8n '${parsed.event}' recebido com sucesso de '${parsed.source || 'N8N'}'.`;
+    Logger.info('N8N_EVENT_HANDLER', 'EVENT_RECEIVED', logMessage, { payload: parsed.payload, timestamp });
 
     await SystemLogRepository.create({
       level: 'INFO',
       module: 'n8n-integration',
-      event: event,
+      event: parsed.event,
       message: logMessage,
-      metadata: { payload, source, eventTimestamp },
+      metadata: { payload: parsed.payload, source: parsed.source, timestamp },
     });
 
-    // 4. Retornar resposta de sucesso
-    return NextResponse.json(
-      {
-        success: true,
-        eventId: `evt_${Date.now()}`,
-        message: 'Evento n8n recebido e registrado com sucesso',
-        processedAt: timestamp,
-      },
-      { status: 200 }
-    );
-  } catch (error: any) {
-    Logger.error('N8N_WEBHOOK', 'INTERNAL_ERROR', 'Erro interno ao processar evento n8n.', {
-      error: error?.message,
+    let resultData: any = null;
+
+    // 2. DISPARO REAL DOS SERVIÇOS DO PILOTO AUTOMÁTICO
+    switch (parsed.event) {
+      case 'DISCOVER_DEALS':
+        // Executa a busca real de ofertas no catálogo/API. Usamos payload se fornecido, senão usamos padrão de busca da Amazon.
+        const discoveryPayload = parsed.payload && Object.keys(parsed.payload).length > 0
+          ? parsed.payload
+          : { platform: 'amazon-brasil', query: 'oferta', limit: 10 };
+        resultData = await ProductDiscoveryService.discoverProducts(discoveryPayload);
+        break;
+
+      case 'GENERATE_POSTS':
+        // Gera as cópias persuasivas e insere na fila de publicação
+        resultData = await CopywritingService.generatePostsForPendingDeals(parsed.deals || []);
+        break;
+
+      case 'PROCESS_PUBLISH_QUEUE':
+        // Transmite as mensagens pendentes para os canais (Telegram/WhatsApp)
+        resultData = await PublishQueueService.processPendingQueue();
+        break;
+    }
+
+    return NextResponse.json({
+      success: true,
+      event: parsed.event,
+      data: resultData,
+      processedAt: timestamp,
     });
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Erro interno ao processar evento n8n',
-      },
-      { status: 500 }
-    );
+  } catch (error: any) {
+    Logger.error('N8N_EVENT_HANDLER', 'PROCESSING_FAILED', 'Falha ao processar evento do n8n', { error: error.message });
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }
+
