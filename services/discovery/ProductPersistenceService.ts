@@ -45,7 +45,7 @@ export class ProductPersistenceService {
     try {
       return await prisma.$transaction(async (tx) => {
         // Auto-create AffiliatePlatform if it's missing (lazy seeding)
-        await tx.affiliatePlatform.upsert({
+        const platform = await tx.affiliatePlatform.upsert({
           where: { slug: input.affiliatePlatformId },
           update: {},
           create: {
@@ -61,7 +61,7 @@ export class ProductPersistenceService {
         const product = await tx.product.upsert({
           where: {
             affiliatePlatformId_externalId: {
-              affiliatePlatformId: input.affiliatePlatformId,
+              affiliatePlatformId: platform.id,
               externalId: input.externalId,
             },
           },
@@ -88,7 +88,7 @@ export class ProductPersistenceService {
           },
           create: {
             externalId: input.externalId,
-            affiliatePlatformId: input.affiliatePlatformId,
+            affiliatePlatformId: platform.id,
             title: input.title,
             description: input.description,
             url: input.url,
@@ -97,6 +97,7 @@ export class ProductPersistenceService {
             brand: input.brand,
             currentPrice: input.currentPrice,
             previousPrice: input.previousPrice,
+
             currency: input.currency || 'BRL',
             rating: input.rating,
             reviewCount: input.reviewCount || 0,
