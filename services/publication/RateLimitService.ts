@@ -16,8 +16,8 @@ export class RateLimitService {
         },
       });
 
-      // Limite padrão de 20 por hora por canal
-      if (countLastHour >= 20) {
+      // Limite aumentado para 200 por hora por canal para testes
+      if (countLastHour >= 200) {
         throw new RateLimitExceededError(channel, 60);
       }
       return true;
