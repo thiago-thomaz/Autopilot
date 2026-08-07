@@ -5,8 +5,8 @@ import dns from 'dns/promises';
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
+  let dnsResults: any = {};
   try {
-    let dnsResults: any = {};
     for (const host of ['postgres', 'db', 'localhost', 'postgres-i9mhxq0rhwwxnp7071x1wvoz']) {
       try {
         const res = await dns.lookup(host);
