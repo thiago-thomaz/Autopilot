@@ -361,7 +361,7 @@ export class AmazonCreatorsApiClient {
       const formattedTitle = q.charAt(0).toUpperCase() + q.slice(1);
       return [
         {
-          asin: `B${Math.floor(100000000 + Math.random() * 900000000)}`,
+          asin: allDepartmentCatalog[Math.floor(Math.random() * allDepartmentCatalog.length)].asin,
           title: `Oferta Amazon BR: ${formattedTitle} Premium`,
           description: `Excelente escolha na categoria ${categoryName} com frete rápido e garantia de entrega Amazon Brasil.`,
           price: 189.90,
@@ -373,7 +373,7 @@ export class AmazonCreatorsApiClient {
           reviews: 940,
         },
         {
-          asin: `B${Math.floor(100000000 + Math.random() * 900000000)}`,
+          asin: allDepartmentCatalog[Math.floor(Math.random() * allDepartmentCatalog.length)].asin,
           title: `${formattedTitle} - Edição Especial Amazon BR`,
           description: `Super oportunidade para a categoria ${categoryName} com pontuação alta de avaliação dos clientes.`,
           price: 89.90,

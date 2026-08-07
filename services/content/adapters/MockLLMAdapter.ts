@@ -27,7 +27,15 @@ export class MockLLMAdapter implements LLMProviderAdapter {
       cta = 'Verifique a avaliação dos compradores no link:';
     }
 
-    const caption = `${hook}\n\nO ${input.title} está por apenas R$ ${input.currentPrice.toFixed(2)}.\n\nPrincipais destaques:\n- Excelente desempenho e durabilidade\n- Avaliação positiva dos compradores (${input.rating || 4.5}/5)\n- Garantia oficial do fabricante\n\n${cta}\n${input.url}\n\n#afiliado #parceiro #ofertas`;
+    const prevPrice = input.previousPrice || (input.currentPrice * 1.3);
+    const discountPercent = Math.round(((prevPrice - input.currentPrice) / prevPrice) * 100);
+    const discountString = discountPercent > 0 ? ` -${discountPercent}% OFF` : '';
+    
+    let seller = 'Amazon';
+    if (input.url && input.url.includes('mercadolivre')) seller = 'Mercado Livre';
+    if (input.url && input.url.includes('shopee')) seller = 'Shopee';
+
+    const caption = `💥 Olha isso! Oferta imperdível por tempo limitado!\n\n${input.title}\n\n❌ De: R$ ${prevPrice.toFixed(2).replace('.', ',')}\n✅ Por: R$ ${input.currentPrice.toFixed(2).replace('.', ',')}${discountString}\n\n🛒 Compre aqui: ${input.url}\n\n⚡ Quando acabar, acabou!\n\nVendido por ${seller}`;
 
     return {
       hook,
