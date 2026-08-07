@@ -46,15 +46,9 @@ export function getSanitizedProductUrl(product: ProductUrlPayload): string {
     return `https://www.mercadolivre.com.br/p/${product.externalId}`;
   }
 
-  const asinMockMap: Record<string, string> = {
-    'B07XQ8P6S1': 'B077BG228H',
-    'B07MSLFF61': 'B08S3P3GCS'
-  };
-
   const asin = product.externalId || product.asin;
   if (asin && asin.length === 10) {
-    const realAsin = asinMockMap[asin] || asin;
-    return `https://www.amazon.com.br/dp/${realAsin}?tag=${DEFAULT_AMAZON_TAG}`;
+    return `https://www.amazon.com.br/dp/${asin}?tag=${DEFAULT_AMAZON_TAG}`;
   }
 
   // 1. ENGINE DE BUSCA INTELIGENTE E LIMPA (Aplica para todos os produtos)

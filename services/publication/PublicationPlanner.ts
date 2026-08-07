@@ -49,7 +49,10 @@ export class PublicationPlanner {
         const trackingUrl = TrackingAdapter.buildTrackingUrl(pkg.product.url, channel, country, language, request.campaignId || 'default', 'v1');
 
         // 3. Formatação e Compliance do Texto
-        let text = `${pkg.hook}\n\n${pkg.title} por apenas ${formattedPrice}!\n\n${pkg.cta}\n${trackingUrl}`;
+        let text = pkg.caption ? pkg.caption.replace(pkg.product.url, trackingUrl) : `${pkg.hook}\n\n${pkg.title} por apenas ${formattedPrice}!\n\n${pkg.cta}\n${trackingUrl}`;
+        if (pkg.caption && !text.includes(trackingUrl)) {
+          text += `\n\n${trackingUrl}`;
+        }
         text = PlatformPolicyEngine.truncateForPlatform(text, channel);
         text = PublicationComplianceEngine.ensureComplianceDisclosure(text, country);
 

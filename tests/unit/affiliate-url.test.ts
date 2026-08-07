@@ -4,23 +4,6 @@ import { getSanitizedProductUrl } from '../../lib/utils/url';
 describe('Engine de URLs de Afiliado (Anti-404)', () => {
   const DEFAULT_TAG = 'thomazpromos-20';
 
-  it('1. Deve traduzir o ASIN de mock do Café Orfeu (B07XQ8P6S1) para o ASIN real (B077BG228H) e ir direto', () => {
-    const payload = {
-      externalId: 'B07XQ8P6S1',
-      title: 'Café Torrado e Moído Orfeu Gourmet Intenso 250g',
-    };
-    const result = getSanitizedProductUrl(payload);
-    expect(result).toBe(`https://www.amazon.com.br/dp/B077BG228H?tag=${DEFAULT_TAG}`);
-  });
-
-  it('2. Deve traduzir o ASIN de mock do Whey (B07MSLFF61) para o ASIN real (B08S3P3GCS) e ir direto', () => {
-    const payload = {
-      externalId: 'B07MSLFF61',
-      title: 'Whey Protein Max Titanium 900g',
-    };
-    const result = getSanitizedProductUrl(payload);
-    expect(result).toBe(`https://www.amazon.com.br/dp/B08S3P3GCS?tag=${DEFAULT_TAG}`);
-  });
 
   it('3. Deve fazer busca pelo título sem aspas se for um produto sem ASIN de 10 caracteres', () => {
     const payload = {
