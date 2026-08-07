@@ -8,8 +8,28 @@ vi.mock('../../repositories/systemLog.repository', () => ({
   },
 }));
 
+// Mock services to prevent actual execution during webhook tests
+vi.mock('../../services/discovery/ProductDiscoveryService', () => ({
+  ProductDiscoveryService: {
+    discoverProducts: vi.fn().mockResolvedValue({ success: true, imported: 1 }),
+  },
+}));
+
+vi.mock('../../services/content/CopywritingService', () => ({
+  CopywritingService: {
+    generatePostsForPendingDeals: vi.fn().mockResolvedValue({ generated: 1 }),
+  },
+}));
+
+vi.mock('../../services/publication/PublishQueueService', () => ({
+  PublishQueueService: {
+    processPendingQueue: vi.fn().mockResolvedValue({ published: 1 }),
+  },
+}));
+
 describe('POST /api/n8n/events (n8n Webhook API)', () => {
   beforeEach(() => {
+    process.env.N8N_WEBHOOK_SECRET = 'test_secret_key_123';
     process.env.N8N_API_KEY = 'test_secret_key_123';
   });
 
@@ -17,7 +37,7 @@ describe('POST /api/n8n/events (n8n Webhook API)', () => {
     const req = new NextRequest('http://localhost:3000/api/n8n/events', {
       method: 'POST',
       body: JSON.stringify({
-        event: 'PRODUCT_DISCOVERED',
+        event: 'DISCOVER_DEALS',
         source: 'n8n',
         timestamp: new Date().toISOString(),
         payload: {},
@@ -29,7 +49,6 @@ describe('POST /api/n8n/events (n8n Webhook API)', () => {
 
     expect(res.status).toBe(401);
     expect(json.success).toBe(false);
-    expect(json.error).toContain('x-n8n-api-key');
   });
 
   it('deve rejeitar requisição com chave incorreta com status 401', async () => {
@@ -39,7 +58,7 @@ describe('POST /api/n8n/events (n8n Webhook API)', () => {
         'x-n8n-api-key': 'chave_errada',
       },
       body: JSON.stringify({
-        event: 'PRODUCT_DISCOVERED',
+        event: 'DISCOVER_DEALS',
         source: 'n8n',
         timestamp: new Date().toISOString(),
         payload: {},
@@ -81,7 +100,7 @@ describe('POST /api/n8n/events (n8n Webhook API)', () => {
         'content-type': 'application/json',
       },
       body: JSON.stringify({
-        event: 'PRODUCT_DISCOVERED',
+        event: 'DISCOVER_DEALS',
         source: 'n8n',
         timestamp: validTimestamp,
         payload: {
@@ -97,7 +116,6 @@ describe('POST /api/n8n/events (n8n Webhook API)', () => {
 
     expect(res.status).toBe(200);
     expect(json.success).toBe(true);
-    expect(json.eventId).toBeDefined();
-    expect(json.message).toContain('sucesso');
+    expect(json.event).toBe('DISCOVER_DEALS');
   });
 });

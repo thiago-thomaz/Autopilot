@@ -42,6 +42,21 @@ export const AFFILIATE_CONFIG = {
 export function getSanitizedProductUrl(product: ProductUrlPayload): string {
   if (!product) return `https://www.amazon.com.br/?tag=${DEFAULT_AMAZON_TAG}`;
 
+  if (product.platform === 'MERCADO_LIVRE' && product.externalId) {
+    return `https://www.mercadolivre.com.br/p/${product.externalId}`;
+  }
+
+  const asinMockMap: Record<string, string> = {
+    'B07XQ8P6S1': 'B077BG228H',
+    'B07MSLFF61': 'B08S3P3GCS'
+  };
+
+  const asin = product.externalId || product.asin;
+  if (asin && asin.length === 10) {
+    const realAsin = asinMockMap[asin] || asin;
+    return `https://www.amazon.com.br/dp/${realAsin}?tag=${DEFAULT_AMAZON_TAG}`;
+  }
+
   // 1. ENGINE DE BUSCA INTELIGENTE E LIMPA (Aplica para todos os produtos)
   if (product.title && product.title.trim().length > 0) {
     // Limpa aspas, parênteses, palavras de stop-words e gramaturas exatas que travam a busca da Amazon

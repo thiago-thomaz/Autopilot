@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { ProductDiscoveryService } from '@/services/discovery/ProductDiscoveryService';
-import { CopywritingService } from '@/services/content/CopywritingService';
-import { PublishQueueService } from '@/services/publication/PublishQueueService';
-import { Logger } from '@/lib/logger';
-import { SystemLogRepository } from '@/repositories/systemLog.repository';
+import { ProductDiscoveryService } from '../../../../services/discovery/ProductDiscoveryService';
+import { CopywritingService } from '../../../../services/content/CopywritingService';
+import { PublishQueueService } from '../../../../services/publication/PublishQueueService';
+import { Logger } from '../../../../lib/logger';
+import { SystemLogRepository } from '../../../../repositories/systemLog.repository';
 
 const eventSchema = z.object({
   event: z.enum(['DISCOVER_DEALS', 'GENERATE_POSTS', 'PROCESS_PUBLISH_QUEUE']),
@@ -19,11 +19,11 @@ export async function POST(req: NextRequest) {
   try {
     // 1. Suporte duplo de cabeçalho para evitar 401 Unauthorized
     const authHeader = req.headers.get('x-n8n-api-key') || req.headers.get('x-n8n-secret');
-    const validSecret = process.env.N8N_WEBHOOK_SECRET || 'autopilot-n8n-secret';
+    const validSecret = process.env.N8N_API_KEY || process.env.N8N_WEBHOOK_SECRET || 'autopilot-n8n-secret';
 
     if (!authHeader || authHeader !== validSecret) {
       Logger.warn('N8N_EVENT_HANDLER', 'UNAUTHORIZED_ATTEMPT', 'Tentativa de webhook não autorizada.');
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ success: false, error: 'Unauthorized (missing or invalid x-n8n-api-key)' }, { status: 401 });
     }
 
     const body = await req.json();
@@ -70,6 +70,9 @@ export async function POST(req: NextRequest) {
       processedAt: timestamp,
     });
   } catch (error: any) {
+    if (error instanceof z.ZodError) {
+      return NextResponse.json({ success: false, error: 'Invalid payload' }, { status: 400 });
+    }
     Logger.error('N8N_EVENT_HANDLER', 'PROCESSING_FAILED', 'Falha ao processar evento do n8n', { error: error.message });
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
