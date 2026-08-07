@@ -194,12 +194,12 @@ export class AmazonCreatorsApiClient {
 
         // --- BELEZA E CUIDADOS PESSOAIS ---
         {
-          asin: 'B07MY9S6S1',
+          asin: 'B07Y5VSZYV',
           title: 'Protetor Solar Facial La Roche-Posay Anthelios Airlicium FPS 60 40g',
           description: 'Controle de oleosidade e sensação de pele limpa com toque seco o dia todo.',
           price: 79.90,
           previousPrice: 99.90,
-          url: `https://www.amazon.com.br/dp/B07MY9S6S1?tag=${tag}`,
+          url: `https://www.amazon.com.br/dp/B07Y5VSZYV?tag=${tag}`,
           imageUrl: 'https://m.media-amazon.com/images/I/51r9L89p2mL._AC_SL1000_.jpg',
           category: 'Beleza e Cuidados Pessoais',
           rating: 4.8,
@@ -262,13 +262,13 @@ export class AmazonCreatorsApiClient {
 
         // --- ELETRÔNICOS E TECNOLOGIA ---
         {
-          asin: 'B08N5WRWNW',
-          title: 'Kindle Paperwhite 16GB - Tela de 6.8" com Luz Quente Ajustável',
-          description: 'Novo Kindle Paperwhite com tela antirreflexo de 300 ppi, bateria de longa duração e à prova d\'água.',
-          price: 799.00,
-          previousPrice: 899.00,
-          url: `https://www.amazon.com.br/dp/B08N5WRWNW?tag=${tag}`,
-          imageUrl: 'https://m.media-amazon.com/images/I/61gS9lK8rQL._AC_SL1500_.jpg',
+          asin: 'B09B8VGCR8',
+          title: 'Echo Dot 5ª Geração com Alexa - Som de Alta Fidelidade',
+          description: 'O Echo Dot com o melhor som já lançado. Controle sua casa inteligente por voz.',
+          price: 429.00,
+          previousPrice: 479.00,
+          url: `https://www.amazon.com.br/dp/B09B8VGCR8?tag=${tag}`,
+          imageUrl: 'https://m.media-amazon.com/images/I/71C3lbbeLsL._AC_SL1500_.jpg',
           category: 'Eletrônicos',
           rating: 4.8,
           reviews: 1250,
