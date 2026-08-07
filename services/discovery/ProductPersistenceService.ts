@@ -44,6 +44,20 @@ export class ProductPersistenceService {
 
     try {
       return await prisma.$transaction(async (tx) => {
+        // Auto-create AffiliatePlatform if it's missing (lazy seeding)
+        await tx.affiliatePlatform.upsert({
+          where: { slug: input.affiliatePlatformId },
+          update: {},
+          create: {
+            name: input.affiliatePlatformId === 'amazon-brasil' ? 'Amazon Brasil' : input.affiliatePlatformId,
+            slug: input.affiliatePlatformId,
+            status: 'ACTIVE',
+            apiAvailable: true,
+            productDiscoveryAvailable: true,
+            website: 'https://www.amazon.com.br',
+          },
+        });
+
         const product = await tx.product.upsert({
           where: {
             affiliatePlatformId_externalId: {
