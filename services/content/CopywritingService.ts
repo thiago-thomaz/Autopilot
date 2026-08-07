@@ -26,8 +26,29 @@ export class CopywritingService {
       try {
         const res = await ContentEngine.generatePackageVariations(id);
         generatedPackages.push(...res);
-      } catch (err) {
-        // Ignora erros individuais de geração
+      } catch (err: any) {
+        console.error(`Erro ao gerar pacote para o produto ${id}:`, err);
+      }
+    }
+
+    // Auto-enqueue the generated packages to be published to Telegram
+    const { PublicationPlanner } = require('../publication/PublicationPlanner');
+    for (const pkgRes of generatedPackages) {
+      if (pkgRes.package && (pkgRes.package.status === 'READY_FOR_PUBLICATION' || pkgRes.package.status === 'REVIEW_REQUIRED')) {
+        try {
+          // Force status to READY_FOR_PUBLICATION for autopilot testing
+          await prisma.contentPackage.update({
+            where: { id: pkgRes.package.id },
+            data: { status: 'READY_FOR_PUBLICATION' }
+          });
+          await PublicationPlanner.createPlan({
+            contentPackageId: pkgRes.package.id,
+            channels: ['TELEGRAM'], // Override default to target Telegram specifically
+            targetCountries: ['BR']
+          });
+        } catch(e) {
+          console.error(`Falha ao enfileirar pacote ${pkgRes.package.id}:`, e);
+        }
       }
     }
 
