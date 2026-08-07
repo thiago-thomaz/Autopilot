@@ -17,19 +17,33 @@ export async function GET() {
     }
 
     const result = await prisma.$queryRaw`SELECT 1 as connected`;
-    const platform = await prisma.affiliatePlatform.upsert({
-          where: { slug: 'amazon-brasil' },
+    let upsertError = null;
+    try {
+      await prisma.product.upsert({
+          where: {
+            affiliatePlatformId_externalId: {
+              affiliatePlatformId: 'amazon-brasil',
+              externalId: 'test1234',
+            },
+          },
           update: {},
           create: {
-            name: 'Amazon Brasil',
-            slug: 'amazon-brasil',
-            status: 'ACTIVE',
-            apiAvailable: true,
-            productDiscoveryAvailable: true,
-            website: 'https://www.amazon.com.br',
+            externalId: 'test1234',
+            affiliatePlatformId: 'amazon-brasil',
+            title: 'Test',
+            url: 'http://test.com',
+            category: 'test',
+            currentPrice: 10,
+            currency: 'BRL',
+            availability: true,
+            sourceType: 'API',
+            opportunityScore: 10
           },
         });
-    return NextResponse.json({ success: true, result, platform, url: process.env.DATABASE_URL, dns: dnsResults });
+    } catch(e: any) {
+      upsertError = e.message;
+    }
+    return NextResponse.json({ success: true, result, upsertError, url: process.env.DATABASE_URL, dns: dnsResults });
   } catch (error: any) {
     return NextResponse.json({ success: false, error: error.message, stack: error.stack, url: process.env.DATABASE_URL, dns: dnsResults });
   }
