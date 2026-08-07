@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { prisma } from '../../../../lib/prisma';
 import dns from 'dns/promises';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   try {
     let dnsResults: any = {};
