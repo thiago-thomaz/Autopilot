@@ -55,16 +55,16 @@ export class TrackingEngine {
 
       // 3. Register the Click Event (Idempotent by Hash to prevent double counting from bots in a short window)
       // Hash IP + UserAgent + publicationId + timeWindow
-      // Time window of 10 minutes: Math.floor(Date.now() / (10 * 60 * 1000))
-      const timeWindowMs = 10 * 60 * 1000;
+      // Time window of 3 seconds: Math.floor(Date.now() / 3000)
+      const timeWindowMs = 3 * 1000;
       const timeWindowStr = Math.floor(Date.now() / timeWindowMs).toString();
       
       const ipHash = metadata.ip ? crypto.createHash('md5').update(metadata.ip).digest('hex') : 'unknown';
       const uaHash = metadata.userAgent ? crypto.createHash('md5').update(metadata.userAgent).digest('hex') : 'unknown';
       const idempotencyKey = `click_${publicationId}_${ipHash}_${uaHash}_${timeWindowStr}`;
 
-      // Upsert click to avoid duplicates
-      await prisma.clickEvent.upsert({
+      // Upsert click to avoid duplicates - executado de forma assíncrona
+      prisma.clickEvent.upsert({
         where: { idempotencyKey },
         update: {
           // just update timestamp
@@ -81,6 +81,8 @@ export class TrackingEngine {
           userAgent: metadata.userAgent,
           clickedAt: new Date()
         }
+      }).catch((err: any) => {
+        Logger.error('TRACKING', 'ASYNC_TRACKING_FAILED', `Failed to register click asynchronously: ${err.message}`, { publicationId });
       });
 
       Logger.info('TRACKING', 'CLICK_REGISTERED', `Click registered successfully`, { publicationId, productId: product.id });
