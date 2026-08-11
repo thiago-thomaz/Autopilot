@@ -12,6 +12,7 @@ services:
     environment:
       - DATABASE_URL=postgresql://postgres:postgres_secure_pass@postgres_db:5432/affiliate_autopilot?schema=public
       - NODE_ENV=production
+      - MERCADO_LIVRE_AFFILIATE_TAG=THOMAZ85
     depends_on:
       postgres:
         condition: service_healthy
