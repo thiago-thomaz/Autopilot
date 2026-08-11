@@ -24,7 +24,23 @@ export class ProductPersistenceService {
   public static async upsertProduct(input: NormalizedProductInput, options: PersistOptions = {}) {
     const sanitizedUrl = getSanitizedAffiliateUrl(input);
     input.url = sanitizedUrl;
-    const opportunityScore = this.productService.calculateOpportunityScore({
+
+    // Busca o produto pelo externalId para pegar o histórico
+    let avg30DayPrice: number | null = null;
+    const existingProduct = await prisma.product.findFirst({
+      where: {
+        externalId: input.externalId,
+        affiliatePlatformId: input.affiliatePlatformId === 'amazon-brasil' 
+          ? (await prisma.affiliatePlatform.findFirst({ where: { slug: 'amazon-brasil' } }))?.id 
+          : undefined, // Need to improve this lookup if needed, or rely on externalId uniqueness
+      }
+    });
+
+    if (existingProduct) {
+      avg30DayPrice = await ProductPriceHistoryService.getAveragePrice(existingProduct.id, 30);
+    }
+
+    let opportunityScore = this.productService.calculateOpportunityScore({
       externalId: input.externalId,
       platformSlug: input.affiliatePlatformId,
       title: input.title,
@@ -38,6 +54,12 @@ export class ProductPersistenceService {
       rating: input.rating,
       commissionRate: input.commissionRate,
     });
+
+    if (avg30DayPrice && input.currentPrice > avg30DayPrice) {
+      // Se o preço atual for MAIOR que a média dos últimos 30 dias,
+      // penalizamos o score severamente para não ser classificado como "alta oportunidade".
+      opportunityScore = opportunityScore * 0.5;
+    }
 
     const sourceType = options.sourceType || 'API';
     const sourceMetadata = options.sourceMetadata ? (options.sourceMetadata as any) : undefined;

@@ -1541,6 +1541,7 @@ model ClickEvent {
   product         Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
   campaignRef     Campaign? @relation(fields: [campaignId], references: [id], onDelete: SetNull)
   channelRef      Channel?  @relation(fields: [channelId], references: [id], onDelete: SetNull)
+  conversions     Conversion[]
 
   @@index([productId])
   @@index([publicationId])
@@ -1575,6 +1576,8 @@ model Conversion {
   product         Product          @relation(fields: [productId], references: [id], onDelete: Cascade)
   campaignRef     Campaign?        @relation(fields: [campaignId], references: [id], onDelete: SetNull)
   channelRef      Channel?         @relation(fields: [channelId], references: [id], onDelete: SetNull)
+  clickEventId    String?
+  clickEvent      ClickEvent?      @relation(fields: [clickEventId], references: [id], onDelete: SetNull)
   commission      Commission?
 
   @@index([productId])

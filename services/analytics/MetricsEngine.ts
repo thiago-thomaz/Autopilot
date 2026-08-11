@@ -3,6 +3,9 @@ import { prisma } from "../../lib/prisma";
 export interface AnalyticsOverview {
   totalClicks: number;
   clicksLast24h: number;
+  totalConversions: number;
+  totalRevenue: number;
+  epc: number;
 }
 
 export interface ChannelPerformance {
@@ -33,9 +36,24 @@ export class MetricsEngine {
       },
     });
 
+    const totalConversions = await prisma.conversion.count({
+      where: { status: 'CONFIRMED' }
+    });
+
+    const totalRevenueAgg = await prisma.commission.aggregate({
+      _sum: { amount: true },
+      where: { status: 'APPROVED' }
+    });
+
+    const totalRevenue = totalRevenueAgg._sum.amount || 0;
+    const epc = totalClicks > 0 ? totalRevenue / totalClicks : 0;
+
     return {
       totalClicks,
       clicksLast24h,
+      totalConversions,
+      totalRevenue,
+      epc
     };
   }
 

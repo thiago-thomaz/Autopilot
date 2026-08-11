@@ -71,4 +71,19 @@ export class ProductPriceHistoryService {
       return [];
     }
   }
+
+  /**
+   * Retorna a média de preço dos últimos X dias.
+   */
+  public static async getAveragePrice(productId: string, days = 30): Promise<number | null> {
+    try {
+      const history = await this.getPriceHistory(productId, days);
+      if (history.length === 0) return null;
+
+      const sum = history.reduce((acc, entry) => acc + entry.price, 0);
+      return sum / history.length;
+    } catch {
+      return null;
+    }
+  }
 }
