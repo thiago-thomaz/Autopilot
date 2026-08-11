@@ -1586,6 +1586,7 @@ model Conversion {
   @@index([externalOrderId])
   @@index([status])
   @@index([convertedAt])
+  @@index([clickEventId])
 }
 
 model Commission {
