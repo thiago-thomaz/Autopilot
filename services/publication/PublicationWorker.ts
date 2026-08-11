@@ -21,6 +21,7 @@ export class PublicationWorker {
     let processed = 0;
     let successful = 0;
     let failed = 0;
+    const errors = [];
 
     try {
       // Buscar itens pendentes
@@ -114,6 +115,7 @@ export class PublicationWorker {
               data: { status: 'FAILED' },
             });
             failed++;
+            errors.push({ id: item.id, message: result.errorMessage || 'Unknown error' });
           } else {
             await prisma.publicationQueueItem.update({
               where: { id: item.id },
@@ -133,12 +135,14 @@ export class PublicationWorker {
             where: { id: item.id },
             data: { status: 'FAILED', attempts: item.attempts + 1 },
           });
+          errors.push({ id: item.id, message: err.message });
         }
       }
     } catch (err: any) {
       Logger.error('PUBLICATION_WORKER', 'QUEUE_ERROR', `Erro geral no worker: ${err.message}`);
+      errors.push({ id: 'system', message: err.message });
     }
 
-    return { processed, successful, failed };
+    return { processed, successful, failed, errors };
   }
 }
