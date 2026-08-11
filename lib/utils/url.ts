@@ -43,21 +43,39 @@ export const AFFILIATE_CONFIG = {
 export function getSanitizedProductUrl(product: ProductUrlPayload): string {
   if (!product) return `https://www.amazon.com.br/?tag=${DEFAULT_AMAZON_TAG}`;
 
-  if (product.url && product.url.includes('mercadolivre.com.br')) {
-    return product.url; // Retorna URL real do Mercado Livre (da API ou Mock)
-  }
-
+  // Mercado Livre - Usa URL direta se existir
   const platform = product.platform || product.affiliatePlatformId;
-  if ((platform === 'MERCADO_LIVRE' || platform === 'mercado-livre') && product.externalId) {
-    return `https://produto.mercadolivre.com.br/${product.externalId.replace('-', '')}`;
+  if (platform === 'MERCADO_LIVRE' || platform === 'mercado-livre') {
+    if (product.url && product.url.includes('mercadolivre.com.br')) {
+      return product.url;
+    }
+    if (product.originalUrl && product.originalUrl.includes('mercadolivre.com.br')) {
+      return product.originalUrl;
+    }
+    if (product.externalId) {
+      return `https://www.mercadolivre.com.br/p/${product.externalId.replace('-', '')}`;
+    }
   }
 
-  const asin = product.externalId || product.asin;
+  // Amazon - Extrai ASIN da URL caso não esteja explícito
+  let asin = product.externalId || product.asin;
+  
+  if (!asin || asin.length !== 10) {
+    const urlsToSearch = [product.url, product.originalUrl, product.affiliateUrl].filter(Boolean) as string[];
+    for (const url of urlsToSearch) {
+      const match = url.match(/\/(?:dp|gp\/product)\/([A-Z0-9]{10})/);
+      if (match && match[1]) {
+        asin = match[1];
+        break;
+      }
+    }
+  }
+
   if (asin && asin.length === 10) {
     return `https://www.amazon.com.br/dp/${asin}?tag=${DEFAULT_AMAZON_TAG}`;
   }
 
-  // 1. ENGINE DE BUSCA INTELIGENTE E LIMPA (Aplica para todos os produtos)
+  // 1. ENGINE DE BUSCA INTELIGENTE E LIMPA (Aplica como fallback SE NÃO HOUVER ASIN)
   if (product.title && product.title.trim().length > 0) {
     // Limpa aspas, parênteses, palavras de stop-words e gramaturas exatas que travam a busca da Amazon
     const cleanedTitle = product.title
@@ -77,7 +95,7 @@ export function getSanitizedProductUrl(product: ProductUrlPayload): string {
     return `https://www.amazon.com.br/s?k=${searchQuery}&tag=${DEFAULT_AMAZON_TAG}`;
   }
 
-  // 2. Fallback de emergência caso não exista título
+  // 2. Fallback de emergência
   return `https://www.amazon.com.br/?tag=${DEFAULT_AMAZON_TAG}`;
 }
 

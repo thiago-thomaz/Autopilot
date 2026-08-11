@@ -9,33 +9,46 @@ export class MockLLMAdapter implements LLMProviderAdapter {
       ? ` com desconto de R$ ${(input.previousPrice - input.currentPrice).toFixed(2)}`
       : '';
 
-    let hook = `Procurando por um ${input.title} com ótimo custo-benefício?`;
-    let title = `Oferta Imperdível: ${input.title}`;
+    const cleanedTitle = input.title
+      .replace(/\[.*?\]/g, '')
+      .replace(/-\s*Mercado\s*Livre/gi, '')
+      .replace(/-\s*Amazon/gi, '')
+      .trim();
+
+    let hook = `Procurando por um ${cleanedTitle} com ótimo custo-benefício?`;
+    let title = `Oferta Imperdível: ${cleanedTitle}`;
     let cta = 'Confira o preço e mais detalhes no link abaixo:';
 
     if (input.angle === 'DEAL') {
-      hook = `🔥 Oportunidade: ${input.title}${discountText}!`;
-      title = `Preço Especiais para ${input.title}`;
+      hook = `🔥 Oportunidade: ${cleanedTitle}${discountText}!`;
+      title = `Preço Especiais para ${cleanedTitle}`;
       cta = 'Aproveite o preço promocional acessando o link:';
     } else if (input.angle === 'PROBLEM_SOLUTION') {
-      hook = `Diga adeus às complicações: conheça o ${input.title}.`;
-      title = `Como o ${input.title} resolve o seu dia a dia`;
+      hook = `Diga adeus às complicações: conheça o ${cleanedTitle}.`;
+      title = `Como o ${cleanedTitle} resolve o seu dia a dia`;
       cta = 'Veja como garantir o seu com segurança no link:';
     } else if (input.angle === 'COMPARISON') {
-      hook = `Vale a pena investir no ${input.title}?`;
-      title = `Análise de Valor: ${input.title}`;
+      hook = `Vale a pena investir no ${cleanedTitle}?`;
+      title = `Análise de Valor: ${cleanedTitle}`;
       cta = 'Verifique a avaliação dos compradores no link:';
     }
 
-    const prevPrice = input.previousPrice || (input.currentPrice * 1.3);
-    const discountPercent = Math.round(((prevPrice - input.currentPrice) / prevPrice) * 100);
-    const discountString = discountPercent > 0 ? ` -${discountPercent}% OFF` : '';
+    const prevPrice = input.previousPrice && input.previousPrice > input.currentPrice ? input.previousPrice : null;
+    let priceSection = ``;
+    if (prevPrice) {
+      const discountPercent = Math.round(((prevPrice - input.currentPrice) / prevPrice) * 100);
+      const discountString = discountPercent > 0 ? ` -${discountPercent}% OFF` : '';
+      priceSection = `❌ De: R$ ${prevPrice.toFixed(2).replace('.', ',')}\n✅ Por: R$ ${input.currentPrice.toFixed(2).replace('.', ',')}${discountString}`;
+    } else {
+      priceSection = `✅ Apenas: R$ ${input.currentPrice.toFixed(2).replace('.', ',')}`;
+    }
     
     let seller = 'Amazon';
     if (input.url && input.url.includes('mercadolivre')) seller = 'Mercado Livre';
     if (input.url && input.url.includes('shopee')) seller = 'Shopee';
 
-    const caption = `💥 Olha isso! Oferta imperdível por tempo limitado!\n\n${input.title}\n\n❌ De: R$ ${prevPrice.toFixed(2).replace('.', ',')}\n✅ Por: R$ ${input.currentPrice.toFixed(2).replace('.', ',')}${discountString}\n\n🛒 Compre aqui: ${input.url}\n\n⚡ Quando acabar, acabou!\n\nVendido por ${seller}`;
+    const caption = `💥 Olha isso! Oferta imperdível por tempo limitado!\n\n${cleanedTitle}\n\n${priceSection}\n\n🛒 Compre aqui: ${input.url}\n\n⚡ Quando acabar, acabou!\n\nVendido por ${seller}`;
+
 
     return {
       hook,
