@@ -40,7 +40,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "{\n  \"limit\": 3,\n  \"platforms\": [\"AMAZON\"]\n}",
+        "jsonBody": "{\n  \"limit\": 3,\n  \"platforms\": [\"AMAZON\", \"MERCADO_LIVRE\"]\n}",
         "options": {}
       },
       "id": "1c7a8f3b-6e7e-4b2e-a5e2-63a1158a74e5",
