@@ -6,6 +6,9 @@ import { RateLimitService } from './RateLimitService';
 import { WhatsAppService } from './WhatsAppService';
 import { EmailService } from './EmailService';
 import { Logger } from '../../lib/logger';
+import { SystemConfigService } from '../core/SystemConfigService';
+import { AntiSpamEngine } from '../core/AntiSpamEngine';
+import { TrackingEngine } from '../tracking/TrackingEngine';
 
 export class PublicationWorker {
   private workerId: string;
@@ -22,6 +25,12 @@ export class PublicationWorker {
     let successful = 0;
     let failed = 0;
     const errors = [];
+
+    const isGlobalEnabled = await SystemConfigService.isGlobalAutopilotEnabled();
+    if (!isGlobalEnabled) {
+      Logger.warn('PUBLICATION_WORKER', 'KILL_SWITCH', 'Global Autopilot Kill Switch is active. Halting publication.');
+      return { processed: 0, successful: 0, failed: 0, errors: [{ id: 'system', message: 'AUTOPILOT_ENABLED=false' }] };
+    }
 
     try {
       // Buscar itens pendentes
@@ -74,6 +83,17 @@ export class PublicationWorker {
             continue;
           }
 
+          // 1.5 Anti-Spam Check
+          const antiSpam = await AntiSpamEngine.isAllowedToPublish(pub.productId, pub.channel, pub.contentPackage.product.category, pub.contentPackage.product.brand);
+          if (!antiSpam.allowed) {
+             await PublicationPersistenceService.updatePublicationResult(pub.id, 'FAILED', {
+              errorMessage: `Anti-Spam bloqueou: ${antiSpam.reason}`,
+            });
+            await prisma.publicationQueueItem.update({ where: { id: item.id }, data: { status: 'FAILED' } });
+            failed++;
+            continue;
+          }
+
           // 2. Filtro de Consentimento (WhatsApp / Email)
           if (pub.channel === 'WHATSAPP' && pub.metadata) {
             const phone = (pub.metadata as any).recipientPhone;
@@ -92,17 +112,41 @@ export class PublicationWorker {
 
           // 4. Executar Publicação no Adapter correspondente
           const adapter = PublicationAdapterFactory.getAdapter(pub.channel);
+
+          const trackingUrl = TrackingEngine.generateTrackingUrl(pub.id);
+          const originalUrl = pub.contentPackage.product.url;
+          
+          let body = pub.contentPackage.caption;
+          // Replace original URL with Tracking URL in body
+          if (body && originalUrl) {
+            // using string split/join or replaceAll for safety
+            body = body.split(originalUrl).join(trackingUrl);
+          }
+
           const payload = (pub.publicationPayload as any) || {
             title: pub.contentPackage.title,
-            body: pub.contentPackage.caption,
-            trackingUrl: pub.trackingUrl || pub.contentPackage.product.url,
+            body: body,
+            trackingUrl: trackingUrl,
             affiliateDisclosure: pub.contentPackage.affiliateDisclosure || '#afiliado',
             cta: pub.contentPackage.cta,
           };
 
-          const result = await adapter.publish(payload, pub.accountId || undefined);
+          const isDryRun = await SystemConfigService.isDryRun();
+          let result;
 
-          await PublicationPersistenceService.updatePublicationResult(pub.id, result.status, {
+          if (isDryRun) {
+            Logger.info('PUBLICATION_WORKER', 'DRY_RUN', `Dry run ativo. Publicação simulada para ${pub.id}`);
+            result = {
+              success: true,
+              status: 'PUBLISHED',
+              externalPublicationId: `dry_run_${Date.now()}`,
+              externalUrl: trackingUrl,
+              errorMessage: undefined
+            };
+          } else {
+            result = await adapter.publish(payload, pub.accountId || undefined);
+          }
+          await PublicationPersistenceService.updatePublicationResult(pub.id, result.status as any, {
             externalPublicationId: result.externalPublicationId,
             externalUrl: result.externalUrl,
             errorMessage: result.errorMessage,

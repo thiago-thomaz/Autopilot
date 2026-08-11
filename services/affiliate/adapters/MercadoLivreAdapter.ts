@@ -59,16 +59,56 @@ export class MercadoLivreAdapter extends BaseAffiliateAdapter {
     };
   }
 
+  private async fetchWithBackoff(url: string, retries = 3, backoff = 1000): Promise<Response> {
+    for (let i = 0; i < retries; i++) {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s strict timeout
+
+      try {
+        const response = await fetch(url, { signal: controller.signal });
+        clearTimeout(timeoutId);
+
+        // Rate limited, Forbidden, or Server Error (5xx)
+        if (response.status === 429 || response.status === 403 || response.status >= 500) {
+          if (i === retries - 1) throw new Error(`HTTP ${response.status} after ${retries} retries`);
+          
+          // Use Retry-After if available
+          const retryAfter = response.headers.get('Retry-After');
+          let delayMs = backoff * Math.pow(2, i);
+          
+          if (retryAfter) {
+            const parsed = parseInt(retryAfter, 10);
+            if (!isNaN(parsed)) {
+              delayMs = parsed * 1000;
+            }
+          }
+          
+          // Add Jitter (0-30%)
+          const jitter = delayMs * 0.3 * Math.random();
+          await new Promise(res => setTimeout(res, delayMs + jitter));
+          continue;
+        }
+        if (!response.ok) throw new Error(`Mercado Livre API error: ${response.statusText}`);
+        return response;
+      } catch (error: any) {
+        clearTimeout(timeoutId);
+        if (i === retries - 1) throw error;
+        
+        // Timeout or network error
+        const delayMs = backoff * Math.pow(2, i);
+        const jitter = delayMs * 0.3 * Math.random();
+        await new Promise(res => setTimeout(res, delayMs + jitter));
+      }
+    }
+    throw new Error('Max retries reached');
+  }
+
   async searchProducts(query: string, _credentials: Record<string, string>): Promise<NormalizedProductInput[]> {
     try {
-      // Busca real na API do Mercado Livre
+      // Busca real na API do Mercado Livre com backoff e retry limit
+      const response = await this.fetchWithBackoff(`https://api.mercadolibre.com/sites/MLB/search?q=${encodeURIComponent(query)}&limit=10`);
 
 
-      const response = await fetch(`https://api.mercadolibre.com/sites/MLB/search?q=${encodeURIComponent(query)}&limit=10`);
-      
-      if (!response.ok) {
-        throw new Error(`Mercado Livre API error: ${response.statusText}`);
-      }
       
       const data = await response.json();
       
