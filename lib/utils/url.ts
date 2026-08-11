@@ -71,27 +71,29 @@ export function getSanitizedProductUrl(product: ProductUrlPayload): string {
     }
   }
 
-  if (asin && asin.length === 10) {
+  const dummyAsins = ['B07XQ8P6S1', 'B08F9N12KL', 'ASIN123'];
+  const isDummyAsin = asin && dummyAsins.includes(asin);
+
+  if (asin && asin.length === 10 && !isDummyAsin) {
     return `https://www.amazon.com.br/dp/${asin}?tag=${DEFAULT_AMAZON_TAG}`;
   }
 
-  // 1. ENGINE DE BUSCA INTELIGENTE E LIMPA (Aplica como fallback SE NÃO HOUVER ASIN)
+  // 1. ENGINE DE BUSCA INTELIGENTE E LIMPA (Aplica como fallback SE NÃO HOUVER ASIN ou FOR ASIN FICTÍCIO)
   if (product.title && product.title.trim().length > 0) {
-    // Limpa aspas, parênteses, palavras de stop-words e gramaturas exatas que travam a busca da Amazon
-    const cleanedTitle = product.title
+    // Limpa caracteres rígidos para evitar erro de busca e montagem de query segura
+    const cleanKeywords = product.title
       .replace(/\[.*?\]/g, '') // Remove tags entre colchetes como [OFERTA]
-      .replace(/-\s*Mercado\s*Livre/gi, '') // Remove sufixos de marca no título
+      .replace(/["'“”\(\)\[\]\{\}]/g, '')
       .replace(/-\s*Amazon/gi, '')
-      .replace(/["'“”]/g, '')
-      .replace(/[\(\)\[\]\{\}]/g, ' ')
+      .replace(/-\s*Mercado\s*Livre/gi, '')
       .replace(/\b(250g|500g|1kg|900g|1000g|ml|l)\b/gi, '')
       .replace(/\s+/g, ' ')
-      .trim();
+      .trim()
+      .split(' ')
+      .slice(0, 5)
+      .join(' ');
 
-    // Pega as primeiras 5 palavras principais para uma busca ampla e precisa
-    const words = cleanedTitle.split(' ').slice(0, 5).join(' ');
-
-    const searchQuery = encodeURIComponent(words);
+    const searchQuery = encodeURIComponent(cleanKeywords);
     return `https://www.amazon.com.br/s?k=${searchQuery}&tag=${DEFAULT_AMAZON_TAG}`;
   }
 

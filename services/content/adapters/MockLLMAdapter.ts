@@ -39,8 +39,10 @@ export class MockLLMAdapter implements LLMProviderAdapter {
       const discountPercent = Math.round(((prevPrice - input.currentPrice) / prevPrice) * 100);
       const discountString = discountPercent > 0 ? ` -${discountPercent}% OFF` : '';
       priceSection = `❌ De: R$ ${prevPrice.toFixed(2).replace('.', ',')}\n✅ Por: R$ ${input.currentPrice.toFixed(2).replace('.', ',')}${discountString}`;
-    } else {
+    } else if (input.currentPrice > 0) {
       priceSection = `✅ Apenas: R$ ${input.currentPrice.toFixed(2).replace('.', ',')}`;
+    } else {
+      priceSection = `✅ Confira o preço atualizado no link abaixo!`;
     }
     
     let seller = 'Amazon';
