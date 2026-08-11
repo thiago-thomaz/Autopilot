@@ -9,6 +9,7 @@ import { DiscoveryJobService } from './DiscoveryJobService';
 import { DiscoverySchedulerService } from './DiscoverySchedulerService';
 import { Logger } from '../../lib/logger';
 import { ProductSourceType } from '@prisma/client';
+import { OpportunityRankingEngine } from '../intelligence/OpportunityRankingEngine';
 
 export class ProductDiscoveryService {
   /**
@@ -113,9 +114,12 @@ export class ProductDiscoveryService {
         persistedProducts.push(saved);
       }
 
+      // 8. Aplicar Ranking Matemático Determinístico (Fase P3)
+      const rankedProducts = OpportunityRankingEngine.rankProducts(persistedProducts as any);
+
       const executionTimeMs = Date.now() - startTime;
 
-      // 8. Finalizar job e registrar logs
+      // 9. Finalizar job e registrar logs
       if (jobId && searchId) {
         await DiscoveryJobService.completeDiscoveryJob(
           jobId,
@@ -144,7 +148,7 @@ export class ProductDiscoveryService {
         updated,
         duplicates: duplicateCount,
         rejected,
-        products: persistedProducts,
+        products: rankedProducts,
         warnings,
         errors,
         executionTimeMs,

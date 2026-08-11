@@ -57,6 +57,11 @@ export class PublicationPlanner {
         text = PlatformPolicyEngine.truncateForPlatform(text, channel);
         text = PublicationComplianceEngine.ensureComplianceDisclosure(text, country);
 
+        // Formatação nativa para WhatsApp
+        if (channel === 'WHATSAPP') {
+          text = text.replace(/\*\*(.*?)\*\*/g, '*$1*');
+        }
+
         // 4. Agendamento Inteligente
         const optimalSchedule = request.scheduledAt || ContentStrategyEngine.determineOptimalSchedule(pkg.product);
 
