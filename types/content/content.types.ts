@@ -46,6 +46,7 @@ export interface LLMGenerationInput {
   channel: ChannelPlatform;
   contentType: ContentPackageType;
   verifiedFacts: VerifiedFact[];
+  templateStyle?: string;
 }
 
 export interface GeneratedContentOutput {
@@ -64,4 +65,5 @@ export interface GeneratedContentOutput {
   affiliateDisclosure: string;
   modelUsed: string;
   tokensUsed?: number;
+  templateStyle?: string;
 }

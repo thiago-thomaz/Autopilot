@@ -25,9 +25,14 @@ export class CopywritingService {
     const generationErrors = [];
     const { PublicationPlanner } = require('../publication/PublicationPlanner');
     
-    for (const id of productIds) {
+    const TEMPLATES = ['SHORT_DIRECT', 'SCARCITY_URGENCY', 'TECHNICAL_INFORMATIVE', 'ECONOMY_FOCUSED'];
+    
+    for (let i = 0; i < productIds.length; i++) {
+      const id = productIds[i];
+      const templateStyle = TEMPLATES[i % TEMPLATES.length]; // Round-robin A/B testing
+      
       try {
-        const res = await ContentEngine.generatePackageVariations(id);
+        const res = await ContentEngine.generatePackageVariations(id, templateStyle);
         generatedPackages.push(...res);
       } catch (err: any) {
         generationErrors.push({ id, message: err.message, stack: err.stack });

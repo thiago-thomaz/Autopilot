@@ -48,6 +48,7 @@ export class ContentPersistenceService {
           generationMetadata: {
             modelUsed: out.modelUsed,
             tokensUsed: out.tokensUsed || 150,
+            templateStyle: out.templateStyle,
           },
           qualityScore: input.qualityScore,
           complianceScore: input.complianceScore,

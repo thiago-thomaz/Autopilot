@@ -31,7 +31,8 @@ export class ContentEngine {
     targetAngle?: ContentAngleType,
     targetChannel: ChannelPlatform = 'INSTAGRAM',
     targetContentType: ContentPackageType = 'SOCIAL_POST',
-    providerName = 'MockLLM'
+    providerName = 'OpenAI',
+    templateStyle?: string
   ) {
     const product = await prisma.product.findUnique({
       where: { id: productId },
@@ -84,6 +85,7 @@ export class ContentEngine {
       channel: targetChannel,
       contentType: targetContentType,
       verifiedFacts,
+      templateStyle
     });
 
     // 5. Validação Anti-Alucinação de Claims (Claim Validation)
@@ -122,12 +124,12 @@ export class ContentEngine {
   /**
    * Gera obrigatoriamente 3 variações de pacotes de conteúdo por oportunidade (ex: DEAL, PROBLEM_SOLUTION, COMPARISON).
    */
-  public static async generatePackageVariations(productId: string) {
+  public static async generatePackageVariations(productId: string, templateStyle?: string) {
     const angles: ContentAngleType[] = ['DEAL', 'PROBLEM_SOLUTION', 'COMPARISON'];
     const results = [];
 
     for (const angle of angles) {
-      const res = await this.generateContentPackage(productId, angle, 'INSTAGRAM', 'SOCIAL_POST');
+      const res = await this.generateContentPackage(productId, angle, 'INSTAGRAM', 'SOCIAL_POST', 'OpenAI', templateStyle);
       results.push(res);
     }
 

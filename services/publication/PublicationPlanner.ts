@@ -7,6 +7,7 @@ import { PublicationComplianceEngine } from './PublicationComplianceEngine';
 import { PlatformPolicyEngine } from './PlatformPolicyEngine';
 import { prisma } from '../../lib/prisma';
 import { PublicationEngineError } from '../../types/publication/publication.errors';
+import { ContentStrategyEngine } from '../content/ContentStrategyEngine';
 
 export class PublicationPlanner {
   /**
@@ -56,8 +57,11 @@ export class PublicationPlanner {
         text = PlatformPolicyEngine.truncateForPlatform(text, channel);
         text = PublicationComplianceEngine.ensureComplianceDisclosure(text, country);
 
-        // 4. Chave de Idempotência Única
-        const idempotencyKey = `${pkg.id}_${channel}_${country}_${request.scheduledAt ? request.scheduledAt.getTime() : 'now'}`;
+        // 4. Agendamento Inteligente
+        const optimalSchedule = request.scheduledAt || ContentStrategyEngine.determineOptimalSchedule(pkg.product);
+
+        // 5. Chave de Idempotência Única
+        const idempotencyKey = `${pkg.id}_${channel}_${country}_${optimalSchedule.getTime()}`;
 
         const payload = {
           title: pkg.title,
@@ -77,7 +81,7 @@ export class PublicationPlanner {
           status: 'QUEUED',
           publicationPayload: payload,
           trackingUrl,
-          scheduledAt: request.scheduledAt || new Date(),
+          scheduledAt: optimalSchedule,
           country,
           language,
           currency,
