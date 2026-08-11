@@ -17,7 +17,7 @@ export class PublicationWorker {
   /**
    * Processa os próximos itens pendentes na fila utilizando trava lógica/transação para evitar concorrência.
    */
-  public async processPendingQueue(batchSize = 10): Promise<{ processed: number; successful: number; failed: number }> {
+  public async processPendingQueue(batchSize = 10): Promise<{ processed: number; successful: number; failed: number; errors?: any[] }> {
     let processed = 0;
     let successful = 0;
     let failed = 0;
