@@ -2,8 +2,8 @@ const headers = { 'x-n8n-api-key': 'n8n_secret_autopilot_key_2026', 'Content-Typ
 const payload = {
   "event": "DISCOVER_DEALS",
   "payload": {
-    "platform": "amazon-brasil",
-    "query": "celular",
+    "platform": "mercado-livre",
+    "query": "fone de ouvido bluetooth",
     "limit": 3
   }
 };

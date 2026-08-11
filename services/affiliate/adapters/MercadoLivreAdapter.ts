@@ -19,9 +19,9 @@ export class MercadoLivreAdapter extends BaseAffiliateAdapter {
       website: 'https://www.mercadolivre.com.br',
       documentationUrl: 'https://www.mercadolivre.com.br/afiliados',
       capabilities: {
-        apiAvailable: false,
+        apiAvailable: true,
         linkGenerationAvailable: true, // via procedimento manual/link oficial
-        productDiscoveryAvailable: false,
+        productDiscoveryAvailable: true,
         metricsAvailable: false,
         commissionReportingAvailable: false,
         manualLinkGenerationOnly: true,
@@ -59,12 +59,38 @@ export class MercadoLivreAdapter extends BaseAffiliateAdapter {
     };
   }
 
-  async searchProducts(_query: string, _credentials: Record<string, string>): Promise<NormalizedProductInput[]> {
-    throw new AffiliateError(
-      'A busca automática de produtos do Mercado Livre requer ação manual (Sem API pública autorizada para busca de afiliados).',
-      'MANUAL_REQUIRED',
-      400
-    );
+  async searchProducts(query: string, _credentials: Record<string, string>): Promise<NormalizedProductInput[]> {
+    try {
+      const response = await fetch(`https://api.mercadolibre.com/sites/MLB/search?q=${encodeURIComponent(query)}&limit=10`);
+      
+      if (!response.ok) {
+        throw new Error(`Mercado Livre API error: ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      
+      if (!data.results || !Array.isArray(data.results)) {
+        return [];
+      }
+      
+      return data.results.map((item: any) => ({
+        externalId: item.id,
+        affiliatePlatformId: 'mercado-livre',
+        title: item.title,
+        url: item.permalink,
+        imageUrl: item.thumbnail ? item.thumbnail.replace('-I.jpg', '-O.jpg') : undefined,
+        currentPrice: item.price,
+        previousPrice: item.original_price || undefined,
+        currency: item.currency_id || 'BRL',
+        availability: item.available_quantity > 0,
+      }));
+    } catch (error: any) {
+      throw new AffiliateError(
+        `Erro ao buscar produtos no Mercado Livre: ${error.message}`,
+        'CONNECTION_ERROR',
+        500
+      );
+    }
   }
 
   async getProduct(_externalId: string, _credentials: Record<string, string>): Promise<NormalizedProductInput | null> {
