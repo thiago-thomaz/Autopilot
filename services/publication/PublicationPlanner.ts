@@ -8,6 +8,7 @@ import { PlatformPolicyEngine } from './PlatformPolicyEngine';
 import { prisma } from '../../lib/prisma';
 import { PublicationEngineError } from '../../types/publication/publication.errors';
 import { ContentStrategyEngine } from '../content/ContentStrategyEngine';
+import { ChannelRouterService } from './ChannelRouterService';
 
 export class PublicationPlanner {
   /**
@@ -65,9 +66,6 @@ export class PublicationPlanner {
         // 4. Agendamento Inteligente
         const optimalSchedule = request.scheduledAt || ContentStrategyEngine.determineOptimalSchedule(pkg.product);
 
-        // 5. Chave de Idempotência Única
-        const idempotencyKey = `${pkg.id}_${channel}_${country}_${optimalSchedule.getTime()}`;
-
         const payload = {
           title: pkg.title,
           body: text,
@@ -77,32 +75,42 @@ export class PublicationPlanner {
           formattedPrice,
         };
 
-        const record = await PublicationPersistenceService.createPublicationRecord({
-          contentPackageId: pkg.id,
-          productId: pkg.productId,
-          channel,
-          platform: channel.toLowerCase(),
-          publicationType: channel === 'REDDIT' ? 'MANUAL' : 'AUTOMATIC',
-          status: 'QUEUED',
-          publicationPayload: payload,
-          trackingUrl,
-          scheduledAt: optimalSchedule,
-          country,
-          language,
-          currency,
-          timezone,
-          campaignId: request.campaignId,
-          idempotencyKey,
-        });
+        // Roteamento Inteligente (Fase P4)
+        const targetAccounts = ChannelRouterService.getTargetAccounts(pkg.product.category || '', channel);
 
-        createdPublications.push({
-          id: record.id,
-          channel: record.channel,
-          country: record.country,
-          language: record.language,
-          status: record.status,
-          scheduledAt: record.scheduledAt,
-        });
+        for (const target of targetAccounts) {
+          // 5. Chave de Idempotência Única com AccountId
+          const idempotencyKey = `${pkg.id}_${channel}_${target.accountId}_${country}_${optimalSchedule.getTime()}`;
+
+          const record = await PublicationPersistenceService.createPublicationRecord({
+            contentPackageId: pkg.id,
+            productId: pkg.productId,
+            channel,
+            accountId: target.accountId !== 'default' ? target.accountId : undefined,
+            platform: channel.toLowerCase(),
+            publicationType: channel === 'REDDIT' ? 'MANUAL' : 'AUTOMATIC',
+            status: 'QUEUED',
+            publicationPayload: payload,
+            trackingUrl,
+            scheduledAt: optimalSchedule,
+            country,
+            language,
+            currency,
+            timezone,
+            campaignId: request.campaignId,
+            idempotencyKey,
+          });
+
+          createdPublications.push({
+            id: record.id,
+            channel: record.channel,
+            accountId: record.accountId,
+            country: record.country,
+            language: record.language,
+            status: record.status,
+            scheduledAt: record.scheduledAt,
+          });
+        }
       }
     }
 

@@ -114,8 +114,8 @@ export class ProductDiscoveryService {
         persistedProducts.push(saved);
       }
 
-      // 8. Aplicar Ranking Matemático Determinístico (Fase P3)
-      const rankedProducts = OpportunityRankingEngine.rankProducts(persistedProducts as any);
+      // 8. Aplicar Ranking Matemático Determinístico (Fase P3 / P4)
+      const rankedProducts = await OpportunityRankingEngine.rankProducts(persistedProducts as any);
 
       const executionTimeMs = Date.now() - startTime;
 
