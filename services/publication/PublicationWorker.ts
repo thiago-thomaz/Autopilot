@@ -101,7 +101,6 @@ export class PublicationWorker {
 
           const result = await adapter.publish(payload, pub.accountId || undefined);
 
-          // 5. Persistir Resultado no Banco
           await PublicationPersistenceService.updatePublicationResult(pub.id, result.status, {
             externalPublicationId: result.externalPublicationId,
             externalUrl: result.externalUrl,
@@ -109,12 +108,19 @@ export class PublicationWorker {
             publicationPayload: result.manualPackage ? result.manualPackage : undefined,
           });
 
-          await prisma.publicationQueueItem.update({
-            where: { id: item.id },
-            data: { status: 'COMPLETED' },
-          });
-
-          successful++;
+          if (result.status === 'FAILED') {
+            await prisma.publicationQueueItem.update({
+              where: { id: item.id },
+              data: { status: 'FAILED' },
+            });
+            failed++;
+          } else {
+            await prisma.publicationQueueItem.update({
+              where: { id: item.id },
+              data: { status: 'COMPLETED' },
+            });
+            successful++;
+          }
         } catch (err: any) {
           failed++;
           Logger.error('PUBLICATION_WORKER', 'ITEM_FAILED', `Falha ao processar item ${item.id}: ${err.message}`);
