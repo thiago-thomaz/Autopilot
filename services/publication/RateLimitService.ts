@@ -16,8 +16,8 @@ export class RateLimitService {
         },
       });
 
-      // Limite aumentado para 200 por hora por canal para testes
-      if (countLastHour >= 200) {
+      // Limite seguro de 5 posts por hora para evitar bloqueios nas redes sociais
+      if (countLastHour >= 5) {
         throw new RateLimitExceededError(channel, 60);
       }
       return true;
