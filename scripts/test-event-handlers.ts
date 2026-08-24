@@ -4,7 +4,6 @@ import { NextRequest } from 'next/server';
 process.env.N8N_WEBHOOK_SECRET = 'autopilot-n8n-secret';
 process.env.N8N_API_KEY = 'autopilot-n8n-secret'; // force pass
 process.env.MOCK_MODE = 'true';
-process.env.NODE_ENV = 'test';
 
 async function mockRequest(body: any): Promise<any> {
   const req = {

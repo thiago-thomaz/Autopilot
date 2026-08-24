@@ -6,7 +6,7 @@ import { PublishQueueService } from '../../../../services/publication/PublishQue
 import { ConversionService } from '../../../../services/revenue/ConversionService';
 import { Logger } from '../../../../lib/logger';
 import { SystemLogRepository } from '../../../../repositories/systemLog.repository';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, ProductStatus } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -87,10 +87,10 @@ export async function POST(req: NextRequest) {
         
         try {
           const deletedLogs = await prisma.systemLog.deleteMany({
-            where: { timestamp: { lt: sevenDaysAgo } }
+            where: { createdAt: { lt: sevenDaysAgo } }
           });
           const deletedProducts = await prisma.product.deleteMany({
-            where: { status: 'EXPIRED', updatedAt: { lt: sevenDaysAgo } }
+            where: { status: ProductStatus.EXPIRED, updatedAt: { lt: sevenDaysAgo } }
           });
           resultData = { logsDeleted: deletedLogs.count, productsDeleted: deletedProducts.count };
           Logger.info('MAINTENANCE', 'CLEANUP_SUCCESS', `Limpeza concluída`, resultData);
