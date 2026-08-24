@@ -64,13 +64,14 @@ export class TrackingEngine {
       const idempotencyKey = `click_${publicationId}_${ipHash}_${uaHash}_${timeWindowStr}`;
 
       // Upsert click to avoid duplicates - executado de forma assíncrona
+      const clickId = crypto.randomUUID();
       prisma.clickEvent.upsert({
         where: { idempotencyKey },
         update: {
-          // just update timestamp
           clickedAt: new Date()
         },
         create: {
+          id: clickId,
           idempotencyKey,
           productId: product.id,
           publicationId: publication.id,
@@ -85,13 +86,24 @@ export class TrackingEngine {
         Logger.error('TRACKING', 'ASYNC_TRACKING_FAILED', `Failed to register click asynchronously: ${err.message}`, { publicationId });
       });
 
-      Logger.info('TRACKING', 'CLICK_REGISTERED', `Click registered successfully`, { publicationId, productId: product.id });
+      Logger.info('TRACKING', 'CLICK_REGISTERED', `Click registered successfully`, { publicationId, productId: product.id, clickId });
 
       // 4. Return the final destination URL (Affiliate URL)
-      // The original final URL should be stored in product.url or generated at publication time
-      // The logic in url.ts should have sanitized this. 
-      // We assume product.url is the final affiliate link because getSanitizedProductUrl generates it.
-      return product.url;
+      // Inject subId/ascsubtag for tracking
+      let finalUrl = product.url;
+      try {
+        const urlObj = new URL(finalUrl);
+        if (finalUrl.includes('amazon')) {
+            urlObj.searchParams.set('ascsubtag', clickId);
+        } else if (finalUrl.includes('mercadolivre') || finalUrl.includes('mlb')) {
+            urlObj.searchParams.set('subid', clickId);
+        }
+        finalUrl = urlObj.toString();
+      } catch (e) {
+        Logger.error('TRACKING', 'URL_PARSE_ERROR', 'Failed to append clickId', { finalUrl });
+      }
+
+      return finalUrl;
 
     } catch (error: any) {
       Logger.error('TRACKING', 'REDIRECT_ERROR', `Redirect Error: ${error.message}`, { publicationId });
