@@ -24,15 +24,24 @@ describe('MercadoLivreAdapter', () => {
     expect(res.message).toContain('MANUAL_LINK_GENERATION');
   });
 
-  it('deve lançar erro CONNECTION_ERROR ao tentar buscar produtos sem sucesso (ou mock desativado)', async () => {
+  it('deve retornar resultado fallback (anti-403 resiliente) ao buscar produtos sem sucesso', async () => {
+    // O MercadoLivreAdapter tem fallback resiliente: nunca lanca AffiliateError,
+    // retorna um produto generico apontando para a busca no ML quando a API falha.
+    // Mock fetch para falhar imediatamente
+    const originalFetch = globalThis.fetch;
+    globalThis.fetch = async () => { throw new Error('Network request blocked in test environment'); };
     try {
-      // Mocking fetch to fail or just expecting the real fetch to fail without valid auth in CI
-      await adapter.searchProducts('smartphone_inválido', {});
-    } catch (err: any) {
-      expect(err).toBeInstanceOf(AffiliateError);
-      expect(err.code).toBe('CONNECTION_ERROR');
+      const result = await adapter.searchProducts('smartphone_invalido', {});
+      // Deve retornar array nao vazio com o produto fallback
+      expect(Array.isArray(result)).toBe(true);
+      expect(result.length).toBeGreaterThan(0);
+      expect(result[0].affiliatePlatformId).toBe('mercado-livre');
+      expect(result[0].url).toContain('mercadolivre.com.br');
+    } finally {
+      globalThis.fetch = originalFetch;
     }
-  });
+  }, 10000);
+
 
   it('deve indicar ação manual ao gerar link de afiliado sem scraping', async () => {
     const result = await adapter.generateAffiliateLink('https://www.mercadolivre.com.br/p/MLB12345', { affiliateTag: 'ml_tag' });

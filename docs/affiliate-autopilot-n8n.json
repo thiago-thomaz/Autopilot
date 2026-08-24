@@ -16,18 +16,29 @@
       "name": "Cron Discover Deals",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.1,
-      "position": [ 200, 200 ]
+      "position": [
+        200,
+        200
+      ]
     },
     {
       "parameters": {
         "method": "POST",
-        "url": "={{ $env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000' }}/api/n8n/events",
+        "url": "={{ .NEXT_PUBLIC_APP_URL || 'http://localhost:3000' }}/api/n8n/events",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
             {
+              "name": "x-n8n-api-key",
+              "value": "={{ .N8N_API_KEY || 'autopilot-n8n-secret' }}"
+            },
+            {
               "name": "x-n8n-secret",
-              "value": "={{ $env.N8N_SECRET || 'autopilot-n8n-secret' }}"
+              "value": "={{ .N8N_API_KEY || 'autopilot-n8n-secret' }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
             }
           ]
         },
@@ -37,16 +48,25 @@
             {
               "name": "event",
               "value": "DISCOVER_DEALS"
+            },
+            {
+              "name": "source",
+              "value": "n8n-cron"
             }
           ]
         },
-        "options": {}
+        "options": {
+          "timeout": 30000
+        }
       },
       "id": "e2f1c8a1-3b7c-4a39-9d5a-1b4e5f6a7b8c",
       "name": "HTTP Discover",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.1,
-      "position": [ 400, 200 ]
+      "position": [
+        440,
+        200
+      ]
     },
     {
       "parameters": {
@@ -63,18 +83,29 @@
       "name": "Cron Publish",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.1,
-      "position": [ 200, 400 ]
+      "position": [
+        200,
+        420
+      ]
     },
     {
       "parameters": {
         "method": "POST",
-        "url": "={{ $env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000' }}/api/n8n/events",
+        "url": "={{ .NEXT_PUBLIC_APP_URL || 'http://localhost:3000' }}/api/n8n/events",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
             {
+              "name": "x-n8n-api-key",
+              "value": "={{ .N8N_API_KEY || 'autopilot-n8n-secret' }}"
+            },
+            {
               "name": "x-n8n-secret",
-              "value": "={{ $env.N8N_SECRET || 'autopilot-n8n-secret' }}"
+              "value": "={{ .N8N_API_KEY || 'autopilot-n8n-secret' }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
             }
           ]
         },
@@ -84,16 +115,25 @@
             {
               "name": "event",
               "value": "PROCESS_PUBLISH_QUEUE"
+            },
+            {
+              "name": "source",
+              "value": "n8n-cron"
             }
           ]
         },
-        "options": {}
+        "options": {
+          "timeout": 30000
+        }
       },
       "id": "e2f1c8a1-3b7c-4a39-9d5a-1b4e5f6a7b8d",
       "name": "HTTP Publish",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.1,
-      "position": [ 400, 400 ]
+      "position": [
+        440,
+        420
+      ]
     },
     {
       "parameters": {
@@ -110,18 +150,29 @@
       "name": "Cron Conversions",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.1,
-      "position": [ 200, 600 ]
+      "position": [
+        200,
+        640
+      ]
     },
     {
       "parameters": {
         "method": "POST",
-        "url": "={{ $env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000' }}/api/n8n/events",
+        "url": "={{ .NEXT_PUBLIC_APP_URL || 'http://localhost:3000' }}/api/n8n/events",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
             {
+              "name": "x-n8n-api-key",
+              "value": "={{ .N8N_API_KEY || 'autopilot-n8n-secret' }}"
+            },
+            {
               "name": "x-n8n-secret",
-              "value": "={{ $env.N8N_SECRET || 'autopilot-n8n-secret' }}"
+              "value": "={{ .N8N_API_KEY || 'autopilot-n8n-secret' }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
             }
           ]
         },
@@ -133,18 +184,27 @@
               "value": "IMPORT_CONVERSIONS"
             },
             {
+              "name": "source",
+              "value": "n8n-cron"
+            },
+            {
               "name": "payload",
               "value": "{\"data\":[]}"
             }
           ]
         },
-        "options": {}
+        "options": {
+          "timeout": 60000
+        }
       },
       "id": "e2f1c8a1-3b7c-4a39-9d5a-1b4e5f6a7b8e",
       "name": "HTTP Conversions",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.1,
-      "position": [ 400, 600 ]
+      "position": [
+        440,
+        640
+      ]
     },
     {
       "parameters": {
@@ -161,18 +221,29 @@
       "name": "Cron Cleanup",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.1,
-      "position": [ 200, 800 ]
+      "position": [
+        200,
+        860
+      ]
     },
     {
       "parameters": {
         "method": "POST",
-        "url": "={{ $env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000' }}/api/n8n/events",
+        "url": "={{ .NEXT_PUBLIC_APP_URL || 'http://localhost:3000' }}/api/n8n/events",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
             {
+              "name": "x-n8n-api-key",
+              "value": "={{ .N8N_API_KEY || 'autopilot-n8n-secret' }}"
+            },
+            {
               "name": "x-n8n-secret",
-              "value": "={{ $env.N8N_SECRET || 'autopilot-n8n-secret' }}"
+              "value": "={{ .N8N_API_KEY || 'autopilot-n8n-secret' }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
             }
           ]
         },
@@ -182,16 +253,25 @@
             {
               "name": "event",
               "value": "CLEANUP_EXPIRED_DATA"
+            },
+            {
+              "name": "source",
+              "value": "n8n-cron"
             }
           ]
         },
-        "options": {}
+        "options": {
+          "timeout": 120000
+        }
       },
       "id": "e2f1c8a1-3b7c-4a39-9d5a-1b4e5f6a7b8f",
       "name": "HTTP Cleanup",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.1,
-      "position": [ 400, 800 ]
+      "position": [
+        440,
+        860
+      ]
     }
   ],
   "connections": {
@@ -241,6 +321,15 @@
     }
   },
   "settings": {
-    "executionOrder": "v1"
-  }
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "staticData": null,
+  "tags": [
+    "autopilot",
+    "affiliate",
+    "production"
+  ],
+  "pinData": {}
 }
