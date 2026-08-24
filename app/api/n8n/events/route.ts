@@ -90,7 +90,7 @@ export async function POST(req: NextRequest) {
             where: { createdAt: { lt: sevenDaysAgo } }
           });
           const deletedProducts = await prisma.product.deleteMany({
-            where: { status: ProductStatus.EXPIRED, updatedAt: { lt: sevenDaysAgo } }
+            where: { status: ProductStatus.ARCHIVED, updatedAt: { lt: sevenDaysAgo } }
           });
           resultData = { logsDeleted: deletedLogs.count, productsDeleted: deletedProducts.count };
           Logger.info('MAINTENANCE', 'CLEANUP_SUCCESS', `Limpeza concluída`, resultData);
