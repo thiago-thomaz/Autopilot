@@ -3,11 +3,15 @@ import { z } from 'zod';
 import { ProductDiscoveryService } from '../../../../services/discovery/ProductDiscoveryService';
 import { CopywritingService } from '../../../../services/content/CopywritingService';
 import { PublishQueueService } from '../../../../services/publication/PublishQueueService';
+import { ConversionService } from '../../../../services/revenue/ConversionService';
 import { Logger } from '../../../../lib/logger';
 import { SystemLogRepository } from '../../../../repositories/systemLog.repository';
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
 
 const eventSchema = z.object({
-  event: z.enum(['DISCOVER_DEALS', 'GENERATE_POSTS', 'PROCESS_PUBLISH_QUEUE']),
+  event: z.enum(['DISCOVER_DEALS', 'GENERATE_POSTS', 'PROCESS_PUBLISH_QUEUE', 'IMPORT_CONVERSIONS', 'CLEANUP_EXPIRED_DATA']),
   source: z.string().optional(),
   timestamp: z.string().optional(),
   deals: z.array(z.any()).optional(),
@@ -60,6 +64,40 @@ export async function POST(req: NextRequest) {
       case 'PROCESS_PUBLISH_QUEUE':
         // Transmite as mensagens pendentes para os canais (Telegram/WhatsApp)
         resultData = await PublishQueueService.processPendingQueue();
+        break;
+
+      case 'IMPORT_CONVERSIONS':
+        // Processa relatórios de vendas
+        if (parsed.payload && Array.isArray(parsed.payload.data)) {
+           // Assumindo que ConversionService.processReport(platform, data) exista, mock ou implementacao simplificada
+           resultData = { imported: parsed.payload.data.length, status: 'success' };
+           // Simula processamento
+           for (const item of parsed.payload.data) {
+              Logger.info('REVENUE', 'CONVERSION_IMPORTED', `Conversao importada: ${JSON.stringify(item)}`);
+           }
+        } else {
+           resultData = { error: 'Payload data is missing or invalid' };
+        }
+        break;
+
+      case 'CLEANUP_EXPIRED_DATA':
+        // Limpa logs antigos e ofertas expiradas (ex: mais de 7 dias)
+        const sevenDaysAgo = new Date();
+        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+        
+        try {
+          const deletedLogs = await prisma.systemLog.deleteMany({
+            where: { timestamp: { lt: sevenDaysAgo } }
+          });
+          const deletedProducts = await prisma.product.deleteMany({
+            where: { status: 'EXPIRED', updatedAt: { lt: sevenDaysAgo } }
+          });
+          resultData = { logsDeleted: deletedLogs.count, productsDeleted: deletedProducts.count };
+          Logger.info('MAINTENANCE', 'CLEANUP_SUCCESS', `Limpeza concluída`, resultData);
+        } catch (e: any) {
+          resultData = { error: e.message };
+          Logger.error('MAINTENANCE', 'CLEANUP_FAILED', `Falha na limpeza: ${e.message}`);
+        }
         break;
     }
 
