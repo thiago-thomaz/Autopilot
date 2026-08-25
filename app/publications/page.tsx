@@ -50,7 +50,16 @@ export default function PublicationsPage() {
   const handleProcessQueue = async () => {
     setProcessing(true);
     try {
-      await fetch('/api/publications/1/publish', { method: 'POST' });
+      await fetch('/api/n8n/events', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-n8n-api-key': 'n8n_secret_autopilot_key_2026'
+        },
+        body: JSON.stringify({
+          event: 'PROCESS_PUBLISH_QUEUE'
+        })
+      });
       await loadPublications();
     } catch (err) {
       console.error('Erro ao processar fila:', err);
