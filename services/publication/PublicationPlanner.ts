@@ -28,7 +28,27 @@ export class PublicationPlanner {
       throw new PublicationEngineError(`Pacote de conteúdo deve estar com status READY_FOR_PUBLICATION para agendamento.`, 'INVALID_PACKAGE_STATUS', 400);
     }
 
-    const defaultChannels: OmnichannelChannel[] = ['INSTAGRAM', 'TELEGRAM', 'WHATSAPP', 'OWN_WEBSITE'];
+    const defaultChannels: OmnichannelChannel[] = [
+      'TELEGRAM',
+      'WHATSAPP',
+      'INSTAGRAM',
+      'FACEBOOK_PAGES',
+      'TIKTOK',
+      'YOUTUBE',
+      'PINTEREST',
+      'X',
+      'THREADS',
+      'LINKEDIN_PAGES',
+      'REDDIT',
+      'DISCORD',
+      'SNAPCHAT',
+      'GOOGLE_BUSINESS_PROFILE',
+      'BLOG',
+      'EMAIL',
+      'WEB_PUSH',
+      'RSS',
+      'OWN_WEBSITE',
+    ];
     const channels = request.channels && request.channels.length > 0 ? request.channels : defaultChannels;
 
     const defaultCountries = ['BR', 'US'];

@@ -51,7 +51,6 @@ export class CopywritingService {
           });
           await PublicationPlanner.createPlan({
             contentPackageId: pkgRes.package.id,
-            channels: ['TELEGRAM'], // Override default to target Telegram specifically
             targetCountries: ['BR']
           });
         } catch(e: any) {
