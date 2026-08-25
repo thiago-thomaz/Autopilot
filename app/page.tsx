@@ -10,6 +10,7 @@ import {
   ShoppingBag,
   Coins,
   DollarSign,
+  Zap,
   AlertTriangle
 } from 'lucide-react';
 import { SkeletonCard } from '@/components/SkeletonCard';
@@ -95,18 +96,22 @@ export default function DashboardPage() {
 
   return (
     <div className="p-8 max-w-7xl mx-auto space-y-8">
-      {/* Banner Informativo do Módulo 1 */}
-      <div className="bg-gradient-to-r from-emerald-950/40 via-gray-900 to-gray-900 border border-emerald-500/20 rounded-2xl p-6 shadow-lg flex items-start gap-4">
+      {/* Banner Informativo de Autonomia 100% */}
+      <div className="bg-gradient-to-r from-emerald-950/40 via-gray-900 to-gray-900 border border-emerald-500/30 rounded-2xl p-6 shadow-lg flex items-start gap-4">
         <div className="p-3 bg-emerald-500/10 rounded-xl border border-emerald-500/30 text-emerald-400 shrink-0">
-          <AlertTriangle className="w-6 h-6" />
+          <Zap className="w-6 h-6" />
         </div>
         <div>
-          <h2 className="text-base font-bold text-gray-100">
-            Fundação da Plataforma (Módulo 1)
-          </h2>
+          <div className="flex items-center gap-2">
+            <h2 className="text-base font-bold text-gray-100">
+              Operação 100% Autônoma (Piloto Automático Ativo)
+            </h2>
+            <span className="bg-emerald-500/20 text-emerald-400 text-[10px] font-bold px-2 py-0.5 rounded border border-emerald-500/30">
+              PRODUÇÃO VIVA
+            </span>
+          </div>
           <p className="text-xs text-gray-300 mt-1 leading-relaxed">
-            Infraestrutura base modular, segura e preparada para futuras automações via n8n e integrações com programas de afiliados.
-            Neste módulo, o modo de operação é estritamente <strong className="text-emerald-400">MANUAL</strong> e o disparo automático está desativado (<code className="text-amber-400">ENABLE_AUTOMATION=false</code>).
+            O ecossistema está operando de forma autônoma: Descoberta de ofertas, ranqueamento de oportunidades, geração de copy persuasiva e despacho multi-canal no Telegram/WhatsApp ativados 24/7 via n8n e rotinas automáticas de alta conversão.
           </p>
         </div>
       </div>

@@ -1,6 +1,6 @@
 'use client';
 
-import { Shield, ShieldAlert, Cpu } from 'lucide-react';
+import { Shield, ShieldAlert, ShieldCheck, Cpu } from 'lucide-react';
 
 export function Navbar() {
   return (
@@ -13,10 +13,10 @@ export function Navbar() {
       </div>
 
       <div className="flex items-center gap-4 text-xs">
-        {/* Compliance Guard Indicator */}
+        {/* Autopilot Active Indicator */}
         <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
           <Shield className="w-3.5 h-3.5" />
-          <span>Compliance Ativo</span>
+          <span>Autopilot 100% Autônomo</span>
         </div>
 
         {/* n8n Status Indicator */}
@@ -25,10 +25,10 @@ export function Navbar() {
           <span>n8n Webhook: /api/n8n/events</span>
         </div>
 
-        {/* Safe Mode Indicator */}
-        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500/10 text-amber-400 border border-amber-500/20">
-          <ShieldAlert className="w-3.5 h-3.5" />
-          <span>Sem Integrações Reais</span>
+        {/* Real Integrations Indicator */}
+        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+          <ShieldCheck className="w-3.5 h-3.5" />
+          <span>Telegram & Marketplaces Conectados</span>
         </div>
       </div>
     </header>

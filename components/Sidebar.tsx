@@ -61,7 +61,7 @@ export function Sidebar() {
         <div>
           <h1 className="font-bold text-sm text-gray-100 tracking-wide">Affiliate Autopilot</h1>
           <span className="text-[10px] uppercase font-semibold tracking-wider text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/20">
-            Módulo 1
+            PRODUÇÃO AUTÔNOMA
           </span>
         </div>
       </div>
@@ -94,13 +94,13 @@ export function Sidebar() {
         <div className="flex items-center justify-between text-xs text-gray-400">
           <span>Modo de Operação:</span>
           <span className="font-mono text-emerald-400 font-semibold bg-emerald-950/50 px-2 py-0.5 rounded border border-emerald-800/40">
-            MANUAL
+            AUTOMÁTICO
           </span>
         </div>
         <div className="mt-2 flex items-center justify-between text-xs text-gray-400">
           <span>Automação:</span>
-          <span className="font-mono text-amber-400 font-semibold bg-amber-950/50 px-2 py-0.5 rounded border border-amber-800/40">
-            OFF
+          <span className="font-mono text-emerald-400 font-semibold bg-emerald-950/50 px-2 py-0.5 rounded border border-emerald-800/40">
+            ON (100%)
           </span>
         </div>
       </div>
