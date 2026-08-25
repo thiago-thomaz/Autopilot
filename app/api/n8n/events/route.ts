@@ -54,6 +54,19 @@ export async function POST(req: NextRequest) {
           ? parsed.payload
           : { platform: 'amazon-brasil', query: 'oferta', limit: 10 };
         resultData = await ProductDiscoveryService.discoverProducts(discoveryPayload);
+        
+        // Se requested ou modo 100% autônomo, gera posts e despacha fila automaticamente
+        if (parsed.payload?.autoPublish || parsed.source === 'n8n-cron') {
+          if (resultData && resultData.products && resultData.products.length > 0) {
+            const genResult = await CopywritingService.generatePostsForPendingDeals(resultData.products);
+            const pubResult = await PublishQueueService.processPendingQueue();
+            resultData = {
+              discovery: resultData,
+              generation: genResult,
+              publication: pubResult
+            };
+          }
+        }
         break;
 
       case 'GENERATE_POSTS':
