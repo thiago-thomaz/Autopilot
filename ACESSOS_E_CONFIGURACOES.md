@@ -1,12 +1,30 @@
-# 🔐 Acessos e Configurações do Projeto - Affiliate Autopilot (FINAL)
+# 🔐 Acessos e Configurações do Projeto - Affiliate Autopilot (100% Autônomo e Nativo)
 
-Este documento contém a documentação definitiva da operação 100% autônoma (Fases P0 a P4). Guarde este arquivo em segurança, pois ele contém as chaves, parâmetros e a arquitetura completa para operar o sistema 24/7.
+Este documento contém a documentação definitiva da operação 100% autônoma nativa (sem qualquer dependência de n8n). O sistema orquestra nativamente no processo Node.js o agendamento de cron, descoberta de produtos, geração de cópias, despacho de publicações, réguas de cadência (T-24h, T-6h) e reconciliação financeira.
 
 ## 🌍 Endereços e Domínios
 - **Servidor Principal (Coolify):** `http://72.62.13.62:8000`
 - **Dashboard / API Next.js (Produção):** `https://cop.projetosunion.cloud`
 
-## 🤖 Canais de Publicação (Roteamento Multi-Canal P4)
+## 🤖 Motor Autônomo Nativo (InternalAutonomousEngine)
+- **Tecnologia:** Motor in-process Node.js / TypeScript com suporte a `instrumentationHook` no boot e worker daemon (`scripts/autonomous-daemon.ts`).
+- **Zero Dependências Externas:** O sistema não depende de n8n, serviços de terceiros ou cron de sistema operacional para suas automações vitais.
+- **Loops Automáticos Nativos:**
+  1. `DISCOVER_DEALS` (a cada 3 horas): busca ofertas na Amazon Brasil e Mercado Livre, rankeia com algoritmo determinístico e gera copies.
+  2. `PROCESS_PUBLISH_QUEUE` (a cada 2 minutos): despacha posts pendentes para canais configurados (Telegram / WhatsApp).
+  3. `SCHEDULED_REMINDERS` (a cada 5 minutos): avalia réguas de comunicação (T-24h, T-6h) e envia publicações agendadas.
+  4. `RUN_DECISION_CYCLE` (a cada 1 hora): avalia métricas de risco, orçamento e políticas autônomas.
+  5. `CLEANUP_EXPIRED_DATA` (a cada 24 horas): faxina de logs e produtos arquivados.
+
+## 🔌 APIs Internas Nativas
+- **Status do Motor:** `GET https://cop.projetosunion.cloud/api/automation/status`
+- **Disparo Manual / Webhook Nativo:** `POST https://cop.projetosunion.cloud/api/automation/run`
+  - Cabeçalho: `x-automation-api-key: [INTERNAL_AUTOMATION_KEY]`
+  - Body: `{"job": "DISCOVER_DEALS" | "GENERATE_POSTS" | "PROCESS_PUBLISH_QUEUE" | "SCHEDULED_REMINDERS" | "FULL_CYCLE"}`
+- **Controle do Agendador:** `POST https://cop.projetosunion.cloud/api/automation/scheduler`
+  - Body: `{"action": "START" | "STOP" | "STATUS"}`
+
+## 🤖 Canais de Publicação (Roteamento Multi-Canal)
 
 ### Telegram
 - **Bot Token:** `8807320383:AAGF3ZcEgCM_I--_XlDXPgWcLAw0EYoWefQ`
@@ -15,16 +33,6 @@ Este documento contém a documentação definitiva da operação 100% autônoma 
 ### WhatsApp (Z-API / Evolution API)
 - A aplicação substitui Markdown padrão de negrito `**` por `*` automaticamente no módulo `PublicationPlanner` de forma segura sem corromper links.
 - O adaptador de WhatsApp (`WhatsAppActionAdapter.ts`) despacha a requisição HTTP e trata *Opt-out* via palavras-chave (ex: STOP, SAIR).
-
-## 🔌 API Interna e Webhooks (N8N)
-- **Base Endpoint:** `https://cop.projetosunion.cloud/api/n8n/events`
-- **Chave de API (Secret Key):** `n8n_secret_autopilot_key_2026`
-- **Autenticação:** Para chamar a API remotamente via N8N ou CronTabs de VPS, utilize o cabeçalho HTTP obrigatório:
-  - `x-n8n-api-key: n8n_secret_autopilot_key_2026`
-- **Eventos Suportados no Payload (`POST` JSON):**
-  - `{"event": "DISCOVER_DEALS"}` -> Dispara a busca de produtos na Amazon/ML.
-  - `{"event": "GENERATE_POSTS"}` -> Dispara geração de copy e aplica o ranking matemático de priorização.
-  - `{"event": "PROCESS_PUBLISH_QUEUE"}` -> Dispara o fan-out da postagem para Telegram/WhatsApp baseada nos grupos associados.
 
 ## 🎯 Rota de Tracking e Analytics (Anti-Bot e Idempotência)
 - **URL Base Oficial de Redirecionamento:** `https://cop.projetosunion.cloud/api/r?p=[PUBLICATION_ID]`
@@ -45,17 +53,17 @@ Este documento contém a documentação definitiva da operação 100% autônoma 
 - **Banco:** `affiliate_autopilot`
 - **Schema:** `public`
 - **Conexão Local/Docker:** `postgresql://postgres:postgres@localhost:5432/affiliate_autopilot?schema=public`
-- **Performance (P4):** As tabelas críticas possuem índices específicos (ex: `@@index([clickEventId])` e `@@index([convertedAt])`) para suportar a engine assíncrona do *Feedback Loop* (onde pesos do ranking são recalculados baseados nas vendas confirmadas dos últimos 7 dias) sem risco de *Table Scans*.
 
-## ⚙️ Variáveis de Ambiente (.env) Críticas
+## ⚙️ Variáveis de Ambiente Críticas
 - `JWT_SECRET=super-secret-key-change-in-production`
-- `N8N_API_KEY=n8n_secret_autopilot_key_2026`
-- `AFFILIATE_MOCK_MODE=false` (Pronto para o mundo real).
-- `MOCK_LLM=false` (A aplicação P4 consolidou as lógicas usando matemática pura determinística de priorização, mantendo o custo de inteligência de LLMs em ZERO na operação autônoma vital).
+- `INTERNAL_AUTOMATION_KEY=autopilot-internal-secret-2026`
+- `ENABLE_AUTOMATION=true`
+- `AFFILIATE_MOCK_MODE=false` (Modo produção real)
+- `MOCK_LLM=false` (Engine determinística inteligente de custo zero)
 - `OPERATION_MODE=AUTOMATICO`
 
 ## 🛠️ Comandos de Saúde (Health) e Manutenção
 - **Validar Database Model:** `npx prisma validate`
-- **Rodar Suíte QA (127 Testes de Proteção):** `npm run test`
+- **Rodar Suíte QA (133 Testes de Proteção):** `npm run test`
 - **Verificação Estática TS (Typings):** `npx tsc --noEmit`
 - **Build Core de Produção:** `npm run build`
