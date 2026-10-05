@@ -12,6 +12,7 @@ export class RateLimitService {
         where: {
           channel: channel as any,
           accountId: accountId || undefined,
+          status: 'PUBLISHED' as any,
           createdAt: { gte: hourAgo },
         },
       });
