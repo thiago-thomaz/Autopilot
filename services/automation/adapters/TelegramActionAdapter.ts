@@ -22,13 +22,39 @@ export class TelegramActionAdapter extends PlatformActionAdapter {
         ? { chat_id: chatId, photo: mediaUrl, caption, parse_mode: 'HTML' }
         : { chat_id: chatId, text: caption, parse_mode: 'HTML' };
 
-      const response = await fetch(endpoint, {
+      let response = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
 
-      const data = await response.json();
+      let data = await response.json();
+      
+      // Fallback 1: se falhar por erro de parsing HTML (ex: caracteres especiais no texto/título), retenta sem parse_mode
+      if (!data.ok && (data.description?.includes("can't parse entities") || data.description?.includes("entity"))) {
+        const plainPayload = mediaUrl
+          ? { chat_id: chatId, photo: mediaUrl, caption }
+          : { chat_id: chatId, text: caption };
+
+        response = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(plainPayload),
+        });
+        data = await response.json();
+      }
+
+      // Fallback 2: se falhar por erro na imagem/photo, envia apenas texto para nunca perder a publicação
+      if (!data.ok && mediaUrl) {
+        const textEndpoint = `https://api.telegram.org/bot${botToken}/sendMessage`;
+        response = await fetch(textEndpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ chat_id: chatId, text: caption }),
+        });
+        data = await response.json();
+      }
+
       if (!data.ok) {
         throw new Error(data.description || 'Falha no envio da mensagem ao Telegram.');
       }

@@ -43,11 +43,16 @@ export class ProductSearchService {
     }
 
     if (!account) {
+      const platformName = platformSlug === 'mercado-livre' ? 'Mercado Livre' : 'Amazon Brasil';
+      const fallbackCreds: Record<string, string> = platformSlug === 'mercado-livre'
+        ? { affiliateTag: process.env.MERCADO_LIVRE_AFFILIATE_TAG || 'THOMAZ85' }
+        : { partnerTag: process.env.AMAZON_ASSOCIATE_TAG || 'thomazpromos-20' };
+
       account = {
         id: `account_${platformSlug}`,
         affiliatePlatformId: platformSlug,
-        affiliatePlatform: { slug: platformSlug, name: 'Amazon Brasil' },
-        credentialsEncrypted: CredentialVault.setCredential('amazon-brasil', { partnerTag: 'thomazpromos-20' }),
+        affiliatePlatform: { slug: platformSlug, name: platformName },
+        credentialsEncrypted: CredentialVault.setCredential(platformSlug, fallbackCreds),
       };
     }
 

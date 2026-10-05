@@ -88,19 +88,37 @@ export class TrackingEngine {
 
       Logger.info('TRACKING', 'CLICK_REGISTERED', `Click registered successfully`, { publicationId, productId: product.id, clickId });
 
-      // 4. Return the final destination URL (Affiliate URL)
-      // Inject subId/ascsubtag for tracking
-      let finalUrl = product.url;
+      // 4. Return the final destination URL (Affiliate URL) com blindagem anti-404 e tags de afiliado
+      let finalUrl = product.url || '';
       try {
-        const urlObj = new URL(finalUrl);
         if (finalUrl.includes('amazon')) {
+          const partnerTag = process.env.AMAZON_PARTNER_TAG || process.env.NEXT_PUBLIC_AMAZON_PARTNER_TAG || 'thomazpromos-20';
+
+          // PROTEÇÃO ANTI-404 AMAZON: Se o produto tiver ASIN antigo/quebrado ou não responder diretamente, faz busca com a tag oficial
+          const deadAsins = ['B07Z49V9LL', 'B07XQ8P6S1', 'B075F38KMD', 'B07MSLFF61', 'B083321VT8', 'B075FR8X3P', 'B08N5NKBRP', 'B076VZLN7D', 'B0912K68L1', 'B07Y5VSZYV', 'B08F9N12KL', 'B07Q8G7K5D', 'B09B2CZPSS', 'B08N5WRWNW', 'B0B8K3ZSK6', 'B0C78Q1G58', 'B08X5H8D9K'];
+          const isDeadAsin = deadAsins.some((d) => finalUrl.includes(d));
+
+          if (isDeadAsin && product.title) {
+            finalUrl = `https://www.amazon.com.br/s?k=${encodeURIComponent(product.title)}&tag=${partnerTag}&ascsubtag=${clickId}`;
+          } else {
+            const urlObj = new URL(finalUrl);
+            urlObj.searchParams.set('tag', partnerTag);
             urlObj.searchParams.set('ascsubtag', clickId);
+            finalUrl = urlObj.toString();
+          }
         } else if (finalUrl.includes('mercadolivre') || finalUrl.includes('mlb')) {
+          const mlTag = process.env.MERCADO_LIVRE_AFFILIATE_TAG || 'THOMAZ85';
+          if (!finalUrl.startsWith('http')) {
+            finalUrl = `https://lista.mercadolivre.com.br/${encodeURIComponent(product.title || 'ofertas')}?matt_word=${mlTag}&subid=${clickId}`;
+          } else {
+            const urlObj = new URL(finalUrl);
+            urlObj.searchParams.set('matt_word', mlTag);
             urlObj.searchParams.set('subid', clickId);
+            finalUrl = urlObj.toString();
+          }
         }
-        finalUrl = urlObj.toString();
       } catch (e) {
-        Logger.error('TRACKING', 'URL_PARSE_ERROR', 'Failed to append clickId', { finalUrl });
+        Logger.error('TRACKING', 'URL_PARSE_ERROR', 'Failed to append affiliate tags/clickId', { finalUrl });
       }
 
       return finalUrl;

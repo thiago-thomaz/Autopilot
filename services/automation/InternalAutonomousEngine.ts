@@ -184,22 +184,54 @@ export class InternalAutonomousEngine {
 
       switch (job) {
         case 'DISCOVER_DEALS': {
-          const discoveryParams = payload && Object.keys(payload).length > 0
-            ? payload
-            : { platform: 'amazon-brasil', query: 'oferta', limit: 10 };
+          const primaryPlatform = payload?.platform || 'amazon-brasil';
+          const secondaryPlatform = primaryPlatform === 'amazon-brasil' ? 'mercado-livre' : 'amazon-brasil';
 
-          resultData = await ProductDiscoveryService.discoverProducts(discoveryParams);
+          // Executa descoberta na plataforma principal
+          const primaryResult = await ProductDiscoveryService.discoverProducts({
+            platform: primaryPlatform,
+            query: payload?.query || 'oferta',
+            limit: payload?.limit || 10,
+            ...(payload?.category ? { category: payload.category } : {}),
+            ...(payload?.brand ? { brand: payload.brand } : {}),
+          });
 
-          // Se produtos forem importados, gerar cópias e despachar automaticamente
-          if (resultData && resultData.products && resultData.products.length > 0) {
-            const genResult = await CopywritingService.generatePostsForPendingDeals(resultData.products);
-            const pubResult = await PublishQueueService.processPendingQueue();
-            resultData = {
-              discovery: resultData,
-              generation: genResult,
-              publication: pubResult,
-            };
+          const allProducts = [...(primaryResult?.products || [])];
+
+          // Se a plataforma não foi restrita no payload, descobre também na plataforma complementar
+          if (!payload?.platform) {
+            try {
+              const secondaryResult = await ProductDiscoveryService.discoverProducts({
+                platform: secondaryPlatform,
+                query: payload?.query || 'oferta',
+                limit: payload?.limit || 10,
+              });
+              if (secondaryResult?.products) {
+                allProducts.push(...secondaryResult.products);
+              }
+            } catch (secErr: any) {
+              Logger.warn('AUTONOMOUS_ENGINE', 'SECONDARY_DISCOVERY_NOTICE', `Descoberta complementar (${secondaryPlatform}): ${secErr.message}`);
+            }
           }
+
+          let genResult = null;
+          let pubResult = null;
+
+          // Se produtos forem encontrados, gerar cópias e despachar automaticamente
+          if (allProducts.length > 0) {
+            genResult = await CopywritingService.generatePostsForPendingDeals(allProducts);
+            pubResult = await PublishQueueService.processPendingQueue();
+          }
+
+          resultData = {
+            discovery: {
+              ...primaryResult,
+              success: true,
+              totalProductsDiscovered: allProducts.length,
+            },
+            generation: genResult,
+            publication: pubResult,
+          };
           break;
         }
 

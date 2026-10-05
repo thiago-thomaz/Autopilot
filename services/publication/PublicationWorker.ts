@@ -114,21 +114,27 @@ export class PublicationWorker {
           const adapter = PublicationAdapterFactory.getAdapter(pub.channel);
 
           const trackingUrl = TrackingEngine.generateTrackingUrl(pub.id);
-          const originalUrl = pub.contentPackage.product.url;
+          const originalUrl = pub.contentPackage?.product?.url;
           
-          let body = pub.contentPackage.caption;
-          // Replace original URL with Tracking URL in body
-          if (body && originalUrl) {
-            // using string split/join or replaceAll for safety
+          let body = (pub.publicationPayload as any)?.body || pub.contentPackage?.caption || pub.contentPackage?.title || '';
+          
+          // Substituir URL original ou qualquer link direto de marketplace pela trackingUrl oficial
+          const marketplaceRegex = /https?:\/\/(www\.)?(amazon\.com\.br|mercadolivre\.com\.br|lista\.mercadolivre\.com\.br)[^\s)\]]+/gi;
+          if (marketplaceRegex.test(body)) {
+            body = body.replace(marketplaceRegex, trackingUrl);
+          } else if (originalUrl && body.includes(originalUrl)) {
             body = body.split(originalUrl).join(trackingUrl);
+          } else if (!body.includes(trackingUrl)) {
+            body += `\n\n🛒 Compre aqui com desconto:\n${trackingUrl}`;
           }
 
-          const payload = (pub.publicationPayload as any) || {
-            title: pub.contentPackage.title,
+          const payload = {
+            title: pub.contentPackage?.title || 'Oferta Exclusiva',
             body: body,
+            mediaUrls: pub.contentPackage?.product?.imageUrl ? [pub.contentPackage.product.imageUrl] : undefined,
             trackingUrl: trackingUrl,
-            affiliateDisclosure: pub.contentPackage.affiliateDisclosure || '#afiliado',
-            cta: pub.contentPackage.cta,
+            affiliateDisclosure: pub.contentPackage?.affiliateDisclosure || '#afiliado',
+            cta: pub.contentPackage?.cta || 'Aproveite enquanto durar o estoque!',
           };
 
           const isDryRun = await SystemConfigService.isDryRun();
