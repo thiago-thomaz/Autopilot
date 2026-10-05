@@ -80,10 +80,13 @@ export class InternalAutonomousEngine {
   }
 
   public static getInstance(): InternalAutonomousEngine {
-    if (!InternalAutonomousEngine.instance) {
-      InternalAutonomousEngine.instance = new InternalAutonomousEngine();
+    // globalThis garante a mesma instância entre instrumentation.ts e as rotas de API (bundles distintos)
+    const g = globalThis as any;
+    if (!g.__autopilotEngine) {
+      g.__autopilotEngine = new InternalAutonomousEngine();
     }
-    return InternalAutonomousEngine.instance;
+    InternalAutonomousEngine.instance = g.__autopilotEngine;
+    return g.__autopilotEngine;
   }
 
   /**
@@ -219,7 +222,10 @@ export class InternalAutonomousEngine {
 
           // Se produtos forem encontrados, gerar cópias e despachar automaticamente
           if (allProducts.length > 0) {
-            genResult = await CopywritingService.generatePostsForPendingDeals(allProducts);
+            genResult = await CopywritingService.generatePostsForPendingDeals(allProducts, {
+              immediate: !!payload?.immediate,
+              channels: Array.isArray(payload?.channels) ? payload.channels : undefined,
+            });
             pubResult = await PublishQueueService.processPendingQueue();
           }
 

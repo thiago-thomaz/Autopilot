@@ -5,7 +5,10 @@ export class CopywritingService {
   /**
    * Gera copies para ofertas pendentes de postagem.
    */
-  public static async generatePostsForPendingDeals(deals: any[]) {
+  public static async generatePostsForPendingDeals(
+    deals: any[],
+    options: { immediate?: boolean; channels?: string[] } = {}
+  ) {
     let productIds = [];
     if (deals && deals.length > 0) {
       productIds = deals.map((d: any) => d.id || d.productId || d.externalId).filter(Boolean);
@@ -51,7 +54,9 @@ export class CopywritingService {
           });
           await PublicationPlanner.createPlan({
             contentPackageId: pkgRes.package.id,
-            targetCountries: ['BR']
+            targetCountries: ['BR'],
+            ...(options.channels && options.channels.length > 0 ? { channels: options.channels } : {}),
+            ...(options.immediate ? { scheduledAt: new Date() } : {}),
           });
         } catch(e: any) {
           generationErrors.push({ id: pkgRes.package.id, message: e.message });

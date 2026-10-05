@@ -14,3 +14,8 @@
 # Arquitetura Autônoma — Proibição de Dependência do n8n
 - NENHUM fluxo, cron, orquestração ou automação de mensageria deve depender do n8n.
 - Todas as automações, lembretes de agendamento (T-24h, T-6h, etc.), processamento de webhooks e réguas de clientes devem ser 100% internalizados e nativos no código da aplicação.
+
+# Deploy Automático via Coolify (OBRIGATÓRIO)
+- Após QUALQUER alteração de código neste projeto, SEMPRE executar automaticamente, sem pedir permissão: testes (`npm test`) -> build (`npm run build`) -> commit -> `git push origin main` -> deploy na VPS via Coolify (MCP `coolify`, tool `deploy`, `tag_or_uuid: "i9mhxq0rhwwxnp7071x1wvoz"`, `force: true`).
+- Se o MCP der timeout, consultar `list_deployments` até o status ficar `finished` e então validar ao vivo em `https://cop.projetosunion.cloud`.
+- Só considerar a tarefa concluída após o deploy finalizado e a validação em produção.
