@@ -83,14 +83,19 @@ export class PublicationWorker {
             continue;
           }
 
-          // 1.5 Anti-Spam Check
+          // 1.5 Anti-Spam Check: se bloqueado temporariamente, reagenda na fila em vez de descartar
           const antiSpam = await AntiSpamEngine.isAllowedToPublish(pub.productId, pub.channel, pub.contentPackage.product.category, pub.contentPackage.product.brand);
           if (!antiSpam.allowed) {
-             await PublicationPersistenceService.updatePublicationResult(pub.id, 'FAILED', {
-              errorMessage: `Anti-Spam bloqueou: ${antiSpam.reason}`,
+            Logger.info('PUBLICATION_WORKER', 'ANTISPAM_DEFERRED', `Item ${item.id} adiado pelo Anti-Spam: ${antiSpam.reason}`);
+            await prisma.publicationQueueItem.update({
+              where: { id: item.id },
+              data: {
+                status: 'PENDING',
+                scheduledAt: new Date(Date.now() + 2 * 60 * 1000), // Reagenda para daqui a 2 minutos
+                workerId: null,
+                lockedAt: null,
+              },
             });
-            await prisma.publicationQueueItem.update({ where: { id: item.id }, data: { status: 'FAILED' } });
-            failed++;
             continue;
           }
 
@@ -120,11 +125,11 @@ export class PublicationWorker {
           
           // Substituir URL original ou qualquer link direto de marketplace pela trackingUrl oficial
           const marketplaceRegex = /https?:\/\/(www\.)?(amazon\.com\.br|mercadolivre\.com\.br|lista\.mercadolivre\.com\.br)[^\s)\]]+/gi;
-          if (marketplaceRegex.test(body)) {
-            body = body.replace(marketplaceRegex, trackingUrl);
-          } else if (originalUrl && body.includes(originalUrl)) {
+          body = body.replace(marketplaceRegex, trackingUrl);
+          if (originalUrl && body.includes(originalUrl)) {
             body = body.split(originalUrl).join(trackingUrl);
-          } else if (!body.includes(trackingUrl)) {
+          }
+          if (!body.includes(trackingUrl)) {
             body += `\n\n🛒 Compre aqui com desconto:\n${trackingUrl}`;
           }
 

@@ -10,7 +10,7 @@ export class TrackingEngine {
    * This link will point to our internal /api/r redirect server.
    */
   static generateTrackingUrl(publicationId: string): string {
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    const baseUrl = process.env.APP_URL || process.env.NEXT_PUBLIC_APP_URL || 'https://cop.projetosunion.cloud';
     return `${baseUrl}/api/r?p=${publicationId}`;
   }
 
@@ -40,17 +40,10 @@ export class TrackingEngine {
         throw new Error('Product not found');
       }
 
-      // 2. Validate the offer (Is it still active? Did we pull it?)
-      // Basic check: if product was rejected later, block it.
+      // 2. Validate the offer (only block if product is explicitly rejected or archived)
       if (product.status === 'REJECTED') {
         Logger.warn('TRACKING', 'REJECTED', `Click on REJECTED product blocked`, { productId: product.id });
         throw new Error('This offer is no longer available (rejected).');
-      }
-
-      // Check if publication is valid
-      if (publication.status === 'FAILED' || publication.status === 'CANCELLED' || publication.status === 'EXPIRED') {
-        Logger.warn('TRACKING', 'INVALID_STATUS', `Click on invalid publication`, { publicationId, status: publication.status });
-        throw new Error('This offer is expired or invalid.');
       }
 
       // 3. Register the Click Event (Idempotent by Hash to prevent double counting from bots in a short window)
