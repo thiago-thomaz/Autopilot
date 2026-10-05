@@ -16,7 +16,6 @@
 
 # Misc
 .DS_Store
-*.pem
 
 # Debug / Local Logs
 npm-debug.log*
@@ -28,9 +27,24 @@ logs
 
 # Environment variables & secrets
 .env
+.env.*
 .env*.local
+.env.local
+.env.development.local
+.env.test.local
 .env.production
+.env.production.local
 .env.staging
+!.env.example
+!.env.production.example
+
+# Certificates & keys
+*.pem
+*.key
+*.cert
+*.crt
+*.pfx
+*.p12
 
 # Vercel
 .vercel
